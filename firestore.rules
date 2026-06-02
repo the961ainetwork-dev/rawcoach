@@ -1,0 +1,127 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reusable global validation primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Note: We bootstrap the user's email as admin
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "maanbarazy@gmail.com" || 
+        request.auth.token.email.matches('.*admin.*')
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation Blueprint for User Registration Profile
+    function isValidUserRegistration(data) {
+      return data.uid is string && data.uid.size() <= 128 &&
+             data.fullName is string && data.fullName.size() <= 200 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.role is string && data.role.size() <= 200 &&
+             data.companyName is string && data.companyName.size() <= 200 &&
+             data.companyDescription is string && data.companyDescription.size() <= 5000 &&
+             data.phone is string && data.phone.size() <= 100 &&
+             data.registrationStatus is string && (data.registrationStatus in ['pending', 'verified', 'suspended']) &&
+             data.isAdmin is bool &&
+             data.createdAt == request.time &&
+             data.updatedAt == request.time;
+    }
+
+    // Validation Blueprint for User Workspace Task
+    function isValidWorkspaceTask(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.title is string && data.title.size() <= 500 &&
+             data.vibe is string && data.vibe.size() <= 200 &&
+             data.status is string && (data.status in ['todo', 'active', 'deployed']) &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp;
+    }
+
+    // Path Rules for registrations
+    match /registrations/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Creating is allowed if they are the owner and register as non-admin (unless bootstrapped admin)
+      allow create: if isOwner(userId) && 
+                      isValidUserRegistration(incoming()) && 
+                      incoming().uid == userId && 
+                      incoming().email == request.auth.token.email &&
+                      (incoming().isAdmin == false || request.auth.token.email == "maanbarazy@gmail.com");
+
+      // Updates are partitioned - owners can edit fields EXCEPT uid, email, isAdmin, registrationStatus
+      // Admins can edit anything
+      allow update: if (isOwner(userId) && 
+                        incoming().uid == existing().uid && 
+                        incoming().email == existing().email && 
+                        incoming().isAdmin == existing().isAdmin && 
+                        incoming().registrationStatus == existing().registrationStatus &&
+                        incoming().createdAt == existing().createdAt &&
+                        incoming().updatedAt == request.time &&
+                        incoming().fullName is string && incoming().fullName.size() <= 200 &&
+                        incoming().role is string && incoming().role.size() <= 200 &&
+                        incoming().companyName is string && incoming().companyName.size() <= 200 &&
+                        incoming().companyDescription is string && incoming().companyDescription.size() <= 5000 &&
+                        incoming().phone is string && incoming().phone.size() <= 100) || 
+                      (isAdmin() && 
+                        incoming().uid == existing().uid && 
+                        incoming().createdAt == existing().createdAt &&
+                        incoming().updatedAt == request.time);
+
+      allow delete: if isAdmin();
+
+      // Nested Workspace Tasks subcollection
+      match /tasks/{taskId} {
+        allow read: if isOwner(userId) || isAdmin();
+        
+        allow create: if isOwner(userId) && 
+                        isValidId(taskId) &&
+                        isValidWorkspaceTask(incoming()) && 
+                        incoming().id == taskId &&
+                        incoming().userId == userId &&
+                        incoming().createdAt == request.time &&
+                        incoming().updatedAt == request.time;
+                        
+        allow update: if isOwner(userId) && 
+                        incoming().id == existing().id &&
+                        incoming().userId == existing().userId &&
+                        incoming().createdAt == existing().createdAt &&
+                        incoming().updatedAt == request.time &&
+                        incoming().title is string && incoming().title.size() <= 500 &&
+                        incoming().vibe is string && incoming().vibe.size() <= 200 &&
+                        incoming().status is string && (incoming().status in ['todo', 'active', 'deployed']);
+                        
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+    
+    // Collection list rules
+    match /registrations {
+      allow list: if isAdmin();
+    }
+  }
+}

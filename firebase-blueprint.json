@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "userRegistration": {
+      "title": "User Registration Profile",
+      "description": "Information stored on signup of founders and CEOs",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "companyName": { "type": "string" },
+        "companyDescription": { "type": "string" },
+        "phone": { "type": "string" },
+        "registrationStatus": { "type": "string", "enum": ["pending", "verified", "suspended"] },
+        "isAdmin": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "fullName", "email", "createdAt", "updatedAt"]
+    },
+    "userWorkspaceTask": {
+      "title": "User Workspace Task",
+      "description": "Client-specific automated tactical actions and notes stored in their workspace",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "vibe": { "type": "string" },
+        "status": { "type": "string", "enum": ["todo", "active", "deployed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "registrations/{userId}": {
+      "schema": "userRegistration",
+      "description": "User registration profiles and coaching status"
+    },
+    "registrations/{userId}/tasks/{taskId}": {
+      "schema": "userWorkspaceTask",
+      "description": "Tactical actions and tracking notes belonging to the user"
+    }
+  }
+}
