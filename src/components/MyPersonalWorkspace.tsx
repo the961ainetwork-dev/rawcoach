@@ -35,12 +35,95 @@ interface Task {
 export default function MyPersonalWorkspace() {
   const { user, profile, refreshProfile, setProfileLocal } = useAuth();
 
+  // Onboarding local states
+  const [localOnboardType, setLocalOnboardType] = useState<'founder' | 'enterprise' | null>(() => {
+    return (localStorage.getItem('localOnboardType') as 'founder' | 'enterprise') || null;
+  });
+
+  const [localOnboardData, setLocalOnboardData] = useState<any>(() => {
+    const raw = localStorage.getItem('localOnboardData');
+    return raw ? JSON.parse(raw) : null;
+  });
+
+  // Wider/Comprehensive questionnaire values
+  const [widerCompleted, setWiderCompleted] = useState<boolean>(() => {
+    return localStorage.getItem('localWiderCompleted') === 'true';
+  });
+
+  const [widerAnswers, setWiderAnswers] = useState(() => {
+    const raw = localStorage.getItem('localWiderAnswers');
+    if (raw) return JSON.parse(raw);
+    return {
+      milestone1: 'Implement automated flow mechanics',
+      milestone2: 'Minimize digital drag score to < 10%',
+      teamSize: '1-5 Active Nodes',
+      primarySystem: 'Slack + Customized Spreadsheet',
+      serverRegion: 'Frankfurt Local Hub',
+      emergencyBackup: 'Autonomous cellular relay',
+      escalationSla: 'SMS dispatch under 10 mins'
+    };
+  });
+
   // Profile editing inputs
-  const [fullName, setFullName] = useState(profile?.fullName || '');
-  const [role, setRole] = useState(profile?.role || '');
-  const [companyName, setCompanyName] = useState(profile?.companyName || '');
-  const [companyDescription, setCompanyDescription] = useState(profile?.companyDescription || '');
-  const [phone, setPhone] = useState(profile?.phone || '');
+  const [fullName, setFullName] = useState(() => {
+    if (profile?.fullName) return profile.fullName;
+    const cache = localStorage.getItem('localProfileName');
+    if (cache) return cache;
+    const rawData = localStorage.getItem('localOnboardData');
+    if (rawData) {
+      const data = JSON.parse(rawData);
+      return data.name || data.repName || '';
+    }
+    return '';
+  });
+
+  const [role, setRole] = useState(() => {
+    if (profile?.role) return profile.role;
+    const cache = localStorage.getItem('localProfileRole');
+    if (cache) return cache;
+    const rawData = localStorage.getItem('localOnboardData');
+    if (rawData) {
+      const data = JSON.parse(rawData);
+      return data.repTitle || 'Founder / Builder';
+    }
+    return '';
+  });
+
+  const [companyName, setCompanyName] = useState(() => {
+    if (profile?.companyName) return profile.companyName;
+    const cache = localStorage.getItem('localProfileCompany');
+    if (cache) return cache;
+    const rawData = localStorage.getItem('localOnboardData');
+    if (rawData) {
+      const data = JSON.parse(rawData);
+      return data.ventureName || data.companyName || '';
+    }
+    return '';
+  });
+
+  const [companyDescription, setCompanyDescription] = useState(() => {
+    if (profile?.companyDescription) return profile.companyDescription;
+    const cache = localStorage.getItem('localProfileDesc');
+    if (cache) return cache;
+    const rawData = localStorage.getItem('localOnboardData');
+    if (rawData) {
+      const data = JSON.parse(rawData);
+      return `Bottleneck: ${data.bottleneck || ''}. Goal: ${data.goal || data.infrastructureGoal || ''}`;
+    }
+    return '';
+  });
+
+  const [phone, setPhone] = useState(() => {
+    if (profile?.phone) return profile.phone;
+    const cache = localStorage.getItem('localProfilePhone');
+    if (cache) return cache;
+    const rawData = localStorage.getItem('localOnboardData');
+    if (rawData) {
+      const data = JSON.parse(rawData);
+      return data.phone || '';
+    }
+    return '';
+  });
 
   // Tasks states
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -61,14 +144,52 @@ export default function MyPersonalWorkspace() {
       setCompanyName(profile.companyName || '');
       setCompanyDescription(profile.companyDescription || '');
       setPhone(profile.phone || '');
+    } else {
+      // Guest mode sync
+      const rawType = localStorage.getItem('localOnboardType');
+      const rawData = localStorage.getItem('localOnboardData');
+      if (rawType && rawData) {
+        setLocalOnboardType(rawType as 'founder' | 'enterprise');
+        const parsed = JSON.parse(rawData);
+        setLocalOnboardData(parsed);
+        
+        setFullName((prev) => prev || parsed.name || parsed.repName || '');
+        setRole((prev) => prev || parsed.repTitle || 'Founder / Builder');
+        setCompanyName((prev) => prev || parsed.ventureName || parsed.companyName || '');
+        setCompanyDescription((prev) => prev || `Bottleneck: ${parsed.bottleneck || ''}. Goal: ${parsed.goal || parsed.infrastructureGoal || ''}`);
+        setPhone((prev) => prev || parsed.phone || '');
+      }
+
+      // Check wider completed
+      const isComMax = localStorage.getItem('localWiderCompleted') === 'true';
+      setWiderCompleted(isComMax);
+      const rawWide = localStorage.getItem('localWiderAnswers');
+      if (rawWide) {
+        setWiderAnswers(JSON.parse(rawWide));
+      }
     }
   }, [profile]);
 
   // Load user tasks from subcollection
   const fetchTasks = async () => {
-    if (!user) return;
     setLoadingTasks(true);
-    const subPath = `registrations/${user.uid}/tasks`;
+    if (!user) {
+      // Local fallback
+      const local = localStorage.getItem('localTasks');
+      if (local) {
+        setTasks(JSON.parse(local));
+      } else {
+        const dummyTasks: Task[] = [
+          { id: 't_1', userId: 'guest', title: 'Eliminate manual excel duplication logs', vibe: 'High Priority', status: 'todo', createdAt: new Date(), updatedAt: new Date() },
+          { id: 't_2', userId: 'guest', title: 'Draft regional sovereign telemetry metrics', vibe: 'Stealth Stack', status: 'todo', createdAt: new Date(), updatedAt: new Date() }
+        ];
+        localStorage.setItem('localTasks', JSON.stringify(dummyTasks));
+        setTasks(dummyTasks);
+      }
+      setLoadingTasks(false);
+      return;
+    }
+
     try {
       const snap = await getDocs(collection(db, 'registrations', user.uid, 'tasks'));
       const list: Task[] = [];
@@ -91,15 +212,39 @@ export default function MyPersonalWorkspace() {
   // Handle Edit/Save Profile Info
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !profile) return;
-    setSaveLoading(true);
     setStatusMsg('');
     setErrorMsg('');
 
+    if (!user) {
+      // Guest mode - store locally
+      localStorage.setItem('localProfileName', fullName);
+      localStorage.setItem('localProfileRole', role);
+      localStorage.setItem('localProfileCompany', companyName);
+      localStorage.setItem('localProfileDesc', companyDescription);
+      localStorage.setItem('localProfilePhone', phone);
+      
+      const updatedObj = {
+        name: fullName,
+        repName: fullName,
+        repTitle: role,
+        ventureName: companyName,
+        companyName: companyName,
+        bottleneck: companyDescription,
+        goal: companyDescription,
+        phone
+      };
+      localStorage.setItem('localOnboardData', JSON.stringify(updatedObj));
+      setLocalOnboardData(updatedObj);
+
+      setStatusMsg('Guest profile variables successfully saved in local cache layout. Authenticate to sync with global cloud networks.');
+      return;
+    }
+
+    setSaveLoading(true);
     const docPath = `registrations/${user.uid}`;
     try {
       const updatedProfile: UserRegistrationProfile = {
-        ...profile,
+        ...profile!,
         fullName,
         role,
         companyName,
@@ -129,25 +274,60 @@ export default function MyPersonalWorkspace() {
     }
   };
 
+  const handleSaveWiderOnboarding = async (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('localWiderAnswers', JSON.stringify(widerAnswers));
+    localStorage.setItem('localWiderCompleted', 'true');
+    setWiderCompleted(true);
+    setStatusMsg('Strategic wider blueprint compiled and registered inside secure sandbox state.');
+
+    if (user) {
+      setSaveLoading(true);
+      try {
+        const docRef = doc(db, 'registrations', user.uid);
+        await setDoc(docRef, {
+          onboardingDetails: widerAnswers,
+          onboardingCompleted: true,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        if (refreshProfile) {
+          await refreshProfile();
+        }
+      } catch (err) {
+        console.warn("Failed to persist wider details to Firestore, keeping locally", err);
+      } finally {
+        setSaveLoading(false);
+      }
+    }
+  };
+
   // Add a task in subcollection
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newTaskTitle.trim()) return;
+    if (!newTaskTitle.trim()) return;
     
     // Generate simple compliant alpha ID
     const taskId = 'task_' + Math.random().toString(36).substring(3, 11);
-    const taskPath = `registrations/${user.uid}/tasks/${taskId}`;
     
     const newTask: Task = {
       id: taskId,
-      userId: user.uid,
+      userId: user ? user.uid : 'guest',
       title: newTaskTitle.trim(),
       vibe: newTaskVibe,
       status: 'todo',
-      createdAt: new Date(), // Local fallback while in state
+      createdAt: new Date(),
       updatedAt: new Date()
     };
 
+    if (!user) {
+      const updated = [newTask, ...tasks];
+      setTasks(updated);
+      localStorage.setItem('localTasks', JSON.stringify(updated));
+      setNewTaskTitle('');
+      return;
+    }
+
+    const taskPath = `registrations/${user.uid}/tasks/${taskId}`;
     try {
       const docRef = doc(db, 'registrations', user.uid, 'tasks', taskId);
       await setDoc(docRef, {
@@ -166,9 +346,15 @@ export default function MyPersonalWorkspace() {
 
   // Toggle status of a task
   const handleToggleTask = async (taskId: string, currentStatus: 'todo' | 'active' | 'deployed') => {
-    if (!user) return;
     const nextStatus: 'todo' | 'active' | 'deployed' = currentStatus === 'todo' ? 'active' : currentStatus === 'active' ? 'deployed' : 'todo';
     
+    if (!user) {
+      const updated = tasks.map((t) => t.id === taskId ? { ...t, status: nextStatus, updatedAt: new Date() } : t);
+      setTasks(updated);
+      localStorage.setItem('localTasks', JSON.stringify(updated));
+      return;
+    }
+
     try {
       const docRef = doc(db, 'registrations', user.uid, 'tasks', taskId);
       await updateDoc(docRef, {
@@ -186,7 +372,13 @@ export default function MyPersonalWorkspace() {
 
   // Delete a task
   const handleDeleteTask = async (taskId: string) => {
-    if (!user) return;
+    if (!user) {
+      const updated = tasks.filter((t) => t.id !== taskId);
+      setTasks(updated);
+      localStorage.setItem('localTasks', JSON.stringify(updated));
+      return;
+    }
+
     try {
       await deleteDoc(doc(db, 'registrations', user.uid, 'tasks', taskId));
       setTasks((prev) => prev.filter((t) => t.id !== taskId));
@@ -197,6 +389,31 @@ export default function MyPersonalWorkspace() {
 
   return (
     <div className="space-y-8" id="founder-workspace-portal">
+      {/* GUEST MODE SANDBOX NOTIFICATION */}
+      {!user && (
+        <div className="bg-amber-50 border border-amber-200 p-5 rounded-2xl text-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-amber-800 shadow-sm animate-fadeIn">
+          <div className="flex items-start gap-3.5">
+            <span className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-lg shrink-0 border border-amber-200/30">⚠️</span>
+            <div>
+              <p className="font-bold uppercase tracking-wide text-[10px] text-amber-900">GUEST PREVIEW CONSOLE ACTIVE</p>
+              <p className="text-amber-700 text-[10.5px] mt-0.5 leading-relaxed">
+                Your blueprints, profile registry inputs, and task board are currently stored in your local browser cache instead of our centralized database. Pages have no restrictions. To link this deployment with global backup nodes, authenticate your hub.
+              </p>
+            </div>
+          </div>
+          <button 
+            type="button"
+            onClick={() => {
+              const authBtn = document.getElementById('login-btn');
+              if (authBtn) authBtn.click();
+            }}
+            className="px-4 py-2.5 bg-slate-900 text-white rounded-xl font-mono text-[9px] hover:bg-slate-800 transition-all cursor-pointer font-bold shrink-0 shadow-xs"
+          >
+            CONNECT CLOUD DB (SIGN UP)
+          </button>
+        </div>
+      )}
+
       {/* Workspace Header Panel */}
       <div className="bg-slate-950 p-6 md:p-8 rounded-2xl border border-zinc-800 text-white relative overflow-hidden shadow-lg animate-fadeIn">
         <div className="absolute top-0 right-0 w-80 h-80 bg-zinc-900 rounded-full filter blur-3xl opacity-35 -z-15"></div>
@@ -221,12 +438,218 @@ export default function MyPersonalWorkspace() {
           </div>
 
           <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-white font-sans leading-none">
-            WELCOME, {profile?.fullName?.toUpperCase() || 'CO-FOUNDER'}
+            WELCOME, {fullName.toUpperCase() || 'CO-FOUNDER'}
           </h2>
           <p className="text-zinc-300 text-xs md:text-sm max-w-2xl leading-relaxed font-sans font-medium">
             This is your private administrative vault. Here, your critical venture blueprints, tactical action streams, and organizational metadata are recorded securely inside our hardened cloud database.
           </p>
         </div>
+      </div>
+
+      {/* STRATEGIC COMPREHENSIVE ONBOARDING BLUEPRINT */}
+      <div className="bg-white border border-zinc-200 rounded-2xl p-6 md:p-8 shadow-xs relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-900"></div>
+        
+        {!widerCompleted ? (
+          <form onSubmit={handleSaveWiderOnboarding} className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-zinc-150 gap-4">
+              <div>
+                <div className="inline-block px-2.5 py-0.5 bg-slate-100 border border-zinc-250 text-slate-800 font-mono text-[8.5px] uppercase font-black rounded">
+                  Active Configuration Layer: {localOnboardType === 'enterprise' ? 'ENTERPRISE OPERATIONAL ALIGNMENT' : 'FOUNDER STRATEGIC ALIGNMENT'}
+                </div>
+                <h3 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight mt-1.5">
+                  Wider Tactical Blueprint Questionnaire (Phase 2)
+                </h3>
+                <p className="text-[11px] text-zinc-400 mt-0.5 font-sans font-semibold">Please provide core organizational constraints, security paradigms, and operational backup preferences.</p>
+              </div>
+              
+              {/* Vibe toggler if they want to override */}
+              <div className="flex items-center gap-1.5 border border-zinc-200 rounded-lg p-1 bg-zinc-50 shrink-0">
+                <button 
+                  type="button"
+                  onClick={() => { setLocalOnboardType('founder'); localStorage.setItem('localOnboardType', 'founder'); }}
+                  className={`px-3 py-1 font-mono text-[9px] font-black uppercase rounded transition-all cursor-pointer ${
+                    localOnboardType !== 'enterprise' ? 'bg-zinc-900 text-white' : 'text-zinc-500 hover:text-black hover:bg-zinc-100'
+                  }`}
+                >
+                  Founder
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => { setLocalOnboardType('enterprise'); localStorage.setItem('localOnboardType', 'enterprise'); }}
+                  className={`px-3 py-1 font-mono text-[9px] font-black uppercase rounded transition-all cursor-pointer ${
+                    localOnboardType === 'enterprise' ? 'bg-zinc-900 text-white' : 'text-zinc-500 hover:text-black hover:bg-zinc-100'
+                  }`}
+                >
+                  Enterprise
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
+              <div className="space-y-1">
+                <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-wider">Strategic Milestone Alpha (Near Term)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={widerAnswers.milestone1}
+                  onChange={(e) => setWiderAnswers({ ...widerAnswers, milestone1: e.target.value })}
+                  placeholder="e.g. Deploy 3 parallel autonomous WhatsApp dispatcher nodes" 
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-zinc-850 placeholder:text-zinc-300 focus:outline-none focus:border-zinc-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-wider">Strategic Milestone Beta (Mid Term)</label>
+                <input 
+                  type="text" 
+                  required
+                  value={widerAnswers.milestone2}
+                  onChange={(e) => setWiderAnswers({ ...widerAnswers, milestone2: e.target.value })}
+                  placeholder="e.g. Minimize administration cycle latency by 90%" 
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-zinc-850 placeholder:text-zinc-300 focus:outline-none focus:border-zinc-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-wider">Team Node Capacity Size</label>
+                <select 
+                  value={widerAnswers.teamSize}
+                  onChange={(e) => setWiderAnswers({ ...widerAnswers, teamSize: e.target.value })}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-zinc-850 focus:outline-none focus:border-zinc-400"
+                >
+                  <option value="1 Solo Node">1 Solo Operator</option>
+                  <option value="2-5 Active Nodes">2-5 Core Co-Founders</option>
+                  <option value="5-15 Venture Nodes">5-15 Advanced Members</option>
+                  <option value="15-50 Segment Nodes">15-50 Corporate Members</option>
+                  <option value="50+ Enterprise Scale">50+ Large Enterprise Clusters</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-wider">Primary System software integration targets</label>
+                <input 
+                  type="text" 
+                  required
+                  value={widerAnswers.primarySystem}
+                  onChange={(e) => setWiderAnswers({ ...widerAnswers, primarySystem: e.target.value })}
+                  placeholder="e.g. Slack workspace feeds, CRM databases, PostgreSQL hubs" 
+                  className="w-full bg-[#FCFCFB] border border-zinc-200 rounded-lg px-3 py-2 text-zinc-850 placeholder:text-zinc-300 focus:outline-none focus:border-zinc-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-wider">Regional Data Sovereignty Proxy Site</label>
+                <select 
+                  value={widerAnswers.serverRegion}
+                  onChange={(e) => setWiderAnswers({ ...widerAnswers, serverRegion: e.target.value })}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-zinc-850 focus:outline-none focus:border-zinc-400"
+                >
+                  <option value="Frankfurt Local Hub">Frankfurt Secure Server Hub (Recommended)</option>
+                  <option value="Beirut Local Edge server">Beirut Local Physical Edge</option>
+                  <option value="Ireland Regional GDPR Proxy">Ireland GDPR Sovereign Region</option>
+                  <option value="USA Northeast Core Node">USA Northeast Core Node</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-wider">Urgent hardware escalation response SLA Tier</label>
+                <select 
+                  value={widerAnswers.escalationSla}
+                  onChange={(e) => setWiderAnswers({ ...widerAnswers, escalationSla: e.target.value })}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-zinc-850 focus:outline-none focus:border-zinc-400"
+                >
+                  <option value="Standard email review under 24 hours">Standard email review under 24 hours</option>
+                  <option value="Live WhatsApp developer channel dispatch under 1 hour">Live WhatsApp developer dispatch under 1 hour</option>
+                  <option value="Dual-ring hardware SMS & cellular pager bypass">Dual-ring Hardware SMS priority pager bypass</option>
+                </select>
+              </div>
+
+              <div className="space-y-1 md:col-span-2">
+                <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-wider">Emergency System offline backup protocols</label>
+                <select 
+                  value={widerAnswers.emergencyBackup}
+                  onChange={(e) => setWiderAnswers({ ...widerAnswers, emergencyBackup: e.target.value })}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-zinc-850 focus:outline-none focus:border-zinc-400"
+                >
+                  <option value="Paper logs and local spreadsheet archives">Paper system logs and manual spreadsheet exports</option>
+                  <option value="Local browser SQLite offline state ledger database">Local browser SQLite offline state ledger database</option>
+                  <option value="Autonomous high-frequency local cellular relay networks">Autonomous high-frequency local cellular relay network sync</option>
+                  <option value="Cloud data replica clusters with mirror failover nodes">Cloud replication clusters with live mirror failover</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button 
+                type="submit"
+                disabled={saveLoading}
+                className="px-6 py-3.5 bg-zinc-950 border border-transparent hover:bg-zinc-800 text-[#9DFF00] rounded-xl font-bold uppercase text-[10px] tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 w-full md:w-auto shadow-sm"
+              >
+                {saveLoading ? 'REGISTERING BLUEPRINT...' : 'SAVE & SECURE COMPREHENSIVE TACTICAL BLUEPRINT'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-zinc-150 gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#9DFF00]/10 border border-[#9DFF00]/30 text-slate-900 font-mono text-[8.5px] uppercase font-black rounded animate-pulse">
+                  ✓ ACTIVE STRATEGIC BLUEPRINT MATRIX RECORDED
+                </div>
+                <h3 className="text-xl font-extrabold text-slate-900 uppercase tracking-tight mt-1.5">
+                  OPERATIONAL PARAMETERS SCORECARD
+                </h3>
+                <p className="text-[11px] text-zinc-400 mt-0.5">Your sovereign variables are preloaded below. You can update or recalibrate these inputs at any time.</p>
+              </div>
+
+              <button 
+                type="button"
+                onClick={() => { setWiderCompleted(false); localStorage.setItem('localWiderCompleted', 'false'); }}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-zinc-200 rounded-lg text-[9px] font-mono tracking-wider font-extrabold uppercase hover:shadow-xs transition-all cursor-pointer shrink-0"
+              >
+                [Edit Strategic Blueprint]
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-1.5 shadow-xs">
+                <span className="text-[8.5px] text-zinc-500 font-mono uppercase font-bold">// Strategic Milestone A</span>
+                <p className="text-xs font-sans font-extrabold text-slate-900 uppercase block leading-tight">{widerAnswers.milestone1}</p>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-1.5 shadow-xs">
+                <span className="text-[8.5px] text-zinc-500 font-mono uppercase font-bold">// Strategic Milestone B</span>
+                <p className="text-xs font-sans font-extrabold text-slate-900 uppercase block leading-tight">{widerAnswers.milestone2}</p>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-1.5 shadow-xs">
+                <span className="text-[8.5px] text-zinc-500 font-mono uppercase font-bold">// Node Group Capacity</span>
+                <p className="text-xs font-sans font-extrabold text-slate-900 uppercase block leading-tight">{widerAnswers.teamSize}</p>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-1.5 shadow-xs">
+                <span className="text-[8.5px] text-zinc-500 font-mono uppercase font-bold">// Integration Target API</span>
+                <p className="text-xs font-sans font-extrabold text-[#FF4F2E] uppercase block leading-tight">{widerAnswers.primarySystem}</p>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-1.5 shadow-xs">
+                <span className="text-[8.5px] text-zinc-500 font-mono uppercase font-bold">// Data Sovereignty Proxy</span>
+                <p className="text-xs font-sans font-extrabold text-slate-900 uppercase block leading-tight">{widerAnswers.serverRegion}</p>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-1.5 shadow-xs">
+                <span className="text-[8.5px] text-zinc-500 font-mono uppercase font-bold">// Hardware SLA Tier</span>
+                <p className="text-xs font-sans font-extrabold text-slate-900 uppercase block leading-tight">{widerAnswers.escalationSla}</p>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-200/60 p-4 rounded-xl space-y-1.5 sm:col-span-2 shadow-xs">
+                <span className="text-[8.5px] text-zinc-500 font-mono uppercase font-bold">// Emergency Backup Protocols</span>
+                <p className="text-xs font-sans font-extrabold text-[#86d900] uppercase block leading-tight">{widerAnswers.emergencyBackup}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

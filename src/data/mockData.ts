@@ -3,7 +3,7 @@ import { Coach, Scenario, Goal, HumanCoach, NewsItem } from '../types';
 export const COACHES: Record<string, Coach> = {
   general: {
     id: 'general',
-    name: 'RAWCOACH',
+    name: 'theCsuiteCOACH',
     tagline: 'ULTRA AI ARCHITECT',
     avatar: '⚡',
     avatarBg: 'bg-[#D2FF3A]',

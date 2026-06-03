@@ -123,5 +123,50 @@ service cloud.firestore {
     match /registrations {
       allow list: if isAdmin();
     }
+
+    // Customizable dynamic page sections (Public reading, write restricted to admin)
+    match /pageSections/{sectionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Subscribers waitlist & newsletters (Anyone can add, only admin can manage)
+    match /subscribers/{subscriberId} {
+      allow create: if isValidId(subscriberId) &&
+                      incoming().id == subscriberId &&
+                      incoming().email is string && incoming().email.size() <= 300 &&
+                      incoming().status in ['active', 'suspended', 'unsubscribed'] &&
+                      incoming().createdAt == request.time;
+      allow read, update, delete: if isAdmin();
+      allow list: if isAdmin();
+    }
+
+    // Sheikh Stories (Public reading, write restricted to admin)
+    match /sheikhStories/{storyId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Knowledge Resources (Public reading, write restricted to admin)
+    match /knowledgeResources/{resourceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // C-Suite Insights Pinterest Board (Public reading, liking increment enabled, full editing to admin)
+    match /csuiteInsights/{insightId} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        // Allow standard liking counters
+        incoming().likesCount == existing().likesCount + 1 &&
+        incoming().title == existing().title &&
+        incoming().author == existing().author &&
+        incoming().snippet == existing().snippet &&
+        incoming().content == existing().content &&
+        incoming().status == existing().status &&
+        incoming().createdAt == existing().createdAt
+      );
+    }
   }
 }

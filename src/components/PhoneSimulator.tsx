@@ -80,7 +80,7 @@ export default function PhoneSimulator() {
           </div>
 
           <p className="text-[11px] text-zinc-650 font-mono leading-relaxed">
-            The RAWCOACH client app for iOS and Android is engineered for maximum speed. It excludes heavy web components and focuses purely on high-frequency, raw-text feedback channels. We deliver tactical advice direct to your home screen.
+            The theCsuiteCOACH client app for iOS and Android is engineered for maximum speed. It excludes heavy web components and focuses purely on high-frequency, raw-text feedback channels. We deliver tactical advice direct to your home screen.
           </p>
 
           <div className="space-y-3 font-mono text-[10px] text-zinc-700">
@@ -134,7 +134,7 @@ export default function PhoneSimulator() {
               <div className="flex-1 flex flex-col justify-between items-center p-6 text-center select-none bg-gradient-to-b from-white to-zinc-50">
                 <div className="pt-12 space-y-3">
                   <span className="text-4xl block select-none">📱</span>
-                  <p className="font-mono text-[8px] uppercase tracking-widest text-zinc-400 font-extrabold">RAWCOACH APP SUITE</p>
+                  <p className="font-mono text-[8px] uppercase tracking-widest text-zinc-400 font-extrabold">theCsuiteCOACH APP SUITE</p>
                   <h4 className="text-black font-extrabold text-lg uppercase tracking-wider">ON-THE-GO ADVICE</h4>
                 </div>
 
@@ -162,7 +162,7 @@ export default function PhoneSimulator() {
                       🦖
                     </div>
                     <div>
-                      <h5 className="font-extrabold text-[9.5px] uppercase text-black leading-none">RAWCOACH MOBILE</h5>
+                      <h5 className="font-extrabold text-[9.5px] uppercase text-black leading-none">theCsuiteCOACH MOBILE</h5>
                       <span className="font-mono text-[7px] text-zinc-500 font-bold uppercase leading-none block mt-0.5 tracking-wider">AUTHENTICATED</span>
                     </div>
                   </div>

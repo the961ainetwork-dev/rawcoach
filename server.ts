@@ -35,7 +35,7 @@ function getGemini(): GoogleGenAI {
 // Coach System Prompts representing distinct Gen Z personas
 const SYSTEM_PROMPTS: Record<string, string> = {
   general: 
-    "You are RAWCOACH, the ultimate ultra-premium Gen Z enterprise AI Architect. " +
+    "You are theCsuiteCOACH, the ultimate ultra-premium Gen Z enterprise AI Architect. " +
     "Your tone is a blend of ruthless efficiency, big display energy, and high-impact Gen Z/founder slang ('no cap', 'period', 'massive cook', 'sending it', 'fr', 'real ones'). " +
     "You know everything about deploying AI workflows, vector DBs, automated agent workforces, and replacing slow pipelines. " +
     "Keep responses concise, bold, formatted beautifully in Markdown with bold titles, and direct. Coach the user on how to integrate AI tools in their business.",
@@ -104,7 +104,7 @@ app.post("/api/coach/chat", async (req, res) => {
 app.post("/api/roleplay/eval", async (req, res) => {
   const { transcript, scenarioTitle, scenarioContext } = req.body;
   
-  const prompt = `You are the Savage Audit Bot for RAWCOACH.AI.
+  const prompt = `You are the Savage Audit Bot for theCsuiteCOACH.
   Analyze this roleplay dialogue transcript between an corporate founder/employee and an AI-simulated stakeholder.
   
   Scenario: ${scenarioTitle}
@@ -174,7 +174,7 @@ app.post("/api/whatsapp/reply", async (req, res) => {
 app.post("/api/coach/assessment", async (req, res) => {
   const { companyName, industry, size, infra, bottleneck, aiExperience } = req.body;
 
-  const prompt = `Analyze this enterprise profile for a RAWCOACH.AI AI Transition Audit Report:
+  const prompt = `Analyze this enterprise profile for a theCsuiteCOACH AI Transition Audit Report:
   - Company: "${companyName || 'Incognito Founder'}"
   - Industry: "${industry || 'Custom Sector'}"
   - Size/Stage: "${size || 'Medium'}"
@@ -186,7 +186,7 @@ app.post("/api/coach/assessment", async (req, res) => {
   The report must contain:
   1. **TRANSITION PORTFOLIO LEVEL**: Suggest a score from 40 to 95 relative to their baseline.
   2. **THE ROAST**: A brief, savage critique of their current reliance on manual setups, spreadsheets, or slow pipelines (specifically mention "${bottleneck || 'their bottlenecks'}") no cap.
-  3. **RECOMMENDED COACH PERSONA**: Recommend one of our 4 custom models (FORGE for leadership, GIGMASTER for career/arbitrage, CODELAB for developer, or General RAWCOACH for architect) explaining why.
+  3. **RECOMMENDED COACH PERSONA**: Recommend one of our 4 custom models (FORGE for leadership, GIGMASTER for career/arbitrage, CODELAB for developer, or General theCsuiteCOACH for architect) explaining why.
   4. **EVALUATIVE PROGRESSION TIMELINE**: 4 weekly coaching objectives & milestones.
   5. **DUBIOUS METRIC REDUCTION (SMART OKRs)**:
      - Objective: Eradicate "${bottleneck || 'the workflow delay'}" via automated pipelines.
@@ -228,7 +228,7 @@ app.post("/api/coach/assessment", async (req, res) => {
 #### **4. EVALUATIVE PROGRESSION TIMELINE** ⏱️
 * **Week 1 (Architectural Audit)**: Identify the exact node where **"${bottleneck || 'your bottleneck'}"** intercepts team progress. Map the standard inputs/outputs.
 * **Week 2 (Tunnel Launching)**: Host a server-side API proxy model (using Gemini 3.5 Flash) to parse requests automatically.
-* **Week 3 (Team Sparring)**: Put your team directors through the **RAWCOACH Roleplay Simulator** to address fears of AI replacement.
+* **Week 3 (Team Sparring)**: Put your team directors through the **theCsuiteCOACH Roleplay Simulator** to address fears of AI replacement.
 * **Week 4 (Automated Ledger)**: Move the automation rate to the target **85%** efficiency index. Verify savings via the Statistics Board.
 
 #### **5. TARGET WORKPLACE OKRs** 🏁
@@ -239,7 +239,7 @@ app.post("/api/coach/assessment", async (req, res) => {
   * Achieve a **+45% Resource Recovery Rate** to funnel back into product scaling.
 
 #### **6. 14-DAY TACTICAL CHECKLIST** 🚀
-* [ ] **Day 1**: Stop all standard workshops. Transition the company's active task force to **RAWCOACH.AI**.
+* [ ] **Day 1**: Stop all standard workshops. Transition the company's active task force to **theCsuiteCOACH**.
 * [ ] **Day 5**: Replace the primary communication node with a direct SMS/WhatsApp sandbox gateway.
 * [ ] **Day 10**: Audit your data flow inside the dynamic Statistics Board.
 * [ ] **Day 14**: Send it. Full live deployment on Cloud Run.
@@ -254,7 +254,7 @@ app.post("/api/coach/assessment", async (req, res) => {
 app.post("/api/coach/diagnostic", async (req, res) => {
   const { bottleneck, struggles } = req.body;
 
-  const prompt = `You are RAWCOACH, the premium AI Operations Architect in Beirut.
+  const prompt = `You are theCsuiteCOACH, the premium AI Operations Architect in Beirut.
   Your absolute goal is to convert a founder’s "uncertainty" into a precise, bulletproof "Turnkey Automation Roadmap."
 
   User input:
@@ -334,7 +334,7 @@ async function start() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[RAWCOACH Server] Ready at http://localhost:${PORT}`);
+    console.log(`[theCsuiteCOACH Server] Ready at http://localhost:${PORT}`);
   });
 }
 

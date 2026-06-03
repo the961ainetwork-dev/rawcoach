@@ -226,7 +226,7 @@ export default function GoalTracker() {
             <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
               <div className="flex items-center gap-2 text-black">
                 <Bell className="w-4 h-4 text-black animate-bounce" />
-                <span className="font-mono text-[9.5px] font-black uppercase tracking-wider">RAWCOACH CO-PILOT SENTINEL GATEWAY</span>
+                <span className="font-mono text-[9.5px] font-black uppercase tracking-wider">theCsuiteCOACH CO-PILOT SENTINEL GATEWAY</span>
               </div>
               <button 
                 onClick={() => setSimulatedNotify(null)} 

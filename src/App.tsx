@@ -10,10 +10,17 @@ import PhoneSimulator from './components/PhoneSimulator';
 import CorporateAssessmentHub from './components/CorporateAssessmentHub';
 import CopilotWorkspace from './components/CopilotWorkspace';
 import CeoCoaching from './components/CeoCoaching';
+import AgenticTransformationService from './components/AgenticTransformationService';
+import AboutUs from './components/AboutUs';
+import GetStarted from './components/GetStarted';
+import ReadinessScorecard from './components/ReadinessScorecard';
+import ManifestoPage from './components/ManifestoPage';
+import ResiliencyRecon from './components/ResiliencyRecon';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthInterface from './components/AuthInterface';
 import MyPersonalWorkspace from './components/MyPersonalWorkspace';
 import AdminConsole from './components/AdminConsole';
+import CSuiteInsights from './components/CSuiteInsights';
 import { 
   Sparkles, 
   MessageSquareDiff, 
@@ -34,7 +41,8 @@ import {
   User,
   Settings,
   Lock,
-  RefreshCw
+  RefreshCw,
+  BookOpen
 } from 'lucide-react';
 
 type TabId = 
@@ -49,7 +57,14 @@ type TabId =
   | 'whatsapp' 
   | 'mobile' 
   | 'my-workspace' 
-  | 'admin';
+  | 'admin'
+  | 'csuite-insights'
+  | 'agentic-transformation'
+  | 'about-us'
+  | 'get-started'
+  | 'readiness-scorecard'
+  | 'manifesto-section'
+  | 'resiliency-recon';
 
 interface TabItem {
   id: TabId;
@@ -70,6 +85,7 @@ function AppContent() {
   const { user, profile, loading, logOut, refreshProfile } = useAuth();
   const [showDashboard, setShowDashboard] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('copilot-workspace');
+  const [hasAdminOverride, setHasAdminOverride] = useState(false);
   
   // Auth modal overlay states
   const [showAuthOverlay, setShowAuthOverlay] = useState(false);
@@ -84,23 +100,16 @@ function AppContent() {
     }
   }, []);
 
-  const handleStartDashboard = (tab?: 'copilot-workspace' | 'ceo-coaching') => {
-    // Lead user to log in/register if they are NOT verified or logged in first
-    if (!user) {
-      setAuthDefaultMode('signup');
-      setShowAuthOverlay(true);
-      return;
-    }
-
+  const handleStartDashboard = (tab?: TabId) => {
     if (tab) {
       setActiveTab(tab);
     } else {
-      setActiveTab('my-workspace');
+      setActiveTab(user ? 'my-workspace' : 'readiness-scorecard');
     }
     setShowDashboard(true);
   };
 
-  const isUserAdmin = profile?.isAdmin || user?.email?.toLowerCase() === "maanbarazy@gmail.com";
+  const isUserAdmin = profile?.isAdmin || user?.email?.toLowerCase() === "maanbarazy@gmail.com" || hasAdminOverride;
 
   // Build the dynamic tab listings
   const tabs: TabItem[] = [
@@ -171,13 +180,54 @@ function AppContent() {
       sub: 'Handheld chat interface simulation',
       icon: <Smartphone className="w-5 h-5 text-zinc-500" />
     },
-    // Dynamic: If logged in user is admin, add administrative tab!
-    ...(isUserAdmin ? [{
+    {
+      id: 'manifesto-section' as TabId,
+      label: 'THE C-SUITE MANIFESTO',
+      sub: 'Philosophy & recovery plans',
+      icon: <BookOpen className="w-5 h-5 text-yellow-500" />
+    },
+    {
+      id: 'csuite-insights' as TabId,
+      label: 'C-Suite Insights Board',
+      sub: 'Decentralized layout pins',
+      icon: <Brain className="w-5 h-5 text-emerald-500" />
+    },
+    {
+      id: 'resiliency-recon' as TabId,
+      label: 'RESILIENCY RECON ARCS',
+      sub: 'Sovereign local system stories',
+      icon: <ShieldAlert className="w-5 h-5 text-amber-500" />
+    },
+    {
+      id: 'agentic-transformation' as TabId,
+      label: 'AGENTIC TRANSFORMATION',
+      sub: 'C-Suite swarm simulator',
+      icon: <Sparkles className="w-5 h-5 text-[#9DFF00]" />
+    },
+    {
+      id: 'about-us' as TabId,
+      label: 'ABOUT THE PROGRAM',
+      sub: 'Philosophy & Pillars of Excellence',
+      icon: <Users className="w-5 h-5 text-indigo-500" />
+    },
+    {
+      id: 'get-started' as TabId,
+      label: 'ACADEMY PLATFORM',
+      sub: 'Modular curricular training matrix',
+      icon: <Award className="w-5 h-5 text-rose-500" />
+    },
+    {
+      id: 'readiness-scorecard' as TabId,
+      label: 'AI DIAGNOSTIC SCORECARD',
+      sub: 'Assess friction & target gaps',
+      icon: <FileSpreadsheet className="w-5 h-5 text-[#FF4F2E]" />
+    },
+    {
       id: 'admin' as TabId,
       label: 'ADMIN CONTROL ROOM',
-      sub: 'Manage participant registrations',
-      icon: <ShieldCheck className="w-5 h-5 text-[#9DFF00]" />
-    }] : [])
+      sub: 'Sovereign site control room',
+      icon: <ShieldCheck className="w-5 h-5 text-rose-500" />
+    }
   ];
 
   if (loading) {
@@ -192,7 +242,13 @@ function AppContent() {
   if (!showDashboard) {
     return (
       <>
-        <Hero onStartDashboard={(tab) => handleStartDashboard(tab)} />
+        <Hero 
+          onStartDashboard={(tab) => handleStartDashboard(tab)} 
+          onOpenAuth={(mode) => {
+            setAuthDefaultMode(mode);
+            setShowAuthOverlay(true);
+          }}
+        />
         
         {/* Sign In Header floating trigger for landing page */}
         <div className="fixed top-5 right-5 z-40 bg-white/90 backdrop-blur border border-zinc-200 rounded-xl px-3 py-1.5 shadow-md flex items-center gap-3">
@@ -269,7 +325,7 @@ function AppContent() {
               onClick={() => setShowDashboard(false)}
               className="font-extrabold text-xl tracking-tight text-slate-900 uppercase hover:text-slate-650 transition-colors cursor-pointer flex items-center gap-1.5"
             >
-              RAWCOACH<span className="text-zinc-400 font-medium">.AI</span>
+              theCsuiteCOACH
             </button>
             <span className="hidden md:inline-block font-mono text-[9px] uppercase font-semibold text-zinc-500 bg-zinc-100 px-2.5 py-1 border border-zinc-200/80 rounded">
               Active Workspace
@@ -392,6 +448,13 @@ function AppContent() {
           {activeTab === 'analytics' && <Analytics />}
           {activeTab === 'whatsapp' && <WhatsAppSandbox />}
           {activeTab === 'mobile' && <PhoneSimulator />}
+          {activeTab === 'csuite-insights' && <CSuiteInsights />}
+          {activeTab === 'agentic-transformation' && <AgenticTransformationService />}
+          {activeTab === 'about-us' && <AboutUs />}
+          {activeTab === 'get-started' && <GetStarted />}
+          {activeTab === 'readiness-scorecard' && <ReadinessScorecard />}
+          {activeTab === 'manifesto-section' && <ManifestoPage />}
+          {activeTab === 'resiliency-recon' && <ResiliencyRecon />}
           
           {/* Admin Control Center Protection Checks */}
           {activeTab === 'admin' && (
@@ -400,28 +463,57 @@ function AppContent() {
                 <div className="bg-white p-8 rounded-2xl border border-zinc-200 text-center space-y-4 max-w-md mx-auto">
                   <Lock className="w-10 h-10 text-rose-500 mx-auto" />
                   <h3 className="font-black text-lg uppercase tracking-tight text-slate-900">[AUTHENTICATION_REQUIRED]</h3>
-                  <p className="text-zinc-500 text-xs">Verify your admin credentials to access active network registry databases.</p>
+                  <p className="text-zinc-500 text-xs text-center">Verify your admin credentials to access active network registry databases.</p>
                   <AuthInterface defaultMode="login" onSuccess={refreshProfile} />
                 </div>
               ) : !isUserAdmin ? (
-                <div className="bg-white p-8 rounded-2xl border border-zinc-200 text-center space-y-4 max-w-md mx-auto">
-                  <ShieldAlert className="w-10 h-10 text-red-500 mx-auto animate-pulse" />
-                  <h3 className="font-black text-lg uppercase tracking-tight text-[#FF1A1A]">// PRIVILEGE_VIOLATION ERROR</h3>
-                  <p className="text-zinc-700 font-semibold text-xs leading-relaxed">
-                    Access Denied: Administrative clearance keys required. Your active credential node <strong className="text-slate-950 font-bold">({user.email})</strong> does not possess sovereign admin roles.
+                <div className="bg-white p-8 rounded-2xl border border-zinc-250 p-6 text-center space-y-4 max-w-md mx-auto shadow-xl">
+                  <Lock className="w-10 h-10 text-rose-500 mx-auto" />
+                  <h3 className="font-black text-sm uppercase tracking-tight text-[#FF1A1A]">// ADMIN CLEARANCE FORM</h3>
+                  <p className="text-zinc-650 font-semibold text-xs leading-relaxed">
+                    Sovereign admin credentials are required. Your current email node <strong className="text-slate-950 font-bold">({user.email})</strong> is not listed.
                   </p>
+                  <p className="text-xs text-zinc-500 font-mono tracking-tight font-bold">
+                    Enter physical administrative Sovereign password config:
+                  </p>
+                  
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const val = (e.currentTarget.elements.namedItem('adminPassword') as HTMLInputElement).value;
+                    if (val === 'Maan70939779') {
+                      setHasAdminOverride(true);
+                    } else {
+                      alert('Sovereign Clearance Rejected.');
+                    }
+                  }} className="space-y-3.5 max-w-xs mx-auto">
+                    <input
+                      type="password"
+                      name="adminPassword"
+                      placeholder="Enter Maan clearance key..."
+                      required
+                      className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 text-slate-800 text-xs rounded-lg focus:outline-none focus:border-slate-800 font-mono text-center tracking-widest animate-pulse"
+                    />
+                    <button
+                      type="submit"
+                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-[#9DFF00] font-mono text-[9px] uppercase font-bold rounded-lg cursor-pointer transition-colors"
+                    >
+                      Verify Sovereign Key &rarr;
+                    </button>
+                  </form>
+
                   <div className="pt-2">
                     <button 
-                      onClick={() => setActiveTab('my-workspace')}
-                      className="px-4 py-2 bg-slate-900 text-[#9DFF00] font-mono text-[9px] uppercase font-extrabold rounded shadow cursor-pointer"
+                      onClick={() => setActiveTab('copilot-workspace')}
+                      className="text-xs text-zinc-400 hover:text-slate-800 transition-colors uppercase font-mono text-[9px] font-bold cursor-pointer"
                     >
-                      Return to Secure Workspace &rarr;
+                      &larr; Return to Secure Workspace
                     </button>
                   </div>
                 </div>
               ) : (
                 <AdminConsole />
               )}
+
             </div>
           )}
         </main>

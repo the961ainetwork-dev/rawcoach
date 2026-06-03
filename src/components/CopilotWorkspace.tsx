@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
-// Custom lightweight Markdown-to-HTML parser for RAWCOACH transition reports
+// Custom lightweight Markdown-to-HTML parser for theCsuiteCOACH transition reports
 function MarkdownDisplay({ text }: { text: string }) {
   const lines = text.split('\n');
   return (
@@ -204,14 +204,14 @@ export default function CopilotWorkspace({ onTabChange }: CopilotWorkspaceProps)
     let y = 52;
 
     // Page 1 Background & Cover header
-    doc.setFillColor(18, 19, 24); // Deep black/slate RAWCOACH header block
+    doc.setFillColor(18, 19, 24); // Deep black/slate theCsuiteCOACH header block
     doc.rect(0, 0, pageWidth, 42, 'F');
 
     // Title in header
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text('RAWCOACH EXECUTIVE DISPATCH', margin, 18);
+    doc.text('theCsuiteCOACH EXECUTIVE DISPATCH', margin, 18);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
@@ -247,7 +247,7 @@ export default function CopilotWorkspace({ onTabChange }: CopilotWorkspaceProps)
         doc.setTextColor(157, 255, 0);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(7);
-        doc.text(`RAWCOACH ROADMAP // CLIENT: ${companyName.toUpperCase() || 'INCOGNITOS'}`, margin, 8);
+        doc.text(`theCsuiteCOACH ROADMAP // CLIENT: ${companyName.toUpperCase() || 'INCOGNITOS'}`, margin, 8);
         
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
@@ -332,7 +332,7 @@ export default function CopilotWorkspace({ onTabChange }: CopilotWorkspaceProps)
       }
     }
 
-    doc.save(`RAWCOACH_Transition_Roadmap_${companyName.replace(/[^a-zA-Z0-9]/g, '_') || 'Blueprint'}.pdf`);
+    doc.save(`theCsuiteCOACH_Transition_Roadmap_${companyName.replace(/[^a-zA-Z0-9]/g, '_') || 'Blueprint'}.pdf`);
   };
 
   const handleResetDemo = () => {

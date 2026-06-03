@@ -63,7 +63,7 @@ export default function WhatsAppSandbox() {
           </div>
 
           <p className="text-[11px] text-zinc-650 font-mono leading-relaxed">
-            Real execution happens in the field. Our premium members route text updates to our live SMS/WhatsApp relay node. RAWCOACH intercepts these requests and responds with concise, actionable directions under 120 seconds.
+            Real execution happens in the field. Our premium members route text updates to our live SMS/WhatsApp relay node. theCsuiteCOACH intercepts these requests and responds with concise, actionable directions under 120 seconds.
           </p>
 
           <div className="bg-zinc-50 border border-zinc-200 p-5 space-y-2.5 rounded-2xl">
@@ -71,7 +71,7 @@ export default function WhatsAppSandbox() {
               <AlertCircle className="w-4 h-4 text-black flex-shrink-0" /> MOBILE INTEGRATION SEQUENCE:
             </h5>
             <ol className="text-[10px] font-mono font-medium text-zinc-600 list-decimal pl-4.5 space-y-1 bg-transparent">
-              <li>Save +1 (650) RAW-COAC on WhatsApp.</li>
+              <li>Save +1 (650) CS-COACH on WhatsApp.</li>
               <li>Authenticate your SaaS subscription key.</li>
               <li>Ask architecture questions anytime. No lag.</li>
             </ol>
@@ -101,7 +101,7 @@ export default function WhatsAppSandbox() {
                   ⚡
                 </div>
                 <div>
-                  <h4 className="font-bold text-xs uppercase tracking-tight text-black leading-none">RAWCOACH GATEWAY</h4>
+                  <h4 className="font-bold text-xs uppercase tracking-tight text-black leading-none">theCsuiteCOACH GATEWAY</h4>
                   <span className="font-mono text-[7.5px] text-zinc-500 font-bold uppercase tracking-wider block mt-0.5">ACTIVE DISPATCH NODE</span>
                 </div>
               </div>

@@ -131,7 +131,7 @@ export default function SystemDiagnostics({ onStartProtocol }: SystemDiagnostics
     setStruggles('');
     
     addSystemMessage(
-      "⚡ **DIAGNOSTIC CHANNEL INITIALIZED** // Source: RAWCOACH sovereign node.\n\n" +
+      "⚡ **DIAGNOSTIC CHANNEL INITIALIZED** // Source: theCsuiteCOACH sovereign node.\n\n" +
       "Our sole purpose is to convert your operational \"uncertainty\" into a precise, high-stakes **Turnkey Automation Roadmap**.\n\n" +
       "**STEP 1: The Friction Audit** 💀\n" +
       "Describe your biggest daily \"bottleneck\" or source of stress. What is holding back your team's velocity? *(Constraint: Keep it under 100 words, habibi.)*"
@@ -287,7 +287,7 @@ Ready to deploy? Initialize the workflow here [Initialize Deployment Protocol]`;
             {loading && (
               <div className="flex items-center gap-2.5 text-zinc-500 font-mono text-[10px] pl-2 py-1">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                <span>RAWCOACH backend is parsing nodes...</span>
+                <span>theCsuiteCOACH backend is parsing nodes...</span>
               </div>
             )}
 

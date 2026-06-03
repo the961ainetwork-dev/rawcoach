@@ -707,7 +707,7 @@ export default function Analytics() {
                   : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
               }`}
             >
-              RawCoach Optimal (85%)
+              theCsuiteCOACH Optimal (85%)
             </button>
           </div>
         </div>

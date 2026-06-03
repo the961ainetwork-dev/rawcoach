@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { jsPDF } from 'jspdf';
 import { 
   Building2, 
   BookOpen, 
@@ -20,7 +21,8 @@ import {
   Download,
   Flame,
   Clock,
-  Filter
+  Filter,
+  Printer
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -348,7 +350,7 @@ export default function CorporateAssessmentHub() {
     {
       id: 'cert-1',
       title: 'Certified Node Gemini Integrator',
-      authority: 'RAWCOACH Professional Academy',
+      authority: 'theCsuiteCOACH Professional Academy',
       requiredScore: 80,
       currentAssessedScore: 88,
       status: 'Eligible',
@@ -358,7 +360,7 @@ export default function CorporateAssessmentHub() {
     {
       id: 'cert-2',
       title: 'Enterprise AI Operations Strategist',
-      authority: 'RAWCOACH Advisory Core',
+      authority: 'theCsuiteCOACH Advisory Core',
       requiredScore: 75,
       currentAssessedScore: 78,
       status: 'Eligible',
@@ -368,7 +370,7 @@ export default function CorporateAssessmentHub() {
     {
       id: 'cert-3',
       title: 'CFO Advisory Financial Architect',
-      authority: 'RAWCOACH Executive Matrix',
+      authority: 'theCsuiteCOACH Executive Matrix',
       requiredScore: 90,
       currentAssessedScore: 65,
       status: 'In Progress',
@@ -384,8 +386,313 @@ export default function CorporateAssessmentHub() {
     }
   };
 
+  const [isExportOpen, setIsExportOpen] = useState(false);
+
+  const handleExportCSV = () => {
+    let csvContent = "";
+    csvContent += "theCsuiteCOACH ACADEMY CORPORATE ASSESSMENT REPORT\n";
+    csvContent += `Generated On,${new Date().toISOString()}\n\n`;
+    
+    csvContent += "1. ASSESSMENT SUMMARY\n";
+    csvContent += `Digital Workflow Readiness Rating,${assessmentResult ? assessmentResult.score : 'Pending'}%\n`;
+    csvContent += `Workflow Status,${assessmentResult ? assessmentResult.status : 'Not Audited'}\n\n`;
+    
+    if (assessmentResult) {
+      csvContent += "Recommended Actions:\n";
+      assessmentResult.recs.forEach((rec: string, index: number) => {
+        csvContent += `Action ${index + 1},"${rec.replace(/"/g, '""')}"\n`;
+      });
+      csvContent += "\n";
+    }
+    
+    csvContent += "2. OPERATIONAL DIVISION SCORECARDS\n";
+    csvContent += "Department,Active Hours Logged,Target Score Average (%)\n";
+    progressChartData.forEach(dept => {
+      csvContent += `"${dept.name}",${dept.activeHours},${dept.scoreAvg}%\n`;
+    });
+    csvContent += `TOTAL/AVERAGE,${totalActiveHours},${averageMaturityScore}%\n\n`;
+
+    csvContent += "3. IN-HOUSE TRAINING MODULES PROGRESS\n";
+    csvContent += "Program Name,Department,Progress Completed\n";
+    programs.forEach(p => {
+      csvContent += `"${p.title}","${p.dept}",${p.progress}%\n`;
+    });
+    csvContent += "\n";
+
+    csvContent += "4. ELIGIBLE CERTIFICATIONS\n";
+    csvContent += "Certification Title,Authority,Matching Candidate Score,Status\n";
+    certificationRecommendations.forEach(cert => {
+      const isEligible = cert.currentAssessedScore >= cert.requiredScore;
+      csvContent += `"${cert.title}","${cert.authority}",${cert.currentAssessedScore}%,"${isEligible ? 'Eligible' : 'Prerequisites Pending'}"\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `theCsuiteCOACH_Corporate_Assessment_Report.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    // Header styling
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setFillColor(15, 23, 42); // slate-900
+    doc.rect(0, 0, 210, 40, "F");
+    
+    doc.setTextColor(255, 255, 255);
+    doc.text("theCsuiteCOACH PLATFORM // ASSESSMENT HUB", 14, 18);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(157, 255, 0); // brand neon text color #9DFF00
+    doc.text("ENTERPRISE READINESS & HYBRID WORKFLOW DIAGNOSTIC REPORT", 14, 25);
+    
+    doc.setFontSize(8);
+    doc.setTextColor(226, 232, 240);
+    const currentTimestamp = new Date().toLocaleString() + " UTC";
+    doc.text(`GENERATED TIMESTAMP: ${currentTimestamp} // CLOUD SECURE ID: RC-REPORT-${Math.floor(100000 + Math.random() * 900000)}`, 14, 32);
+    
+    let y = 55;
+    
+    // SECTION 1: CORPORATE ASSESSMENT SCORES
+    doc.setFillColor(244, 244, 245);
+    doc.rect(14, y, 182, 7, "F");
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+    doc.text("1. DIGITAL WORKFLOW AUDIT SUMMARY", 18, y + 5);
+    
+    y += 13;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(9.5);
+    
+    if (assessmentResult) {
+      doc.setFont("Helvetica", "bold");
+      doc.text(`Digital Readiness Score: ${assessmentResult.score}%`, 14, y);
+      doc.setFont("Helvetica", "normal");
+      doc.text(`Status Category: ${assessmentResult.status}`, 100, y);
+      
+      y += 6;
+      doc.text(`Legacy Operational Friction Drag Weight: ${assessmentAnswers.legacyDrag} / 5`, 14, y);
+      doc.text(`Company Staff Scale: ${assessmentAnswers.staffCount.toUpperCase()}`, 100, y);
+      
+      y += 10;
+      doc.setFont("Helvetica", "bold");
+      doc.text("Identified Strategic Action Priority Checklist:", 14, y);
+      doc.setFont("Helvetica", "normal");
+      y += 5;
+      assessmentResult.recs.forEach((rec: string, index: number) => {
+        const splitText: string[] = doc.splitTextToSize(`[ ] Action ${index + 1}: ${rec}`, 180);
+        doc.text(splitText, 14, y);
+        y += (splitText.length * 4.5) + 1;
+      });
+    } else {
+      doc.text("Result Status: Hub scenario audit pending user configuration launcher input.", 14, y);
+      doc.text("Default benchmark readiness assessment: ~45% index based on statistical local office groups.", 14, y + 5);
+      y += 12;
+    }
+    
+    y += 4;
+    
+    // SECTION 2: LEARNING OUTCOMES AND MATURITY INDEX
+    doc.setFillColor(244, 244, 245);
+    doc.rect(14, y, 182, 7, "F");
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+    doc.text("2. OPERATIONAL DIVISION SCORECARDS (MATURITY INDEX)", 18, y + 5);
+    
+    y += 13;
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(9.5);
+    doc.text(`Aggregate Laboratory Training Hours Completed: ${totalActiveHours} Hours`, 14, y);
+    doc.text(`Average Maturity Index Score: ${averageMaturityScore} / 100 Criteria`, 100, y);
+    
+    y += 8;
+    doc.setFont("Helvetica", "bold");
+    doc.text("Division Performance Matrix:", 14, y);
+    y += 6;
+    doc.setFont("Helvetica", "bold");
+    doc.text("Department / Sector", 14, y);
+    doc.text("Lab Completed (Hours)", 85, y);
+    doc.text("Assessed Score Average", 145, y);
+    y += 4;
+    
+    doc.setDrawColor(220, 220, 220);
+    doc.line(14, y, 196, y);
+    y += 5;
+    doc.setFont("Helvetica", "normal");
+    
+    progressChartData.forEach(dept => {
+      doc.text(dept.name, 14, y);
+      doc.text(`${dept.activeHours} Hrs`, 85, y);
+      doc.text(`${dept.scoreAvg}%`, 145, y);
+      y += 5.5;
+    });
+    
+    y += 6;
+    
+    // SECTION 3: IN-HOUSE TRAINING MODULES PROGRESS
+    doc.setFillColor(244, 244, 245);
+    doc.rect(14, y, 182, 7, "F");
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+    doc.text("3. ACTIVE WORKFLOW CURRICULUMS PROGRESS", 18, y + 5);
+    
+    y += 13;
+    doc.setFont("Helvetica", "normal");
+    programs.forEach(prog => {
+      if (y > 260) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.setFont("Helvetica", "bold");
+      doc.text(`${prog.title} (${prog.dept})`, 14, y);
+      doc.setFont("Helvetica", "normal");
+      doc.text(`Completion Ratio: ${prog.progress}%`, 150, y);
+      y += 5.5;
+      
+      const activeLessons = prog.lessons.slice(0, 3);
+      activeLessons.forEach(l => {
+        doc.text(`  [${l.done ? 'Y' : ' '}] Module ${l.num}: ${l.title}`, 18, y);
+        y += 4.5;
+      });
+      y += 3;
+    });
+
+    if (y > 230) {
+      doc.addPage();
+      y = 20;
+    }
+    
+    y += 4;
+    
+    // SECTION 4: CERTIFICATIONS DISPATCH status
+    doc.setFillColor(244, 244, 245);
+    doc.rect(14, y, 182, 7, "F");
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+    doc.text("4. RECOMMENDED COMPLIANCE CERTIFICATIONS STATUS", 18, y + 5);
+    
+    y += 13;
+    doc.setFont("Helvetica", "normal");
+    certificationRecommendations.forEach(cert => {
+      if (y > 260) {
+        doc.addPage();
+        y = 20;
+      }
+      const isEligible = cert.currentAssessedScore >= cert.requiredScore;
+      const isClaimed = claimedCertificates.includes(cert.id);
+      doc.setFont("Helvetica", "bold");
+      doc.text(cert.title, 14, y);
+      doc.setFont("Helvetica", "normal");
+      doc.text(isEligible ? (isClaimed ? "[v CLAIMED & VERIFIED]" : "[ELIGIBLE TO CLAIM]") : "[PREREQUISITES PENDING]", 140, y);
+      y += 5;
+      doc.setFontSize(8.5);
+      doc.setTextColor(100, 116, 139);
+      const splitDesc: string[] = doc.splitTextToSize(cert.description, 180);
+      doc.text(splitDesc, 14, y);
+      y += (splitDesc.length * 4) + 3;
+      doc.setFontSize(9.5);
+      doc.setTextColor(15, 23, 42);
+    });
+    
+    y += 4;
+    // Professional footer decoration
+    doc.setDrawColor(15, 23, 42);
+    doc.setLineWidth(0.5);
+    doc.line(14, y, 196, y);
+    y += 6;
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text("theCsuiteCOACH PLATFORM HYBRID SYSTEMS VERDICT: COMPATIBLE & VERIFIED", 14, y);
+    
+    y += 4.5;
+    doc.setFont("Helvetica", "normal");
+    doc.text("This PDF diagnostic report serves as an official internal audit payload. Vouchers can be decoded to load configuration schemas.", 14, y);
+    
+    doc.save("theCsuiteCOACH_Corporate_Assessment_Report.pdf");
+  };
+
   return (
     <div className="space-y-8 text-slate-900 animate-fadeIn" id="corporate-academy-hub">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          /* Hide main app header, page sidebars, local hub sidebar, and all button elements */
+          header, 
+          footer, 
+          aside, 
+          nav, 
+          button, 
+          .no-print, 
+          .print-hide,
+          #export-dropdown-wrapper,
+          #export-button,
+          [id*="nav-item-"] {
+            display: none !important;
+          }
+          
+          /* Force physical container to full width and override tailwind card limits */
+          body, 
+          html, 
+          #main-root, 
+          #corporate-academy-hub, 
+          main, 
+          div[class*="max-w-"] {
+            background: white !important;
+            color: #000000 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border-color: transparent !important;
+          }
+          
+          /* Expand layout columns to utilize standard A4/US Letter widths */
+          .grid {
+            display: block !important;
+          }
+          
+          .lg\\:col-span-9,
+          [class*="lg:col-span-9"],
+          [class*="col-span-9"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            grid-column: span 12 / span 12 !important;
+            display: block !important;
+            flex: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          
+          /* Form customization so printed values stand out with clean borders */
+          select, input, textarea {
+            background-color: #ffffff !important;
+            border: 1px solid #94a3b8 !important;
+            color: #000000 !important;
+          }
+          
+          /* Chart styling compatibility */
+          .recharts-responsive-container {
+            width: 100% !important;
+            height: auto !important;
+          }
+        }
+      `}} />
+      
       {/* Academy Title and Intro */}
       <div className="border-b border-zinc-250/60 pb-5 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
@@ -399,7 +706,67 @@ export default function CorporateAssessmentHub() {
             Build in-house task forces, conduct structural assessments, design custom learning paths, and audit certification achievements.
           </p>
         </div>
-        <div className="text-zinc-400 font-mono text-[10px] uppercase font-semibold">System Matrix Active</div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="text-right hidden md:block">
+            <span className="text-zinc-400 font-mono text-[10px] uppercase font-bold block">// System Matrix Active</span>
+            <span className="text-[9px] text-[#22c55e] font-mono font-bold uppercase font-sans">Ready to compile report</span>
+          </div>
+
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-2.5 bg-white hover:bg-zinc-50 text-slate-800 border border-zinc-200 font-mono text-xs font-bold uppercase rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-sm no-print"
+            title="Generate a clean physical copy of the report"
+          >
+            <Printer className="w-4 h-4 text-indigo-600" />
+            Print Report
+          </button>
+          
+          <div className="relative inline-block text-left no-print" id="export-dropdown-wrapper">
+            <button
+              onClick={() => setIsExportOpen(!isExportOpen)}
+              className="px-4 py-2.5 bg-[#0F172A] hover:bg-slate-800 text-white font-mono text-xs font-bold uppercase rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-sm"
+            >
+              <Download className="w-4 h-4 text-[#9DFF00]" />
+              Export Report
+            </button>
+            
+            {isExportOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setIsExportOpen(false)} 
+                />
+                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white border border-zinc-200 shadow-xl overflow-hidden z-20 font-sans text-xs">
+                  <div className="p-2 border-b border-zinc-100 bg-[#FAF9F6]">
+                    <p className="font-mono text-[9px] text-zinc-400 uppercase font-black tracking-tight">// EXPORT TARGET FORMAT</p>
+                  </div>
+                  <div className="p-1.5 space-y-1">
+                    <button
+                      onClick={() => {
+                        handleExportPDF();
+                        setIsExportOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-zinc-50 rounded-lg flex items-center justify-between font-bold text-slate-800 transition-colors cursor-pointer"
+                    >
+                      <span>Download PDF Document</span>
+                      <span className="font-mono text-[9.5px] bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold px-1.5 py-0.5 rounded">PDF</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleExportCSV();
+                        setIsExportOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-zinc-50 rounded-lg flex items-center justify-between font-bold text-slate-800 transition-colors cursor-pointer"
+                    >
+                      <span>Download CSV Spreadsheet</span>
+                      <span className="font-mono text-[9.5px] bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold px-1.5 py-0.5 rounded">CSV</span>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Grid: Navigation Sidebar + Active Area */}
@@ -428,16 +795,16 @@ export default function CorporateAssessmentHub() {
                     {sec.icon}
                   </div>
                   <div className="text-left">
-                    <h5 className="font-extrabold text-[11.5px] tracking-tight leading-none uppercase">{sec.title}</h5>
-                    <p className={`text-[8.5px] font-mono mt-0.5 ${isSelected ? 'text-zinc-300' : 'text-zinc-400'}`}>{sec.sub}</p>
+                    <h5 className="font-extrabold text-[15.5px] tracking-tight leading-none uppercase">{sec.title}</h5>
+                    <p className={`text-[12.5px] font-mono mt-1.5 ${isSelected ? 'text-zinc-300' : 'text-zinc-400'}`}>{sec.sub}</p>
                   </div>
                 </div>
               </button>
             );
           })}
 
-          <div className="p-4 bg-zinc-50/70 border border-zinc-200/80 rounded-xl space-y-2 text-[11px] text-zinc-500">
-            <span className="font-bold text-zinc-800 uppercase text-[9px] block">💡 Strategic Recommendation</span>
+          <div className="p-4 bg-zinc-50/70 border border-zinc-200/80 rounded-xl space-y-2 text-[13px] text-zinc-500">
+            <span className="font-bold text-zinc-800 uppercase text-[11px] block">💡 Strategic Recommendation</span>
             <p className="leading-relaxed">
               We recommend auditing all development and operations personnel weekly to identify transition gaps.
             </p>
@@ -453,11 +820,11 @@ export default function CorporateAssessmentHub() {
           {activeSection === 'corporate-assessment' && (
             <div className="bg-white border border-zinc-200/85 p-6 rounded-2xl shadow-sm space-y-6 animate-fadeIn">
               <div className="border-b border-zinc-150 pb-4">
-                <span className="font-mono text-[9px] uppercase tracking-wider text-indigo-600 font-extrabold flex items-center gap-1">
+                <span className="font-mono text-[11px] uppercase tracking-wider text-indigo-600 font-extrabold flex items-center gap-1">
                   <Building2 className="w-3.5 h-3.5" /> Corporate Workflow Auditor // Section 1
                 </span>
-                <h4 className="text-lg font-black text-slate-900 uppercase mt-1">Audit Digital Overhead & Gaps</h4>
-                <p className="text-xs text-zinc-500 mt-1">
+                <h4 className="text-[20px] font-black text-slate-900 uppercase mt-1">Audit Digital Overhead & Gaps</h4>
+                <p className="text-[14px] text-zinc-500 mt-1">
                   Understand if your employees are currently wasting hundreds of collective hours on outdated manual processes.
                 </p>
               </div>
@@ -465,12 +832,12 @@ export default function CorporateAssessmentHub() {
               {!assessmentResult ? (
                 <form onSubmit={handleAssessmentSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <label className="block font-mono text-[10px] uppercase font-black text-slate-700">How does your staff currently handle client folder onboarding briefs & records?</label>
+                    <label className="block font-mono text-[12px] uppercase font-black text-slate-700">How does your staff currently handle client folder onboarding briefs & records?</label>
                     <select 
                       value={assessmentAnswers.docHandling}
                       onChange={(e) => setAssessmentAnswers({...assessmentAnswers, docHandling: e.target.value})}
                       required
-                      className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs"
+                      className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-[14px]"
                     >
                       <option value="">Select option...</option>
                       <option value="manual">Raw manual copy-pastes into document files (Takes 30+ mins)</option>
@@ -480,12 +847,12 @@ export default function CorporateAssessmentHub() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block font-mono text-[10px] uppercase font-black text-slate-700">Where are core private API keys and database credentials hosted?</label>
+                    <label className="block font-mono text-[12px] uppercase font-black text-slate-700">Where are core private API keys and database credentials hosted?</label>
                     <select 
                       value={assessmentAnswers.apiUsage}
                       onChange={(e) => setAssessmentAnswers({...assessmentAnswers, apiUsage: e.target.value})}
                       required
-                      className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs"
+                      className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-[14px]"
                     >
                       <option value="">Select option...</option>
                       <option value="public-client">Saved directly inside react client-side variables (Highly vulnerable)</option>
@@ -495,12 +862,12 @@ export default function CorporateAssessmentHub() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block font-mono text-[10px] uppercase font-black text-slate-700">What protocol is dispatched when complex operational workflow exceptions happen?</label>
+                    <label className="block font-mono text-[12px] uppercase font-black text-slate-700">What protocol is dispatched when complex operational workflow exceptions happen?</label>
                     <select 
                       value={assessmentAnswers.smsOutreach}
                       onChange={(e) => setAssessmentAnswers({...assessmentAnswers, smsOutreach: e.target.value})}
                       required
-                      className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs"
+                      className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-[14px]"
                     >
                       <option value="">Select option...</option>
                       <option value="no-alert">No standard alert; staff has to wait for support emails manually</option>
@@ -511,7 +878,7 @@ export default function CorporateAssessmentHub() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="block font-mono text-[10px] uppercase font-black text-slate-700">Legacy Friction Weight (1: Low Drag - 5: Intense Overheads)</label>
+                      <label className="block font-mono text-[12px] uppercase font-black text-slate-700">Legacy Friction Weight (1: Low Drag - 5: Intense Overheads)</label>
                       <input 
                         type="range" 
                         min="1" 
@@ -520,18 +887,18 @@ export default function CorporateAssessmentHub() {
                         onChange={(e) => setAssessmentAnswers({...assessmentAnswers, legacyDrag: e.target.value})}
                         className="w-full accent-slate-900 bg-zinc-200 appearance-none h-1 cursor-pointer"
                       />
-                      <div className="flex justify-between text-[9px] font-mono text-zinc-400 uppercase font-medium">
+                      <div className="flex justify-between text-[11px] font-mono text-zinc-400 uppercase font-medium">
                         <span>1: Lightning agility</span>
                         <span>5: Heavy manual drag</span>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="block font-mono text-[10px] uppercase font-black text-slate-700">Staff Scale</label>
+                      <label className="block font-mono text-[12px] uppercase font-black text-slate-700">Staff Scale</label>
                       <select 
                         value={assessmentAnswers.staffCount}
                         onChange={(e) => setAssessmentAnswers({...assessmentAnswers, staffCount: e.target.value})}
-                        className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-xs"
+                        className="w-full p-2.5 bg-zinc-50 border border-zinc-200 rounded-lg text-[14px]"
                       >
                         <option value="small">Solo / Under 10 staff members</option>
                         <option value="medium">Medium corporate team (10 - 75 staff)</option>
@@ -542,7 +909,7 @@ export default function CorporateAssessmentHub() {
 
                   <button 
                     type="submit"
-                    className="w-full py-3 bg-[#0F172A] hover:bg-slate-800 text-white font-mono text-xs font-bold uppercase transition-all rounded-xl mt-4 cursor-pointer shadow-sm"
+                    className="w-full py-3 bg-[#0F172A] hover:bg-slate-800 text-white font-mono text-[14px] font-bold uppercase transition-all rounded-xl mt-4 cursor-pointer shadow-sm"
                   >
                     Analyze Corporate Workflow Score & Recs &rarr;
                   </button>
@@ -1090,7 +1457,7 @@ export default function CorporateAssessmentHub() {
                     </div>
 
                     <p className="text-[10px] font-mono text-zinc-450 uppercase leading-none font-semibold">
-                      VERIFIED VIA RAWCOACH DECENTRALIZED ACADEMY MATRIX
+                      VERIFIED VIA theCsuiteCOACH DECENTRALIZED ACADEMY MATRIX
                     </p>
                   </div>
                 </div>

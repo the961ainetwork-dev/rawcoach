@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LATEST_NEWS } from '../data/mockData';
 import CorporateAssessmentHub from './CorporateAssessmentHub';
 import PhoneSimulator from './PhoneSimulator';
-import SystemDiagnostics from './SystemDiagnostics';
+import AgenticTransformationService from './AgenticTransformationService';
+import AboutUs from './AboutUs';
+import GetStarted from './GetStarted';
+import ReadinessScorecard from './ReadinessScorecard';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   Sparkles, 
   Terminal, 
@@ -17,11 +21,20 @@ import {
   Play,
   Check,
   RefreshCw,
-  Download
+  Download,
+  BookOpen,
+  Heart,
+  Plus,
+  Lock,
+  LogOut,
+  Compass,
+  X
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { db } from '../lib/firebase';
+import { collection, getDocs, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
-// Custom lightweight Markdown-to-HTML parser for RAWCOACH transition reports
+// Custom lightweight Markdown-to-HTML parser for theCsuiteCOACH transition reports
 function MarkdownDisplay({ text }: { text: string }) {
   const lines = text.split('\n');
   return (
@@ -110,12 +123,228 @@ function MarkdownDisplay({ text }: { text: string }) {
 }
 
 interface HeroProps {
-  onStartDashboard: (tabId?: 'copilot-workspace' | 'ceo-coaching') => void;
+  onStartDashboard: (tabId?: any) => void;
+  onOpenAuth?: (mode: 'login' | 'signup') => void;
 }
 
-export default function Hero({ onStartDashboard }: HeroProps) {
+const DEFAULT_STORIES = [
+  {
+    id: 'story-1',
+    title: 'THE 1993 DECENT TELECOM RESET',
+    subtitle: 'How alpha networks connected 50 local nodes offline',
+    content: 'In 1993, unexpected telecom blackouts isolated major business corridors. Rather than waiting for central carrier recovery, a group of local engineers established asynchronous wireless relay hubs using standard high-frequency radios. Within 72 hours, 50 merchant clearance centers were synchronized, allowing core billing logs to bypass network failure gates. This historic event proved that decentralized structures outperform slow monolithic infrastructure.',
+    year: '1993',
+    author: 'Sovereign Telecom Guild'
+  },
+  {
+    id: 'story-2',
+    title: 'THE BEKAA AGRO-ESCROW POOL',
+    subtitle: 'Solar micro-irrigation managed by smart grid logs',
+    content: 'Faced with volatile supply pipelines, cooperative agronomists assembled distributed solar-pump arrays governed by automated SMS alerts. If water pressure indicators drop below pre-audited levels, resources are automatically re-allocated. Operating entirely on client-simulated SMS payloads, water waste fell by 40% while preserving crop security across 300 hectares.',
+    year: '2018',
+    author: 'Maan Barazy'
+  }
+];
+
+const DEFAULT_LITE_INSIGHTS = [
+  {
+    id: 'insight-1',
+    title: 'THE PARALLEL LIQUIDITY PROTOCOL',
+    author: 'Maan Barazy',
+    role: 'Sovereign Advisor',
+    snippet: 'How decentralized digital ledger pools can reboot commercial credit pipelines across Lebanon without central bank bailouts.',
+    bgColor: 'bg-slate-900 border-zinc-800 text-white',
+    tag: 'FINANCE',
+    likesCount: 124
+  },
+  {
+    id: 'insight-2',
+    title: 'THE AGENTIC WORKFORCE: SAVING 60% OPERATIONAL BURN',
+    author: 'Alpha Team Lead',
+    role: 'Sovereign Architect',
+    snippet: 'A look at deploying 12 parallel autonomous agents to handle daily administration loops and client-facing brief generation.',
+    bgColor: 'bg-white border-zinc-200 text-slate-900',
+    tag: 'AI DEPLOYMENT',
+    likesCount: 89
+  },
+  {
+    id: 'insight-3',
+    title: 'DE-BOTTLENECKING ENTERPRISE DECISION CHAINS',
+    author: 'Sovereign Auditor',
+    role: 'Operations Expert',
+    snippet: 'Eliminating the "approval hoop" drag weight. Empowering decentralized team leaders with automated budget-trigger protocols.',
+    bgColor: 'bg-white border-zinc-200 text-slate-900',
+    tag: 'MANAGEMENT',
+    likesCount: 56
+  }
+];
+
+export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
+  const { user, profile, logOut } = useAuth();
   const [email, setEmail] = useState('');
   const [joined, setJoined] = useState(false);
+
+  // Solopreneur Pop-up State
+  const [showSolopreneurPopup, setShowSolopreneurPopup] = useState(false);
+
+  useEffect(() => {
+    const isDismissed = sessionStorage.getItem('dismissedSolopreneurPopup') === 'true';
+    if (!isDismissed) {
+      const timer = setTimeout(() => {
+        setShowSolopreneurPopup(true);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Onboarding states
+  const [onboardType, setOnboardType] = useState<'founder' | 'enterprise' | null>(null);
+  const [onboardSuccess, setOnboardSuccess] = useState(false);
+  const [founderForm, setFounderForm] = useState({
+    name: '',
+    ventureName: '',
+    phone: '',
+    stage: 'Ideation / Validation',
+    bottleneck: 'Manual operations and copy-pasting',
+    goal: ''
+  });
+  const [enterpriseForm, setEnterpriseForm] = useState({
+    repName: '',
+    repTitle: '',
+    companyName: '',
+    compliance: 'GDPR & Privacy Rules',
+    bottleneck: 'Operations dispatch & log flow',
+    infrastructureGoal: ''
+  });
+
+  const handleFounderOnboardSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('localOnboardType', 'founder');
+    localStorage.setItem('localOnboardData', JSON.stringify(founderForm));
+    localStorage.setItem('localWiderCompleted', 'false'); // Reset phase 2 state for clean route
+    setOnboardSuccess(true);
+    setTimeout(() => {
+      setOnboardSuccess(false);
+      onStartDashboard('my-workspace');
+    }, 1500);
+  };
+
+  const handleEnterpriseOnboardSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('localOnboardType', 'enterprise');
+    localStorage.setItem('localOnboardData', JSON.stringify(enterpriseForm));
+    localStorage.setItem('localWiderCompleted', 'false'); // Reset phase 2 state for clean route
+    setOnboardSuccess(true);
+    setTimeout(() => {
+      setOnboardSuccess(false);
+      onStartDashboard('my-workspace');
+    }, 1500);
+  };
+
+  // Dynamic loaded content state
+  const [customSections, setCustomSections] = useState<any[]>([]);
+  const [stories, setStories] = useState<any[]>([]);
+  const [insights, setInsights] = useState<any[]>([]);
+
+  // Fetch dynamic content on load
+  useEffect(() => {
+    const loadDynamicData = async () => {
+      // 1. Fetch custom page sections
+      try {
+        const sectionsSnap = await getDocs(collection(db, 'pageSections'));
+        const list: any[] = [];
+        sectionsSnap.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+        setCustomSections(list);
+      } catch (e) {
+        console.warn('Page sections dynamic loads bypassed:', e);
+      }
+
+      // 2. Fetch stories
+      try {
+        const storiesSnap = await getDocs(collection(db, 'sheikhStories'));
+        const list: any[] = [];
+        storiesSnap.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+        if (list.length > 0) {
+          setStories(list);
+        } else {
+          setStories(DEFAULT_STORIES);
+        }
+      } catch (e) {
+        setStories(DEFAULT_STORIES);
+      }
+
+      // 3. Fetch insights
+      try {
+        const insightsSnap = await getDocs(collection(db, 'csuiteInsights'));
+        const list: any[] = [];
+        insightsSnap.forEach((docSnap) => {
+          const d = docSnap.data();
+          if (d.status === 'published') {
+            list.push({ id: docSnap.id, ...d });
+          }
+        });
+        if (list.length > 0) {
+          setInsights(list.slice(0, 3)); // show top 3 on home page
+        } else {
+          setInsights(DEFAULT_LITE_INSIGHTS);
+        }
+      } catch (e) {
+        setInsights(DEFAULT_LITE_INSIGHTS);
+      }
+    };
+
+    loadDynamicData();
+  }, []);
+
+  // Active Section Tracking State for vertical menu
+  const [activeSection, setActiveSection] = useState('intro');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPos = window.scrollY + 150;
+      const sections = [
+        { id: 'intro', top: 0 },
+        { id: 'corporate-academy-block', el: document.getElementById('corporate-academy-block') },
+        { id: 'mobile-preview-block', el: document.getElementById('mobile-preview-block') },
+        { id: 'service-pillars-block', el: document.getElementById('service-pillars-block') },
+        { id: 'dispatch-waitlist-block', el: document.getElementById('dispatch-waitlist-block') },
+      ];
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const item = sections[i];
+        if (item.id === 'intro') {
+          if (scrollPos < 350) {
+            setActiveSection('intro');
+            break;
+          }
+        } else if (item.el) {
+          const offset = item.el.offsetTop;
+          if (scrollPos >= offset) {
+            setActiveSection(item.id);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    if (id === 'intro') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   // Questionnaire States
   const [activeTab, setActiveTab] = useState<'capabilities' | 'demo'>('capabilities');
@@ -133,11 +362,22 @@ export default function Hero({ onStartDashboard }: HeroProps) {
   const [generatedReport, setGeneratedReport] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
       setJoined(true);
-      setTimeout(() => setJoined(false), 4000);
+      try {
+        const subId = 'sub-' + Date.now();
+        await setDoc(doc(db, 'subscribers', subId), {
+          id: subId,
+          email: email.toLowerCase(),
+          status: 'active',
+          createdAt: serverTimestamp()
+        });
+      } catch (err) {
+        console.warn('Subscription saved locally. Firebase sync bypassed:', err);
+      }
+      setTimeout(() => setJoined(false), 4500);
       setEmail('');
     }
   };
@@ -226,14 +466,14 @@ export default function Hero({ onStartDashboard }: HeroProps) {
     let y = 52;
 
     // Page 1 Background & Cover header
-    doc.setFillColor(18, 19, 24); // Deep black/slate RAWCOACH header block
+    doc.setFillColor(18, 19, 24); // Deep black/slate theCsuiteCOACH header block
     doc.rect(0, 0, pageWidth, 42, 'F');
 
     // Title in header
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text('RAWCOACH EXECUTIVE DISPATCH', margin, 18);
+    doc.text('theCsuiteCOACH EXECUTIVE DISPATCH', margin, 18);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
@@ -269,7 +509,7 @@ export default function Hero({ onStartDashboard }: HeroProps) {
         doc.setTextColor(157, 255, 0);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(7);
-        doc.text(`RAWCOACH ROADMAP // CLIENT: ${companyName.toUpperCase() || 'INCOGNITOS'}`, margin, 8);
+        doc.text(`theCsuiteCOACH ROADMAP // CLIENT: ${companyName.toUpperCase() || 'INCOGNITOS'}`, margin, 8);
         
         doc.setTextColor(255, 255, 255);
         doc.setFont('helvetica', 'bold');
@@ -354,7 +594,7 @@ export default function Hero({ onStartDashboard }: HeroProps) {
       }
     }
 
-    doc.save(`RAWCOACH_Transition_Roadmap_${companyName.replace(/[^a-zA-Z0-9]/g, '_') || 'Blueprint'}.pdf`);
+    doc.save(`theCsuiteCOACH_Transition_Roadmap_${companyName.replace(/[^a-zA-Z0-9]/g, '_') || 'Blueprint'}.pdf`);
   };
 
   const handleResetDemo = () => {
@@ -383,7 +623,7 @@ export default function Hero({ onStartDashboard }: HeroProps) {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-zinc-200/50 pb-8 mb-16">
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900" id="branding-title">
-              RAWCOACH<span className="text-zinc-400 font-normal">.AI</span>
+              theCsuiteCOACH
             </h1>
             <p className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest mt-1">Strategic AI Advisory Core</p>
           </div>
@@ -397,39 +637,408 @@ export default function Hero({ onStartDashboard }: HeroProps) {
           </div>
         </div>
 
-        {/* Gigantic Premium Headline Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-24">
-          <div className="lg:col-span-8 space-y-6">
-            <div className="bg-red-50 border border-red-150 inline-block px-3.5 py-1 rounded-lg">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700 font-mono">⚡ SOVEREIGN ADVISORY ENGINES</span>
-            </div>
-            
-            <h2 className="text-5xl sm:text-7xl md:text-[74px] leading-[0.95] font-black uppercase tracking-tight text-slate-900 font-sans">
-              STOP GUESSING. <br className="hidden sm:inline" /> START <br className="hidden sm:inline" /> <span className="bg-slate-900 text-[#9DFF00] px-4 inline-block py-1">ARCHITECTING.</span>
-            </h2>
+        {/* Dynamic Left Vertical Menu + Right Content Sections Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          
+          {/* STICKY MINIMALIST LEFT VERTICAL NAVIGATION */}
+          <aside className="lg:col-span-3 lg:sticky lg:top-6 z-30 bg-white/70 backdrop-blur-md border border-zinc-200/80 p-5 rounded-2xl shadow-xs">
+            <div className="space-y-6">
+              <div>
+                <p className="font-mono text-[11px] text-[#FF4F2E] uppercase tracking-widest leading-none font-black">/// CORE INTERFACES</p>
+                <h4 className="font-sans font-black text-[14px] uppercase text-slate-900 mt-2">DIRECTORY HUB</h4>
+              </div>
 
-            <p className="text-base md:text-lg text-slate-700 font-semibold max-w-2xl leading-relaxed">
-              We don’t just coach; we build the engine. From sovereign-grade macroeconomic modeling to agentic swarm deployment, we equip Lebanon’s next generation of founders to survive, scale, and disrupt.
-            </p>
-            
-            <div className="flex flex-wrap gap-4 pt-3">
-              <button
-                onClick={() => onStartDashboard('ceo-coaching')}
-                id="btn-sandbox"
-                className="group px-7 py-4.5 bg-slate-900 hover:bg-slate-800 text-[#9DFF00] rounded-xl font-bold uppercase text-[11px] tracking-wider transition-all cursor-pointer flex items-center gap-2.5 shadow-sm"
-              >
-                Let’s Build the Alpha <ArrowRight className="w-4 h-4 text-[#9DFF00]" />
-              </button>
-              <button
-                onClick={() => {
-                  const el = document.getElementById('manifesto-section');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="px-7 py-4.5 bg-white hover:bg-zinc-50 text-slate-800 border border-zinc-200 rounded-xl text-[11px] uppercase font-bold tracking-wider transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-              >
-                View the War Chest (Services)
-              </button>
+              {/* NAVIGATION LINKS */}
+              <nav className="flex flex-col gap-1 border-y border-zinc-200/60 py-4">
+                {[
+                  { id: 'intro', label: '01 // TOP ARCHITECT' },
+                  { id: 'manifesto', label: '02 // THE MANIFESTO', tabId: 'manifesto-section' },
+                  { id: 'insights', label: '03 // C-SUITE INSIGHTS', tabId: 'csuite-insights' },
+                  { id: 'recon', label: '04 // RESILIENCY RECON', tabId: 'resiliency-recon' },
+                  { id: 'transformation', label: '05 // AGENTIC TRANSFORMATION', tabId: 'agentic-transformation' },
+                  { id: 'about-us', label: '06 // ABOUT THE PROGRAM', tabId: 'about-us' },
+                  { id: 'get-started', label: '07 // LAUNCH BLUEPRINT', tabId: 'get-started' },
+                  { id: 'scorecard', label: '08 // DIAGNOSTIC SCORECARD', tabId: 'readiness-scorecard' },
+                  { id: 'corporate-academy-block', label: '09 // AUDITING CLINIC' },
+                  { id: 'mobile-preview-block', label: '10 // MOBILE ENGINE' },
+                  { id: 'service-pillars-block', label: '11 // ADVISORY PILLARS' },
+                  { id: 'dispatch-waitlist-block', label: '12 // INTEL DISPATCH' },
+                ].map((sec) => {
+                  const isActive = activeSection === sec.id;
+                  return (
+                    <button
+                      key={sec.id}
+                      onClick={() => sec.tabId ? onStartDashboard(sec.tabId) : scrollToSection(sec.id)}
+                      className={`w-full text-left font-mono text-[11px] uppercase py-2 px-2.5 tracking-wider rounded-lg transition-all flex items-center justify-between group cursor-pointer font-extrabold ${
+                        isActive 
+                          ? 'bg-slate-900 text-[#9DFF00]' 
+                          : 'text-zinc-500 hover:text-slate-900 hover:bg-zinc-100/65'
+                      }`}
+                    >
+                      <span>{sec.label}</span>
+                      <span className={`w-1.5 h-1.5 rounded-full transition-all ${
+                        isActive ? 'bg-[#9DFF00] scale-110' : 'bg-transparent group-hover:bg-zinc-300'
+                      }`} />
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* DYNAMIC SECURED AUTH CONTROLS */}
+              <div className="pt-2">
+                {user ? (
+                  <div className="space-y-3 bg-zinc-50/50 border border-zinc-200/60 p-3 rounded-xl">
+                    <div className="space-y-1">
+                      <p className="text-[8px] font-mono uppercase tracking-widest text-emerald-600 font-extrabold flex items-center gap-1 leading-none">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        CONNECTED NODE
+                      </p>
+                      <p className="text-[9px] font-mono text-zinc-500 truncate" title={user.email}>{user.email}</p>
+                      <p className="text-[9px] font-extrabold text-slate-800 bg-white border border-zinc-200 inline-block px-1.5 py-0.5 rounded uppercase leading-none mt-1">
+                        {profile?.fullName || 'EXECUTIVE MEMBER'}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1 pt-1 border-t border-zinc-200/50">
+                      <button
+                        onClick={() => onStartDashboard('my-workspace')}
+                        className="w-full py-2 bg-slate-900 hover:bg-slate-850 text-white font-mono text-[9px] uppercase font-bold text-center rounded-md transition-colors cursor-pointer"
+                      >
+                        WORKSPACE VIEW &rarr;
+                      </button>
+                      <button
+                        onClick={() => logOut()}
+                        className="w-full py-1 text-center font-mono text-[9px] uppercase text-zinc-405 hover:text-red-500 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <LogOut className="w-3 h-3" /> [DISCONNECT]
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5 bg-zinc-50/50 border border-zinc-200/60 p-3 rounded-xl">
+                    <p className="text-[8.5px] font-mono uppercase tracking-widest text-zinc-400 font-bold leading-none">// AUTHENTICATION</p>
+                    <div className="flex flex-col gap-1.5">
+                      <button
+                        onClick={() => onOpenAuth?.('login')}
+                        className="w-full text-center py-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-slate-900 font-mono text-[9.5px] uppercase font-black rounded-lg cursor-pointer transition-all shadow-xs"
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        onClick={() => onOpenAuth?.('signup')}
+                        className="w-full text-center py-2 bg-slate-900 hover:bg-slate-800 text-white font-mono text-[9.5px] uppercase font-black rounded-lg cursor-pointer transition-all shadow-xs"
+                      >
+                        Sign Up
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
+          </aside>
+
+          {/* RIGHT SIDE DATA COLUMN CONTAINER */}
+          <div className="lg:col-span-9 space-y-24">
+
+            {/* Gigantic Premium Headline Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-24">
+          <div className="lg:col-span-8 space-y-8">
+            <div className="space-y-4">
+              <div className="inline-block px-3.5 py-1 bg-zinc-950 border border-zinc-805 text-[#9DFF00] font-mono text-[9px] uppercase tracking-wider font-extrabold rounded-lg">
+                ★ AUGMENTED SOLOPRENEUR CORE ★
+              </div>
+              
+              <h2 className="text-4xl sm:text-5xl md:text-[58px] leading-[0.95] font-black uppercase tracking-tight text-slate-900 font-sans">
+                You Are the CEO.<br />
+                <span className="text-slate-950">We Build Your Empowered Leadership.</span>
+              </h2>
+
+              <p className="text-xs md:text-sm text-zinc-650 font-sans font-medium leading-relaxed max-w-2xl">
+                Stop playing every role in your business. Experience the <strong className="text-slate-950">Lebanese AI Renaissance</strong> by deploying a digital executive team designed for the individual entrepreneur. Compile your startup variables below to configure workspace parameters instantly.
+              </p>
+            </div>
+
+            {/* Redesigned 2-Column Onboarding Cards in Hero Left Column */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Card 1: Founder/Solopreneur */}
+              <div 
+                onClick={() => { setOnboardType('founder'); setOnboardSuccess(false); }}
+                className={`p-6 rounded-2xl border cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col justify-between min-h-[300px] h-auto ${
+                  onboardType === 'founder'
+                    ? 'bg-white border-zinc-900 shadow-md ring-1 ring-zinc-950 scale-[1.01]'
+                    : 'bg-white/70 border-zinc-200/80 hover:bg-white hover:border-zinc-400 hover:shadow-xs'
+                }`}
+              >
+                <div className="space-y-3">
+                  <div className="w-11 h-11 bg-zinc-100 rounded-lg flex items-center justify-center border border-zinc-200/40">
+                    <UserCheck className="w-6 h-6 text-zinc-900" />
+                  </div>
+                  <div>
+                    <span className="font-mono text-[16px] uppercase tracking-widest text-[#FF4F2E] font-black block">SOLOPRENEUR PATHWAY</span>
+                    <h4 className="text-[22px] font-extrabold text-slate-900 uppercase tracking-tight mt-1 leading-snug">FOUNDER & SOLOPRENEUR</h4>
+                  </div>
+                  <p className="text-[19px] text-zinc-550 leading-relaxed font-sans font-semibold">
+                    Ideal for startup visionaries aiming to crush operational drag and orchestrate autonomous agent swarms.
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-zinc-100 mt-4">
+                  <span className="text-[17px] font-mono font-black uppercase text-slate-800">
+                    Sovereign Assessment
+                  </span>
+                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[14px] font-bold transition-all ${
+                    onboardType === 'founder' ? 'bg-zinc-900 text-white' : 'bg-zinc-200/50 text-zinc-650'
+                  }`}>
+                    →
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 2: Enterprise */}
+              <div 
+                onClick={() => { setOnboardType('enterprise'); setOnboardSuccess(false); }}
+                className={`p-6 rounded-2xl border cursor-pointer transition-all duration-350 relative overflow-hidden flex flex-col justify-between min-h-[300px] h-auto ${
+                  onboardType === 'enterprise'
+                    ? 'bg-zinc-950 border-zinc-800 shadow-md scale-[1.01] text-white'
+                    : 'bg-zinc-900 text-white border-zinc-800 hover:bg-zinc-900/95 hover:shadow-xs'
+                }`}
+              >
+                <div className="space-y-3">
+                  <div className="w-11 h-11 bg-zinc-800 rounded-lg flex items-center justify-center border border-zinc-700">
+                    <Shield className="w-6 h-6 text-[#9DFF00]" />
+                  </div>
+                  <div>
+                    <span className="font-mono text-[16px] uppercase tracking-widest text-[#9DFF00] font-black block">CORP-LEVEL INTEGRATIONS</span>
+                    <h4 className="text-[22px] font-extrabold text-white uppercase tracking-tight mt-1 leading-snug">SOCIETY & ENTERPRISE</h4>
+                  </div>
+                  <p className="text-[19px] text-white leading-relaxed font-sans font-semibold">
+                    Designed for corporate administrators seeking regional proxy servers and team learning workflows.
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-zinc-800 mt-4">
+                  <span className="text-[17px] font-mono font-black uppercase text-[#9DFF00]">
+                    Enterprise Assessment
+                  </span>
+                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[14px] font-bold transition-all ${
+                    onboardType === 'enterprise' ? 'bg-[#9DFF00] text-zinc-950' : 'bg-zinc-800 text-zinc-400'
+                  }`}>
+                    →
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* INLINE QUESTIONNAIRE INTERFACE - APPEARS DYNAMICALLY IN THE HERO GRID */}
+            {onboardType && (
+              <div className="bg-white border-2 border-zinc-900 rounded-2xl p-5 shadow-sm space-y-5 animate-fadeIn">
+                <div className="flex items-center justify-between pb-2.5 border-b border-zinc-155">
+                  <div>
+                    <span className="font-mono text-[8px] uppercase tracking-wide text-[#FF4F2E] block font-extrabold">// RAPID ADVISORY ONBOARDING</span>
+                    <h4 className="font-sans font-black uppercase text-slate-900 tracking-tight text-xs mt-0.5">
+                      {onboardType === 'founder' ? 'Founder Venture Setup' : 'Enterprise Operational Alignment'}
+                    </h4>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setOnboardType(null)}
+                    className="font-mono text-[9px] text-zinc-400 hover:text-[#FF4F2E] uppercase font-black cursor-pointer"
+                  >
+                    [Dismiss]
+                  </button>
+                </div>
+
+                {onboardSuccess ? (
+                  <div className="py-8 text-center space-y-4 animate-scaleUp">
+                    <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-[#86d900] mx-auto border border-emerald-100 font-extrabold">
+                      ✓
+                    </div>
+                    <h4 className="font-sans font-black text-slate-900 uppercase text-xs">BLUEPRINT COMPILED SUCCESSFULLY</h4>
+                    <p className="text-zinc-500 font-mono text-[9px] uppercase">Connecting variables. Redirecting to sovereign workspace...</p>
+                    <div className="w-20 h-1 bg-zinc-100 rounded-full mx-auto overflow-hidden">
+                      <div className="h-full bg-emerald-500 animate-pulse w-full"></div>
+                    </div>
+                  </div>
+                ) : onboardType === 'founder' ? (
+                  <form onSubmit={handleFounderOnboardSubmit} className="space-y-4 font-mono text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div className="space-y-1">
+                        <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Founder Full Name</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={founderForm.name} 
+                          onChange={(e) => setFounderForm({ ...founderForm, name: e.target.value })}
+                          placeholder="Nabil G. Lahoud" 
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 placeholder:text-zinc-305 text-zinc-800 text-[15px]"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Venture / Startup Name</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={founderForm.ventureName} 
+                          onChange={(e) => setFounderForm({ ...founderForm, ventureName: e.target.value })}
+                          placeholder="Cedar Swarms Tech" 
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 placeholder:text-zinc-305 text-zinc-800 text-[15px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div className="space-y-1">
+                        <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Contact Phone (Secure)</label>
+                        <input 
+                          type="tel" 
+                          required
+                          value={founderForm.phone} 
+                          onChange={(e) => setFounderForm({ ...founderForm, phone: e.target.value })}
+                          placeholder="+961 3 456789" 
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 placeholder:text-zinc-305 text-zinc-800 text-[15px]"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Venture Stage</label>
+                        <select 
+                          value={founderForm.stage} 
+                          onChange={(e) => setFounderForm({ ...founderForm, stage: e.target.value })}
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 text-zinc-800 text-[15px]"
+                        >
+                          <option value="Ideation / Validation">Ideation / Validation</option>
+                          <option value="MVP Bootstrapping">MVP Bootstrapping</option>
+                          <option value="Scaling Assets & Customers">Scaling Assets & Customers</option>
+                          <option value="Global Integration expansion">Global Integration expansion</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Primary System drag Bottleneck</label>
+                      <select 
+                        value={founderForm.bottleneck} 
+                        onChange={(e) => setFounderForm({ ...founderForm, bottleneck: e.target.value })}
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 text-zinc-800 text-[15px]"
+                      >
+                        <option value="Manual operations and copy-pasting">Manual operations and copy-pasting</option>
+                        <option value="Customer response and email routing latency">Customer response and email routing latency</option>
+                        <option value="Escrow logs and financial ledger sync gates">Escrow logs and financial ledger sync gates</option>
+                        <option value="Offline system status notifications">Offline system status notifications</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Describe your Primary Tech Stacks / AI Intentions</label>
+                      <textarea 
+                        rows={2}
+                        required
+                        value={founderForm.goal} 
+                        onChange={(e) => setFounderForm({ ...founderForm, goal: e.target.value })}
+                        placeholder="e.g., We want to implement automated WhatsApp trigger notifications to keep suppliers synced..." 
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 resize-none placeholder:text-zinc-305 text-zinc-800 text-[15px]"
+                      />
+                    </div>
+
+                    <div className="pt-1.5">
+                      <button 
+                        type="submit" 
+                        className="w-full py-3.5 bg-zinc-950 border border-transparent hover:bg-zinc-800 text-[#9DFF00] rounded-xl font-bold uppercase text-[14px] tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 "
+                      >
+                        COMPROMISE-FREE WORKSPACE DEPLOYMENT &rarr;
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <form onSubmit={handleEnterpriseOnboardSubmit} className="space-y-4 font-mono text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div className="space-y-1">
+                        <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Representative Name</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={enterpriseForm.repName} 
+                          onChange={(e) => setEnterpriseForm({ ...enterpriseForm, repName: e.target.value })}
+                          placeholder="Marc Y. Chalhoub" 
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 placeholder:text-zinc-305 text-zinc-800 text-[15px]"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Office Title / Role</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={enterpriseForm.repTitle} 
+                          onChange={(e) => setEnterpriseForm({ ...enterpriseForm, repTitle: e.target.value })}
+                          placeholder="Head of Operations" 
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 placeholder:text-zinc-305 text-zinc-800 text-[15px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div className="space-y-1">
+                        <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Organization/Enterprise Name</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={enterpriseForm.companyName} 
+                          onChange={(e) => setEnterpriseForm({ ...enterpriseForm, companyName: e.target.value })}
+                          placeholder="Levant Industrial Holdings Group" 
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 placeholder:text-zinc-305 text-zinc-800 text-[15px]"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Compliance Goal</label>
+                        <select 
+                          value={enterpriseForm.compliance} 
+                          onChange={(e) => setEnterpriseForm({ ...enterpriseForm, compliance: e.target.value })}
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 text-zinc-800 text-[15px]"
+                        >
+                          <option value="GDPR & Privacy Rules">GDPR & General Privacy Rules</option>
+                          <option value="SOC2 Data Auditing Proxy">SOC2 Data Auditing / SEC Proxy</option>
+                          <option value="Local/Regional Sovereignty">Local/Regional Grid Sovereignty</option>
+                          <option value="No special compliance (Public)">No special compliance (Public)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Core friction sector</label>
+                      <select 
+                        value={enterpriseForm.bottleneck} 
+                        onChange={(e) => setEnterpriseForm({ ...enterpriseForm, bottleneck: e.target.value })}
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 text-zinc-800 text-[15px]"
+                      >
+                        <option value="Operations dispatch & log flow">Operations supply log flow & routing</option>
+                        <option value="Administrative invoice tracking and invoices">Administrative invoice tracking and invoices</option>
+                        <option value="Corporate personnel education and learning matrices">Corporate personnel education and learning matrices</option>
+                        <option value="Secure database setup & proxy API hardening">Secure database setup & proxy API hardening</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-zinc-650 text-[12px] uppercase font-black tracking-wider">Primary System Alignment Goal</label>
+                      <textarea 
+                        rows={2}
+                        required
+                        value={enterpriseForm.infrastructureGoal} 
+                        onChange={(e) => setEnterpriseForm({ ...enterpriseForm, infrastructureGoal: e.target.value })}
+                        placeholder="e.g., Securely auditing compliance logs without leaking customer profile secrets..." 
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 focus:outline-none focus:border-zinc-400 resize-none placeholder:text-zinc-305 text-zinc-800 text-[15px]"
+                      />
+                    </div>
+
+                    <div className="pt-1.5">
+                      <button 
+                        type="submit" 
+                        className="w-full py-3 bg-zinc-950 border border-transparent hover:bg-zinc-850 text-[#9DFF00] rounded-xl font-bold uppercase text-[14px] tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        SECURED ENTERPRISE ONBOARD MATRIX &rarr;
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="lg:col-span-4 glass-panel border border-zinc-200 p-8 rounded-2xl space-y-6 relative overflow-hidden bg-zinc-50/20">
@@ -465,60 +1074,37 @@ export default function Hero({ onStartDashboard }: HeroProps) {
           </div>
         </div>
 
-        {/* The Manifesto: From the War Room to the Engine Room */}
-        <section id="manifesto-section" className="mb-24 bg-slate-950 text-white p-8 md:p-14 rounded-3xl border border-zinc-800 relative overflow-hidden shadow-xl scroll-mt-24">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-zinc-900 rounded-full filter blur-3xl opacity-35 -z-10 animate-pulse"></div>
-          <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-red-900/10 rounded-full filter blur-2xl opacity-15"></div>
-          
-          <div className="max-w-4xl space-y-6">
-            <div className="inline-block px-3 py-1 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 font-mono text-[9px] tracking-wider font-extrabold uppercase rounded-lg">
-              ★ Our Philosophy: From the War Room to the Engine Room ★
-            </div>
-            
-            <h3 className="text-3xl md:text-5xl font-black uppercase text-white tracking-tight leading-none font-sans">
-              We’ve seen the collapse. <br />
-              <span className="text-[#9DFF00]">Now we’re coding the recovery.</span>
-            </h3>
 
-            <div className="space-y-4 text-xs md:text-sm text-zinc-300 leading-relaxed font-sans font-medium">
-              <p className="text-zinc-150 border-l-2 border-[#9DFF00] pl-4 italic">
-                For 40 years, I’ve tracked the numbers, reported from the frontlines, and witnessed the structural failures that define our economy. But watching is for the history books. We are here for the future.
-              </p>
-              
-              <p>
-                The age of waiting for institutional change is over. Today, the most resilient infrastructure isn’t built with concrete—it’s built with <span className="text-white font-extrabold underline decoration-[#9DFF00] decoration-2">Agentic Swarms</span>, high-density data loops, and hardened AI workflows. We don’t just coach founders; we partner with the visionaries who are ready to bypass the status quo and build a sovereign-grade digital Lebanon.
-              </p>
-              
-              <p>
-                Whether you’re scaling a startup in a volatile market or trying to automate your enterprise, we provide the turnkey architecture to ensure you don’t just survive the cycle—you own it.
-              </p>
 
-              <div className="bg-zinc-900 border border-zinc-800 p-4.5 rounded-xl text-[11px] font-mono text-amber-500 leading-normal">
-                <strong>BOTTOM LINE:</strong> We’ve done the research. We’ve fought the battles. Now, let’s build your Alpha.
+        {/* Dynamic Page Sections added by Administration Console */}
+        {customSections.map((sec) => (
+          <section key={sec.id} className="mb-24 scroll-mt-24 bg-white border border-zinc-200 p-6 md:p-10 rounded-2xl relative overflow-hidden shadow-xs">
+            <div className={`p-2 space-y-4 ${sec.layoutType === 'image-left' ? 'flex flex-col md:flex-row gap-8 items-center' : ''}`}>
+              <div className="flex-grow space-y-4">
+                <div className="inline-block px-3 py-1 bg-yellow-50 border border-yellow-105 text-yellow-805 font-mono text-[9px] tracking-wider font-extrabold uppercase rounded-lg">
+                  ★ {sec.subtitle || 'CUSTOM ADMIN EXPANSION'} ★
+                </div>
+                <h3 className="text-2xl md:text-3xl font-extrabold uppercase text-slate-900 tracking-tight leading-none font-sans">
+                  {sec.title}
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-sans font-semibold whitespace-pre-wrap">
+                  {sec.content}
+                </p>
               </div>
-            </div>
 
-            <div className="pt-4 flex flex-wrap gap-4">
-              <button 
-                onClick={() => onStartDashboard('ceo-coaching')}
-                className="px-6 py-3.5 bg-[#9DFF00] hover:bg-[#86d900] text-slate-950 font-mono text-[10px] uppercase font-black tracking-wider transition-all rounded-xl cursor-pointer shadow-md flex items-center gap-1.5"
-              >
-                Let’s Build the Alpha &rarr;
-              </button>
-              <button 
-                onClick={() => onStartDashboard('ceo-coaching')}
-                className="px-6 py-3.5 bg-transparent border border-zinc-700 hover:border-zinc-500 text-white font-mono text-[10px] uppercase font-black transition-all rounded-xl cursor-pointer"
-              >
-                Inspect the War Chest Menu
-              </button>
+              {sec.imageUrl && (
+                <div className="w-full md:w-80 shrink-0 border border-zinc-200 rounded-xl overflow-hidden shadow-xs leading-none bg-zinc-50">
+                  <img src={sec.imageUrl} alt={sec.title} className="w-full h-auto object-cover max-h-56" referrerPolicy="no-referrer" />
+                </div>
+              )}
             </div>
-          </div>
-        </section>
+          </section>
+        ))}
 
 
 
         {/* CORPORATE ACADEMY HUB & WORKSPACE ALIGNMENT */}
-        <section className="mb-24 scroll-mt-24 bg-white border border-zinc-200 p-6 md:p-10 rounded-2xl relative overflow-hidden shadow-xs">
+        <section className="mb-24 scroll-mt-24 bg-white border border-zinc-200 p-6 md:p-10 rounded-2xl relative overflow-hidden shadow-xs" id="corporate-academy-block">
           <div className="absolute top-0 left-0 w-32 h-32 bg-indigo-50 rounded-full filter blur-3xl opacity-40 -z-10 animate-pulse"></div>
           
           <div className="text-center space-y-4 mb-10">
@@ -536,33 +1122,8 @@ export default function Hero({ onStartDashboard }: HeroProps) {
           <CorporateAssessmentHub />
         </section>
 
-        {/* CHAOS TO CODE SYSTEM DIAGNOSTICS */}
-        <section className="mb-24 scroll-mt-24">
-          <div className="text-center space-y-4 mb-10">
-            <div className="inline-block px-3 py-1 bg-rose-50 border border-rose-100 text-rose-705 font-mono text-[9px] tracking-wider font-extrabold uppercase rounded-lg">
-              ★ RAPID PIPELINE RECONSTRUCTION ★
-            </div>
-            <h3 className="text-3xl md:text-5xl font-black tracking-tight uppercase text-slate-900 font-sans">
-              SYSTEM DIAGNOSTICS: FROM CHAOS TO CODE
-            </h3>
-            <p className="text-xs md:text-sm text-slate-505 max-w-2xl mx-auto leading-relaxed font-semibold">
-              Convert uncertainty into precise algorithmic blueprints instantly. Guide your business from reactive stress to a master-grade, turnkey automation roadmap using our advanced diagnostic bot.
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <SystemDiagnostics onStartProtocol={(tab) => {
-              if (tab === 'ceo-coaching' || tab === 'copilot-workspace') {
-                onStartDashboard(tab);
-              } else {
-                onStartDashboard('copilot-workspace');
-              }
-            }} />
-          </div>
-        </section>
-
         {/* RAW MOBILE SUITE SIMULATION */}
-        <section className="mb-24 scroll-mt-24 bg-white border border-zinc-200 p-6 md:p-10 rounded-2xl relative overflow-hidden shadow-xs">
+        <section className="mb-24 scroll-mt-24 bg-white border border-zinc-200 p-6 md:p-10 rounded-2xl relative overflow-hidden shadow-xs" id="mobile-preview-block">
           <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-50 rounded-full filter blur-3xl opacity-40 -z-10"></div>
           
           <div className="text-center space-y-4 mb-10">
@@ -580,7 +1141,7 @@ export default function Hero({ onStartDashboard }: HeroProps) {
           <PhoneSimulator />
         </section>
 
-        <div className="mb-24">
+        <div className="mb-24 scroll-mt-24" id="service-pillars-block">
           <div className="text-center space-y-3 mb-12">
             <p className="font-mono text-xs uppercase text-slate-600 font-extrabold tracking-widest">COACHING SERVICE PILLARS</p>
             <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight uppercase text-slate-900 font-sans">THE STABILITY INFRASTRUCTURE</h3>
@@ -606,7 +1167,7 @@ export default function Hero({ onStartDashboard }: HeroProps) {
         </div>
 
         {/* Newsletter / Waitlist Signup */}
-        <div className="bg-[#F8FAFC] border border-zinc-200 text-slate-900 p-10 md:p-16 text-center space-y-6 relative overflow-hidden rounded-3xl shadow-xs">
+        <div className="bg-[#F8FAFC] border border-zinc-200 text-slate-900 p-10 md:p-16 text-center space-y-6 relative overflow-hidden rounded-3xl shadow-xs scroll-mt-24" id="dispatch-waitlist-block">
           
           <h3 className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-slate-900 max-w-3xl mx-auto leading-none font-sans">
             Get the tactical intelligence dispatch. No fluff.
@@ -638,13 +1199,16 @@ export default function Hero({ onStartDashboard }: HeroProps) {
             </div>
           )}
         </div>
-      </div>
+
+        </div> {/* Close lg:col-span-9 */}
+      </div> {/* Close grid */}
+    </div> {/* Close main container wrap */}
 
       {/* Footer */}
       <footer className="border-t border-zinc-200 bg-zinc-50 text-zinc-600 py-12 rounded-b-3xl">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-sm font-black tracking-tighter text-white bg-black px-2.5 py-1 rounded">RAWCOACH.AI</span>
+            <span className="font-mono text-sm font-black tracking-tighter text-white bg-black px-2.5 py-1 rounded">theCsuiteCOACH</span>
             <span className="text-[10px] text-zinc-400 font-mono">© 2026 OVERKILL RESEARCH DEPT.</span>
           </div>
           <div className="flex items-center gap-4 text-[10px] font-mono text-zinc-500">
@@ -654,6 +1218,105 @@ export default function Hero({ onStartDashboard }: HeroProps) {
           </div>
         </div>
       </footer>
+
+      {showSolopreneurPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn" id="solopreneur-popup-overlay">
+          <div className="bg-white border-2 border-zinc-900 rounded-3xl p-6 md:p-8 max-w-lg w-full relative overflow-hidden shadow-2xl animate-scaleUp">
+            {/* Minimal Background Gradients */}
+            <div className="absolute top-0 right-0 w-44 h-44 bg-[#9DFF00]/10 rounded-full filter blur-2xl opacity-60 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-44 h-44 bg-[#FF4F2E]/5 rounded-full filter blur-2xl opacity-60 pointer-events-none"></div>
+            
+            {/* Close Button */}
+            <button 
+              type="button"
+              onClick={() => {
+                setShowSolopreneurPopup(false);
+                sessionStorage.setItem('dismissedSolopreneurPopup', 'true');
+              }}
+              className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-slate-900 hover:bg-zinc-100 rounded-full transition-all cursor-pointer flex items-center justify-center"
+              id="close-solopreneur-popup"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Content & Design */}
+            <div className="space-y-6 pt-2 relative z-10">
+              {/* Launcher Aura */}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-950 text-[#9DFF00] font-mono text-[9px] uppercase font-bold tracking-wider rounded-lg">
+                ★ AUGMENTED SOLOPRENEUR LAYER
+              </div>
+
+              {/* Title Section */}
+              <div className="space-y-2.5">
+                <h3 className="text-2xl md:text-3xl font-black uppercase text-slate-900 tracking-tight leading-tight">
+                  You Are the CEO.<br />
+                  <span className="text-slate-950">We Build Your Empowered Leadership.</span>
+                </h3>
+                <p className="text-zinc-650 text-xs md:text-[13px] leading-relaxed font-sans font-medium">
+                  Stop playing every role in your business. Experience the <strong className="text-slate-950">Lebanese AI Renaissance</strong> by deploying a digital executive team designed for the individual entrepreneur.
+                </p>
+              </div>
+
+              {/* Pillars list (The Solopreneur's Advantage) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 py-1">
+                {[
+                  {
+                    title: "The Core",
+                    desc: "Architect your strategic vision with an AI Chief of Staff.",
+                    icon: <Compass className="w-4 h-4 text-emerald-500" />
+                  },
+                  {
+                    title: "The Lab",
+                    desc: "Secure your digital infrastructure and audit your performance.",
+                    icon: <Shield className="w-4 h-4 text-indigo-500" />
+                  },
+                  {
+                    title: "The Academy",
+                    desc: "Master the skills of an enterprise leader.",
+                    icon: <BookOpen className="w-4 h-4 text-amber-500" />
+                  },
+                  {
+                    title: "The Swarm",
+                    desc: "Deploy autonomous agents to handle the daily grind.",
+                    icon: <Zap className="w-4 h-4 text-purple-500" />
+                  }
+                ].map((item, idx) => (
+                  <div key={idx} className="bg-zinc-50 border border-zinc-200/80 p-3.5 rounded-2xl flex gap-3 items-start hover:bg-white hover:border-zinc-350 transition-all text-left">
+                    <div className="p-1.5 bg-white border border-zinc-200 rounded-lg shrink-0 flex items-center justify-center">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-[11px] font-sans font-extrabold uppercase text-slate-900 leading-tight">{item.title}</h4>
+                      <p className="text-[10px] text-zinc-500 font-sans font-semibold mt-0.5 leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action and CTAs */}
+              <div className="space-y-3 pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sessionStorage.setItem('dismissedSolopreneurPopup', 'true');
+                    setShowSolopreneurPopup(false);
+                    onStartDashboard('readiness-scorecard');
+                  }}
+                  className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-[#9DFF00] font-sans font-extrabold uppercase text-xs tracking-wider transition-all cursor-pointer rounded-2xl flex items-center justify-center gap-2 shadow-md hover:translate-y-[-1px] group"
+                >
+                  Get My "Solopreneur-to-CEO" Audit
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </button>
+                
+                <p className="text-[9px] font-mono uppercase text-zinc-400 tracking-wider">
+                  "Join the elite cohort leading the Lebanese AI Renaissance"
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

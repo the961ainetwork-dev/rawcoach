@@ -33,6 +33,84 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "userId", "title", "status", "createdAt", "updatedAt"]
+    },
+    "dynamicPageSection": {
+      "title": "Dynamic Page Section",
+      "description": "A customized content section dynamically placed on home or separate views",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "content": { "type": "string" },
+        "layoutType": { "type": "string", "enum": ["standard", "image-left", "bento", "dark-slate"] },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "content", "createdAt"]
+    },
+    "subscriberRecord": {
+      "title": "Subscriber Record",
+      "description": "A newsletter or waitlist subscription record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "suspended", "unsubscribed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email", "status", "createdAt"]
+    },
+    "sheikhStory": {
+      "title": "Sheikh Story",
+      "description": "A historic business story detailing real-world sovereign-grade cases and tactical reports",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "content": { "type": "string" },
+        "year": { "type": "string" },
+        "author": { "type": "string" },
+        "isFeatured": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "content", "author", "createdAt"]
+    },
+    "knowledgeResource": {
+      "title": "Knowledge Resource",
+      "description": "A reference guide, audit benchmark, cheatsheet, or training roadmap",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string", "enum": ["guide", "cheatsheet", "whitepaper", "roadmap"] },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "downloadUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "type", "description", "createdAt"]
+    },
+    "csuiteInsight": {
+      "title": "C-Suite Insight",
+      "description": "Pinterest-style business insight board cards for high-density strategic reading",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "role": { "type": "string" },
+        "snippet": { "type": "string" },
+        "content": { "type": "string" },
+        "bgColor": { "type": "string" },
+        "tag": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "likesCount": { "type": "number" },
+        "status": { "type": "string", "enum": ["draft", "published"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "author", "snippet", "content", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -43,6 +121,26 @@
     "registrations/{userId}/tasks/{taskId}": {
       "schema": "userWorkspaceTask",
       "description": "Tactical actions and tracking notes belonging to the user"
+    },
+    "pageSections/{sectionId}": {
+      "schema": "dynamicPageSection",
+      "description": "Customizable homepage sections and content added by admin"
+    },
+    "subscribers/{subscriberId}": {
+      "schema": "subscriberRecord",
+      "description": "Email newsletter list records"
+    },
+    "sheikhStories/{storyId}": {
+      "schema": "sheikhStory",
+      "description": "Dynamic sheikh stories detailing real-world legacy cases and structural audits"
+    },
+    "knowledgeResources/{resourceId}": {
+      "schema": "knowledgeResource",
+      "description": "Downloadable learning resources, cheat sheets, and audit frameworks"
+    },
+    "csuiteInsights/{insightId}": {
+      "schema": "csuiteInsight",
+      "description": "Enterprise C-Suite Insight items laid out in Pinterest-style grid"
     }
   }
 }
