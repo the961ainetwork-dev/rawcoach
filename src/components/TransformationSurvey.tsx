@@ -13,6 +13,7 @@ import {
   ShieldAlert, 
   FileText, 
   ArrowRight,
+  ArrowLeft,
   BookOpen,
   Check,
   Building2,
@@ -73,6 +74,19 @@ const MATURITY_LEVELS = [
   { level: 3, label: 'Connected / APIs Integrated', desc: 'Secure database connectors feeding standard vector-lookup search pipelines.' },
   { level: 4, label: 'Coordinated Agent Swarms', desc: 'Specialized autonomous workers coordinating via stateful loops and webhooks.' },
   { level: 5, label: 'Sovereign / Autonomous Core', desc: 'Fully-customized, self-updating telemetry nodes functioning as core team members.' }
+];
+
+const FUTURE_INTEGRATION_OPTIONS = [
+  { value: 'Ad-Hoc Productivity Copilots', label: 'Ad-Hoc Productivity Copilots', desc: 'Assisted draft briefs, templates, and basic search summaries.' },
+  { value: 'Human-in-the-Loop Orchestration', label: 'Human-in-the-Loop Orchestration', desc: 'AI agents compiling drafts and organizing briefs with executive human signoffs.' },
+  { value: 'Sovereign Autonomous Swarms', label: 'Sovereign Autonomous Swarms', desc: 'Self-coordinating workers operating on secure loops with active audit telemetry.' }
+];
+
+const KPI_ALIGNMENT_OPTIONS = [
+  { value: 'Operations Time Recovery', label: 'Operations Time Recovery', desc: 'Target 80%+ reduction in manual document lookup and administrative latency.' },
+  { value: 'Licensing & Cost Consolidation', label: 'Licensing & Cost Consolidation', desc: 'Unify redundant platform licenses into single self-hosted agents.' },
+  { value: 'Compliance & Perfect Integrity', label: 'Compliance & Perfect Integrity', desc: 'Ensure zero token leaks, local data retention, and absolute secure isolation.' },
+  { value: 'Throughput & Volume Expansion', label: 'Throughput & Volume Expansion', desc: 'Multiply processing capacity (e.g., invoices/truck routing) without adding headcount.' }
 ];
 
 const REAL_CASE_STUDIES = [
@@ -173,6 +187,11 @@ export default function TransformationSurvey() {
   const [techStack, setTechStack] = useState<string[]>([]);
   const [maturityRating, setMaturityRating] = useState<number>(3);
   const [narrative, setNarrative] = useState('');
+  const [futureIntegration, setFutureIntegration] = useState('');
+  const [primaryKPI, setPrimaryKPI] = useState('');
+  
+  // Navigation State for Screen-by-Screen Questionnaire
+  const [currentStep, setCurrentStep] = useState(1);
   
   // Status State
   const [submitting, setSubmitting] = useState(false);
@@ -249,6 +268,8 @@ export default function TransformationSurvey() {
 - Estimated Annual AI Investment: ${investment || 'Not Specified'}
 - Core Tech Stack Footprint: ${techStack.length > 0 ? techStack.join(', ') : 'None Specified'}
 - Transformation Maturity Level: ${maturityRating}/5 (${compiledMaturity?.label || 'Unknown'}) - ${compiledMaturity?.desc || ''}
+- Future AI Integration Goal: ${futureIntegration || 'Not Specified'}
+- Transformation Target KPI: ${primaryKPI || 'Not Specified'}
 
 === WORKFLOW TRANSFORMATION NARRATIVE ===
 ${narrative}
@@ -493,6 +514,31 @@ ${narrative}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
+                  {/* Step Progress Stepper */}
+                  <div className="mb-6 p-4 bg-zinc-50 border border-zinc-150 rounded-2xl" id="survey-stepper-container">
+                    <div className="flex flex-wrap items-center justify-between font-mono text-[9px] font-black uppercase tracking-wider text-zinc-400 gap-2 mb-2.5">
+                      <span className="bg-slate-900 text-[#9DFF00] px-2.5 py-0.5 rounded border border-slate-900">Step {currentStep} of 6</span>
+                      <span className="text-slate-800">
+                        {currentStep === 1 && "CONTACT & IDENTITY DETAILS"}
+                        {currentStep === 2 && "TRANSFORMATION GOAL & STAGE"}
+                        {currentStep === 3 && "TECH STACK & CAPABILITY MATURITY"}
+                        {currentStep === 4 && "DESIRED FUTURE AI AUTONOMY"}
+                        {currentStep === 5 && "PRIMARY KEY METRIC FOCUS"}
+                        {currentStep === 6 && "BOTTLENECKS & JOURNEY NARRATIVE"}
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-zinc-200 rounded-full overflow-hidden flex gap-0.5">
+                      {[1, 2, 3, 4, 5, 6].map((st) => (
+                        <div 
+                          key={st}
+                          className={`h-full flex-1 transition-all duration-300 ${
+                            currentStep >= st ? 'bg-indigo-600' : 'bg-zinc-200'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
                   {errorMsg && (
                     <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 font-mono rounded-lg flex items-center gap-2">
                       <ShieldAlert className="w-4 h-4 shrink-0" />
@@ -500,288 +546,495 @@ ${narrative}
                     </div>
                   )}
 
-                  {/* Section 1: Contact Node */}
-                  <div className="space-y-4">
-                    <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
-                      [1] CONTACT & IDENTITY PATHWAY
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="font-bold text-slate-800 uppercase tracking-wide block flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-zinc-400" /> Full Name
-                        </label>
-                        <input 
-                          type="text"
-                          className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 text-slate-900 rounded-lg focus:outline-none focus:border-slate-900 transition-colors"
-                          placeholder="e.g. Salim Khoury"
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                        />
-                      </div>
+                  <AnimatePresence mode="wait">
+                    {currentStep === 1 && (
+                      <motion.div
+                        key="step-1"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-4"
+                      >
+                        <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [1] CONTACT & IDENTITY PATHWAY
+                        </h4>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="font-bold text-slate-800 uppercase tracking-wide block flex items-center gap-1.5">
+                              <User className="w-3.5 h-3.5 text-zinc-400" /> Full Name
+                            </label>
+                            <input 
+                              type="text"
+                              className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 text-slate-900 rounded-lg focus:outline-none focus:border-slate-900 transition-colors"
+                              placeholder="e.g. Salim Khoury"
+                              value={fullName}
+                              onChange={(e) => setFullName(e.target.value)}
+                            />
+                          </div>
 
-                      <div className="space-y-1.5">
-                        <label className="font-bold text-slate-800 uppercase tracking-wide block flex items-center gap-1.5">
-                          <Mail className="w-3.5 h-3.5 text-zinc-400" /> Email Address <span className="text-red-500">*</span>
-                        </label>
-                        <input 
-                          type="email"
-                          required
-                          className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 text-slate-900 rounded-lg focus:outline-none focus:border-slate-900 transition-colors"
-                          placeholder="e.g. salim@enterprise.lb"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                      </div>
-                    </div>
+                          <div className="space-y-1.5">
+                            <label className="font-bold text-slate-800 uppercase tracking-wide block flex items-center gap-1.5">
+                              <Mail className="w-3.5 h-3.5 text-zinc-400" /> Email Address <span className="text-red-500">*</span>
+                            </label>
+                            <input 
+                              type="email"
+                              required
+                              className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 text-slate-900 rounded-lg focus:outline-none focus:border-slate-900 transition-colors"
+                              placeholder="e.g. salim@enterprise.lb"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                            />
+                          </div>
+                        </div>
 
-                    <div className="space-y-1.5">
-                      <label className="font-bold text-slate-800 uppercase tracking-wide block flex items-center gap-1.5">
-                        <Building2 className="w-3.5 h-3.5 text-zinc-400" /> Organization / Company Name
-                      </label>
-                      <input 
-                        type="text"
-                        className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 text-slate-900 rounded-lg focus:outline-none focus:border-slate-900 transition-colors"
-                        placeholder="e.g. Levant Industrial Holdings"
-                        value={organizationName}
-                        onChange={(e) => setOrganizationName(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Section 2: Goals & Stages */}
-                  <div className="space-y-5 pt-5 border-t border-zinc-100">
-                    <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
-                      [2] TARGET PARAMETER SELECTION
-                    </h4>
-
-                    {/* Question 1: Goal Select */}
-                    <div className="space-y-2">
-                      <span className="font-black text-slate-900 block font-sans text-sm">
-                        What is the primary target/goal of your transformation? <span className="text-red-500">*</span>
-                      </span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-                        {GOAL_OPTIONS.map((opt) => (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setGoal(opt)}
-                            className={`text-left p-3 border rounded-xl font-medium transition-all flex items-center justify-between gap-2 cursor-pointer ${
-                              goal === opt 
-                                ? 'bg-slate-950 border-slate-950 text-white shadow-md' 
-                                : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-800'
-                            }`}
-                          >
-                            <span className="text-[11px] leading-snug">{opt}</span>
-                            {goal === opt && <Check className="w-3.5 h-3.5 text-[#9DFF00] shrink-0" />}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Question 2: Stage Choice */}
-                    <div className="space-y-2 pt-2">
-                      <span className="font-black text-slate-900 block font-sans text-sm">
-                        In which stage is your organization currently operating? <span className="text-red-500">*</span>
-                      </span>
-                      <div className="space-y-1.5 mt-2">
-                        {STAGE_OPTIONS.map((opt) => (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setStage(opt)}
-                            className={`w-full text-left px-4 py-2.5 border rounded-xl font-medium transition-all flex items-center justify-between cursor-pointer ${
-                              stage === opt 
-                                ? 'bg-slate-950 border-slate-950 text-white' 
-                                : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-800'
-                            }`}
-                          >
-                            <span className="text-[11.5px]">{opt}</span>
-                            <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                              stage === opt ? 'border-[#9DFF00] bg-[#9DFF00]/20' : 'border-zinc-300'
-                            }`}>
-                              {stage === opt && <div className="w-1.5 h-1.5 bg-[#9DFF00] rounded-full" />}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Section 3: Detailed Diagnostics */}
-                  <div className="space-y-5 pt-5 border-t border-zinc-100">
-                    <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
-                      [3] MATURITY & SYSTEM INFRASTRUCTURE
-                    </h4>
-
-                    {/* Investment budget */}
-                    <div className="space-y-2">
-                      <label className="font-bold text-slate-800 uppercase tracking-wide block text-[11px] flex items-center gap-1">
-                        <DollarSign className="w-3.5 h-3.5 text-zinc-400" /> Estimated Annual AI/Transformation Budget
-                      </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {INVESTMENT_OPTIONS.map((opt) => (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setInvestment(opt)}
-                            className={`text-left p-3 border rounded-xl transition-all cursor-pointer text-xs ${
-                              investment === opt 
-                                ? 'bg-slate-950 border-slate-950 text-white shadow' 
-                                : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700'
-                            }`}
-                          >
-                            {opt}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Current Stack footings representation */}
-                    <div className="space-y-2 pt-2">
-                      <label className="font-bold text-slate-800 uppercase tracking-wide block text-[11px] flex items-center gap-1">
-                        <Cpu className="w-3.5 h-3.5 text-zinc-400" /> Core Technology Stack Footprint (Multi-Select)
-                      </label>
-                      <p className="text-[10px] text-zinc-400 mt-0.5 leading-tight">
-                        Choose all tools currently deployed across team workflows.
-                      </p>
-                      <div className="grid grid-cols-1 gap-2 mt-2">
-                        {TECH_STACK_OPTIONS.map((opt) => {
-                          const isSelected = techStack.includes(opt);
-                          return (
-                            <button
-                              key={opt}
-                              type="button"
-                              onClick={() => toggleTechOption(opt)}
-                              className={`text-left px-4 py-2.5 border rounded-xl transition-all flex items-center justify-between cursor-pointer ${
-                                isSelected
-                                  ? 'bg-indigo-50 border-indigo-300 text-indigo-950 font-semibold'
-                                  : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700'
-                              }`}
-                            >
-                              <span>{opt}</span>
-                              <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
-                                isSelected ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-zinc-300'
-                              }`}>
-                                {isSelected && <Check className="w-3 h-3" />}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Maturity range */}
-                    <div className="space-y-3 pt-2">
-                      <label className="font-bold text-slate-800 uppercase tracking-wide block text-[11px] flex items-center gap-1">
-                        ★ Transformation Maturity Assessment
-                      </label>
-                      
-                      <div className="grid grid-cols-5 gap-1.5">
-                        {[1, 2, 3, 4, 5].map((lvl) => (
-                          <button
-                            key={lvl}
-                            type="button"
-                            onClick={() => setMaturityRating(lvl)}
-                            className={`py-2 rounded-lg font-mono text-center font-bold border transition-all cursor-pointer ${
-                              maturityRating === lvl
-                                ? 'bg-slate-950 border-slate-950 text-[#9DFF00]'
-                                : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-650'
-                            }`}
-                          >
-                            Lvl {lvl}
-                          </button>
-                        ))}
-                      </div>
-                      
-                      {/* Active level breakdown description display */}
-                      <div className="p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl space-y-1">
-                        <span className="font-bold text-slate-900 block font-sans text-xs uppercase text-[11px]">
-                          {MATURITY_LEVELS[maturityRating - 1].label}
-                        </span>
-                        <p className="text-zinc-500 text-[10.5px] leading-relaxed">
-                          {MATURITY_LEVELS[maturityRating - 1].desc}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Section 4: Drag Forces & Narrative */}
-                  <div className="space-y-5 pt-5 border-t border-zinc-100">
-                    <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
-                      [4] SYSTEM DRAG FORCE & COGNITIVE NARRATIVE
-                    </h4>
-
-                    {/* Question 3: Greatest Drag Force */}
-                    <div className="space-y-2">
-                      <span className="font-black text-slate-900 block font-sans text-sm">
-                        What is the single greatest bottleneck or structural "Drag Force" you face?
-                      </span>
-                      <div className="space-y-1.5 mt-2">
-                        {BOTTLENECK_OPTIONS.map((opt) => (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setBottleneck(opt)}
-                            className={`w-full text-left px-4 py-2.5 border rounded-xl font-medium transition-all flex items-center justify-between cursor-pointer ${
-                              bottleneck === opt 
-                                ? 'bg-slate-950 border-slate-950 text-white' 
-                                : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-800'
-                            }`}
-                          >
-                            <span className="text-[11px] leading-snug">{opt}</span>
-                            <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                              bottleneck === opt ? 'border-[#9DFF00] bg-[#9DFF00]/20' : 'border-zinc-300'
-                            }`}>
-                              {bottleneck === opt && <div className="w-1.5 h-1.5 bg-[#9DFF00] rounded-full" />}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Detailed Narrative */}
-                    <div className="space-y-2 pt-2">
-                      <span className="font-black text-slate-900 block font-sans text-sm">
-                        Describe your journey in detail. What have you learned? <span className="text-red-500">*</span>
-                      </span>
-                      <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
-                        Mention specific wins, workflow automation bottlenecks, and systems (SCRM, ERP, spreadsheets) you are looking to replace with agentic coworkers.
-                      </p>
-                      <textarea 
-                        required
-                        rows={5}
-                        className="w-full px-3.5 py-2.5 bg-zinc-50 border border-zinc-200 text-slate-900 font-sans text-xs rounded-xl focus:outline-none focus:border-slate-900 transition-colors mt-2 resize-y"
-                        placeholder="Include detailed steps taken, organizational hurdles, and lessons learned during the integration of autonomous architectures..."
-                        value={narrative}
-                        onChange={(e) => setNarrative(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Submit Action Block */}
-                  <div className="pt-4 border-t border-zinc-100">
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="w-full py-3 bg-slate-900 hover:bg-slate-950 text-[#9DFF00] font-mono text-[10px] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
-                    >
-                      {submitting ? (
-                        <>
-                          <motion.div 
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                            className="w-4 h-4 border-2 border-t-transparent border-[#9DFF00] rounded-full"
+                        <div className="space-y-1.5">
+                          <label className="font-bold text-slate-800 uppercase tracking-wide block flex items-center gap-1.5">
+                            <Building2 className="w-3.5 h-3.5 text-zinc-400" /> Organization / Company Name
+                          </label>
+                          <input 
+                            type="text"
+                            className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 text-slate-900 rounded-lg focus:outline-none focus:border-slate-900 transition-colors"
+                            placeholder="e.g. Levant Industrial Holdings relative"
+                            value={organizationName}
+                            onChange={(e) => setOrganizationName(e.target.value)}
                           />
-                          <span>COMPILING INTEL SCHEMAS...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4" />
-                          <span>SUBMIT RESEARCH TRANSMISSION</span>
-                        </>
-                      )}
-                    </button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {currentStep === 2 && (
+                      <motion.div
+                        key="step-2"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-5"
+                      >
+                        <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [2] TARGET PARAMETER SELECTION
+                        </h4>
+
+                        {/* Question 1: Goal Select */}
+                        <div className="space-y-2">
+                          <span className="font-black text-slate-900 block font-sans text-sm">
+                            What is the primary target/goal of your transformation? <span className="text-red-500">*</span>
+                          </span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                            {GOAL_OPTIONS.map((opt) => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setGoal(opt)}
+                                className={`text-left p-3 border rounded-xl font-medium transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                                  goal === opt 
+                                    ? 'bg-slate-950 border-slate-950 text-white shadow-md' 
+                                    : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-800'
+                                }`}
+                              >
+                                <span className="text-[11px] leading-snug">{opt}</span>
+                                {goal === opt && <Check className="w-3.5 h-3.5 text-[#9DFF00] shrink-0" />}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Question 2: Stage Choice */}
+                        <div className="space-y-2 pt-2">
+                          <span className="font-black text-slate-900 block font-sans text-sm">
+                            In which stage is your organization currently operating? <span className="text-red-500">*</span>
+                          </span>
+                          <div className="space-y-1.5 mt-2">
+                            {STAGE_OPTIONS.map((opt) => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setStage(opt)}
+                                className={`w-full text-left px-4 py-2.5 border rounded-xl font-medium transition-all flex items-center justify-between cursor-pointer ${
+                                  stage === opt 
+                                    ? 'bg-slate-950 border-slate-950 text-white' 
+                                    : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-800'
+                                }`}
+                              >
+                                <span className="text-[11.5px]">{opt}</span>
+                                <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                  stage === opt ? 'border-[#9DFF00] bg-[#9DFF00]/20' : 'border-zinc-300'
+                                }`}>
+                                  {stage === opt && <div className="w-1.5 h-1.5 bg-[#9DFF00] rounded-full" />}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {currentStep === 3 && (
+                      <motion.div
+                        key="step-3"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-5"
+                      >
+                        <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [3] MATURITY & SYSTEM INFRASTRUCTURE
+                        </h4>
+
+                        {/* Investment budget */}
+                        <div className="space-y-2">
+                          <label className="font-bold text-slate-800 uppercase tracking-wide block text-[11px] flex items-center gap-1">
+                            <DollarSign className="w-3.5 h-3.5 text-zinc-400" /> Estimated Annual AI/Transformation Budget
+                          </label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {INVESTMENT_OPTIONS.map((opt) => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setInvestment(opt)}
+                                className={`text-left p-3 border rounded-xl transition-all cursor-pointer text-xs ${
+                                  investment === opt 
+                                    ? 'bg-slate-950 border-slate-950 text-white shadow' 
+                                    : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700'
+                                }`}
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Current Stack footings representation */}
+                        <div className="space-y-2 pt-2">
+                          <label className="font-bold text-slate-800 uppercase tracking-wide block text-[11px] flex items-center gap-1">
+                            <Cpu className="w-3.5 h-3.5 text-zinc-400" /> Core Technology Stack Footprint (Multi-Select)
+                          </label>
+                          <p className="text-[10px] text-zinc-400 mt-0.5 leading-tight">
+                            Choose all tools currently deployed across team workflows.
+                          </p>
+                          <div className="grid grid-cols-1 gap-2 mt-2">
+                            {TECH_STACK_OPTIONS.map((opt) => {
+                              const isSelected = techStack.includes(opt);
+                              return (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  onClick={() => toggleTechOption(opt)}
+                                  className={`text-left px-4 py-2.5 border rounded-xl transition-all flex items-center justify-between cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-indigo-50 border-indigo-300 text-indigo-950 font-semibold'
+                                      : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700'
+                                  }`}
+                                >
+                                  <span>{opt}</span>
+                                  <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                                    isSelected ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-zinc-300'
+                                  }`}>
+                                    {isSelected && <Check className="w-3 h-3" />}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Maturity range */}
+                        <div className="space-y-3 pt-2">
+                          <label className="font-bold text-slate-800 uppercase tracking-wide block text-[11px] flex items-center gap-1">
+                            ★ Transformation Maturity Assessment
+                          </label>
+                          
+                          <div className="grid grid-cols-5 gap-1.5">
+                            {[1, 2, 3, 4, 5].map((lvl) => (
+                              <button
+                                key={lvl}
+                                type="button"
+                                onClick={() => setMaturityRating(lvl)}
+                                className={`py-2 rounded-lg font-mono text-center font-bold border transition-all cursor-pointer ${
+                                  maturityRating === lvl
+                                    ? 'bg-slate-950 border-slate-950 text-[#9DFF00]'
+                                    : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-650'
+                                }`}
+                              >
+                                Lvl {lvl}
+                              </button>
+                            ))}
+                          </div>
+                          
+                          {/* Active level breakdown description display */}
+                          <div className="p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl space-y-1">
+                            <span className="font-bold text-slate-900 block font-sans text-xs uppercase text-[11px]">
+                              {MATURITY_LEVELS[maturityRating - 1].label}
+                            </span>
+                            <p className="text-zinc-500 text-[10.5px] leading-relaxed">
+                              {MATURITY_LEVELS[maturityRating - 1].desc}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {currentStep === 4 && (
+                      <motion.div
+                        key="step-4"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-4"
+                      >
+                        <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [4] FUTURE AI INTEGRATION ALIGNMENT
+                        </h4>
+                        
+                        <div className="space-y-2">
+                          <span className="font-black text-slate-900 block font-sans text-sm">
+                            What is your desired level of user-agent integration in the next 12 months? <span className="text-red-500">*</span>
+                          </span>
+                          <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
+                            Define how deeply embedded autonomous delegates should be across company systems.
+                          </p>
+                          <div className="space-y-2.5 mt-3">
+                            {FUTURE_INTEGRATION_OPTIONS.map((opt) => (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => {
+                                  setFutureIntegration(opt.value);
+                                  setErrorMsg(null);
+                                }}
+                                className={`w-full text-left p-4 border rounded-xl font-medium transition-all flex flex-col gap-1 cursor-pointer hover:border-slate-800 ${
+                                  futureIntegration === opt.value
+                                    ? 'bg-slate-950 border-slate-950 text-white shadow-md'
+                                    : 'bg-zinc-50 border-zinc-200 text-zinc-805'
+                                }`}
+                              >
+                                <div className="flex justify-between items-center w-full">
+                                  <span className="font-sans font-extrabold text-[#9DFF00] uppercase text-[11px] tracking-wider">
+                                    {opt.label}
+                                  </span>
+                                  <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                    futureIntegration === opt.value ? 'border-[#9DFF00] bg-[#9DFF00]/20' : 'border-zinc-300'
+                                  }`}>
+                                    {futureIntegration === opt.value && <div className="w-1.5 h-1.5 bg-[#9DFF00] rounded-full" />}
+                                  </div>
+                                </div>
+                                <span className={`text-[10.5px] leading-relaxed block mt-1 ${
+                                  futureIntegration === opt.value ? 'text-zinc-300' : 'text-zinc-500'
+                                }`}>
+                                  {opt.desc}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {currentStep === 5 && (
+                      <motion.div
+                        key="step-5"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-4"
+                      >
+                        <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [5] EXPECTED KPI & TRANSFORMATION PRIORITY
+                        </h4>
+                        
+                        <div className="space-y-2">
+                          <span className="font-black text-slate-900 block font-sans text-sm">
+                            What is the single highest-priority conversion metric or KPI for this transformation? <span className="text-red-500">*</span>
+                          </span>
+                          <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
+                            Select the primary tactical metric used to validate investment returns and operational efficiency.
+                          </p>
+                          <div className="space-y-2.5 mt-3">
+                            {KPI_ALIGNMENT_OPTIONS.map((opt) => (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => {
+                                  setPrimaryKPI(opt.value);
+                                  setErrorMsg(null);
+                                }}
+                                className={`w-full text-left p-4 border rounded-xl font-medium transition-all flex flex-col gap-1 cursor-pointer hover:border-slate-800 ${
+                                  primaryKPI === opt.value
+                                    ? 'bg-slate-950 border-slate-950 text-white shadow-md'
+                                    : 'bg-zinc-50 border-zinc-200 text-zinc-805'
+                                }`}
+                              >
+                                <div className="flex justify-between items-center w-full">
+                                  <span className="font-sans font-extrabold text-[#9DFF00] uppercase text-[11px] tracking-wider">
+                                    {opt.label}
+                                  </span>
+                                  <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                    primaryKPI === opt.value ? 'border-[#9DFF00] bg-[#9DFF00]/20' : 'border-zinc-300'
+                                  }`}>
+                                    {primaryKPI === opt.value && <div className="w-1.5 h-1.5 bg-[#9DFF00] rounded-full" />}
+                                  </div>
+                                </div>
+                                <span className={`text-[10.5px] leading-relaxed block mt-1 ${
+                                  primaryKPI === opt.value ? 'text-zinc-300' : 'text-zinc-500'
+                                }`}>
+                                  {opt.desc}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {currentStep === 6 && (
+                      <motion.div
+                        key="step-6"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-5"
+                      >
+                        <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [6] SYSTEM DRAG FORCE & COGNITIVE NARRATIVE
+                        </h4>
+
+                        {/* Question 3: Greatest Drag Force */}
+                        <div className="space-y-2">
+                          <span className="font-black text-slate-900 block font-sans text-sm">
+                            What is the single greatest bottleneck or structural "Drag Force" you face?
+                          </span>
+                          <div className="space-y-1.5 mt-2">
+                            {BOTTLENECK_OPTIONS.map((opt) => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => setBottleneck(opt)}
+                                className={`w-full text-left px-4 py-2.5 border rounded-xl font-medium transition-all flex items-center justify-between cursor-pointer ${
+                                  bottleneck === opt 
+                                    ? 'bg-slate-950 border-slate-950 text-white' 
+                                    : 'bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-800'
+                                }`}
+                              >
+                                <span className="text-[11px] leading-snug">{opt}</span>
+                                <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                  bottleneck === opt ? 'border-[#9DFF00] bg-[#9DFF00]/20' : 'border-zinc-300'
+                                }`}>
+                                  {bottleneck === opt && <div className="w-1.5 h-1.5 bg-[#9DFF00] rounded-full" />}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Detailed Narrative */}
+                        <div className="space-y-2 pt-2">
+                          <span className="font-black text-slate-900 block font-sans text-sm">
+                            Describe your journey in detail. What have you learned? <span className="text-red-500">*</span>
+                          </span>
+                          <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
+                            Mention specific wins, workflow automation bottlenecks, and systems (SCRM, ERP, spreadsheets) you are looking to replace with agentic coworkers.
+                          </p>
+                          <textarea 
+                            required
+                            rows={5}
+                            className="w-full px-3.5 py-2.5 bg-zinc-50 border border-zinc-200 text-slate-900 font-sans text-xs rounded-xl focus:outline-none focus:border-slate-900 transition-colors mt-2 resize-y"
+                            placeholder="Include detailed steps taken, organizational hurdles, and lessons learned during the integration of autonomous architectures..."
+                            value={narrative}
+                            onChange={(e) => setNarrative(e.target.value)}
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Stepper Navigation Buttons */}
+                  <div className="flex justify-between items-center pt-4 border-t border-zinc-100 gap-3">
+                    {currentStep > 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setErrorMsg(null);
+                          setCurrentStep(prev => prev - 1);
+                        }}
+                        className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-slate-850 hover:text-slate-950 font-mono text-[9px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>Previous Step</span>
+                      </button>
+                    ) : (
+                      <div />
+                    )}
+
+                    {currentStep < 6 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setErrorMsg(null);
+                          if (currentStep === 1) {
+                            if (!email.trim()) {
+                              setErrorMsg("An email address is required to register this diagnostic footprint.");
+                              return;
+                            }
+                            if (!email.match(/^\S+@\S+\.\S+$/)) {
+                              setErrorMsg("Please provide a cryptographically valid email address.");
+                              return;
+                            }
+                          } else if (currentStep === 2) {
+                            if (!goal) {
+                              setErrorMsg("A primary transformation goal must be specified.");
+                              return;
+                            }
+                            if (!stage) {
+                              setErrorMsg("An active organizational stage must be designated.");
+                              return;
+                            }
+                          } else if (currentStep === 4) {
+                            if (!futureIntegration) {
+                              setErrorMsg("Select a target AI integration level for your operations.");
+                              return;
+                            }
+                          } else if (currentStep === 5) {
+                            if (!primaryKPI) {
+                              setErrorMsg("Select your primary transformation priority metric/KPI.");
+                              return;
+                            }
+                          }
+                          setCurrentStep(prev => prev + 1);
+                        }}
+                        className="px-5 py-2 bg-slate-900 hover:bg-slate-950 text-[#9DFF00] font-mono text-[9px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ml-auto"
+                      >
+                        <span>Next Step</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="px-5 py-2 bg-slate-900 hover:bg-slate-950 text-[#9DFF00] font-mono text-[9px] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs disabled:opacity-50 ml-auto"
+                      >
+                        {submitting ? (
+                          <>
+                            <motion.div 
+                              animate={{ rotate: 360 }}
+                              transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                              className="w-4 h-4 border-2 border-t-transparent border-[#9DFF00] rounded-full"
+                            />
+                            <span>COMPILING INTEL...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4" />
+                            <span>SUBMIT RESEARCH TRANSMISSION</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </motion.form>
               ) : (
@@ -808,6 +1061,9 @@ ${narrative}
                       setTechStack([]);
                       setMaturityRating(3);
                       setNarrative('');
+                      setFutureIntegration('');
+                      setPrimaryKPI('');
+                      setCurrentStep(1);
                     }}
                     className="px-6 py-2.5 bg-slate-950 hover:bg-slate-900 text-white font-mono text-[9.5px] font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
                   >

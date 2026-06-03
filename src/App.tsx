@@ -94,6 +94,7 @@ function AppContent() {
   const [showDashboard, setShowDashboard] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('copilot-workspace');
   const [hasAdminOverride, setHasAdminOverride] = useState(false);
+  const [isAdminPasswordUnlocked, setIsAdminPasswordUnlocked] = useState(false);
   
   // Auth modal overlay states
   const [showAuthOverlay, setShowAuthOverlay] = useState(false);
@@ -478,7 +479,7 @@ function AppContent() {
           </div>
 
           <nav className="space-y-1.5">
-            {tabs.map((tab) => {
+            {tabs.filter(tab => tab.id !== 'admin').map((tab) => {
               const isSelected = activeTab === tab.id;
               return (
                 <button
@@ -547,51 +548,50 @@ function AppContent() {
           {/* Admin Control Center Protection Checks */}
           {activeTab === 'admin' && (
             <div className="animate-scaleUp">
-              {!user ? (
-                <div className="bg-white p-8 rounded-2xl border border-zinc-200 text-center space-y-4 max-w-md mx-auto">
-                  <Lock className="w-10 h-10 text-rose-500 mx-auto" />
-                  <h3 className="font-black text-lg uppercase tracking-tight text-slate-900">[AUTHENTICATION_REQUIRED]</h3>
-                  <p className="text-zinc-500 text-xs text-center">Verify your admin credentials to access active network registry databases.</p>
-                  <AuthInterface defaultMode="login" onSuccess={refreshProfile} />
-                </div>
-              ) : !isUserAdmin ? (
-                <div className="bg-white p-8 rounded-2xl border border-zinc-200 p-6 text-center space-y-4 max-w-md mx-auto shadow-xl">
-                  <Lock className="w-10 h-10 text-rose-500 mx-auto" />
-                  <h3 className="font-black text-sm uppercase tracking-tight text-[#FF1A1A]">// ADMIN CLEARANCE FORM</h3>
-                  <p className="text-zinc-500 font-semibold text-xs leading-relaxed">
-                    Sovereign admin credentials are required. Your current email node <strong className="text-slate-950 font-bold">({user.email})</strong> is not listed.
-                  </p>
-                  <p className="text-xs text-zinc-500 font-mono tracking-tight font-bold">
-                    Enter physical administrative Sovereign password config:
-                  </p>
+              {!isAdminPasswordUnlocked ? (
+                <div className="bg-white p-8 rounded-2xl border border-zinc-200 text-center space-y-5 max-w-md mx-auto shadow-xl">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 text-rose-500 flex items-center justify-center mx-auto">
+                    <Lock className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-sans font-black text-sm uppercase tracking-tight text-slate-900">// SECURED SOVEREIGN ADMIN GATE</h3>
+                    <p className="text-zinc-500 text-xs leading-relaxed">
+                      Sovereign administrative clearance is required to view the central control room. Enter the sovereign clearance password to unlock details.
+                    </p>
+                  </div>
                   
                   <form onSubmit={(e) => {
                     e.preventDefault();
                     const val = (e.currentTarget.elements.namedItem('adminPassword') as HTMLInputElement).value;
                     if (val === 'Maan70939779') {
+                      setIsAdminPasswordUnlocked(true);
                       setHasAdminOverride(true);
                     } else {
                       alert('Sovereign Clearance Rejected.');
                     }
-                  }} className="space-y-3.5 max-w-xs mx-auto">
+                  }} className="space-y-4 max-w-xs mx-auto">
                     <input
                       type="password"
                       name="adminPassword"
-                      placeholder="Enter Maan clearance key..."
+                      placeholder="Enter administrative password..."
                       required
-                      className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 text-slate-800 text-xs rounded-lg focus:outline-none focus:border-slate-800 font-mono text-center tracking-widest animate-pulse"
+                      className="w-full px-4 py-2.5 bg-zinc-50 border border-zinc-205 text-slate-800 text-xs rounded-xl focus:outline-none focus:border-slate-800 font-mono text-center tracking-widest"
                     />
                     <button
                       type="submit"
-                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-[#9DFF00] font-mono text-[9px] uppercase font-bold rounded-lg cursor-pointer transition-colors"
+                      className="w-full py-2.5 bg-slate-100 hover:bg-slate-900 text-slate-900 hover:text-[#9DFF00] font-mono text-[9px] uppercase font-black tracking-wider rounded-xl cursor-pointer transition-colors border border-zinc-200 hover:border-transparent"
                     >
-                      Verify Sovereign Key &rarr;
+                      Verify Sovereign Password &rarr;
                     </button>
                   </form>
 
                   <div className="pt-2">
                     <button 
-                      onClick={() => setActiveTab('copilot-workspace')}
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('copilot-workspace');
+                        setShowDashboard(true);
+                      }}
                       className="text-xs text-zinc-400 hover:text-slate-800 transition-colors uppercase font-mono text-[9px] font-bold cursor-pointer"
                     >
                       &larr; Return to Secure Workspace
@@ -601,7 +601,6 @@ function AppContent() {
               ) : (
                 <AdminConsole />
               )}
-
             </div>
           )}
         </main>
