@@ -21,15 +21,23 @@ export default function ReadinessScorecard() {
   const { user } = useAuth();
 
   // Part 1 States
-  const [workflowScore, setWorkflowScore] = useState<number>(3);
-  const [securityScore, setSecurityScore] = useState<number>(3);
-  const [alertingScore, setAlertingScore] = useState<number>(3);
-  const [dataScore, setDataScore] = useState<number>(3);
+  const [workflowScore, setWorkflowScore] = useState<number>(5);
+  const [securityScore, setSecurityScore] = useState<number>(5);
+  const [alertingScore, setAlertingScore] = useState<number>(5);
+  const [dataScore, setDataScore] = useState<number>(5);
 
   // Part 2 States
-  const [skillGaps, setSkillGaps] = useState<string[]>([]);
-  const [operationalReadiness, setOperationalReadiness] = useState<string | null>(null);
-  const [targetScopes, setTargetScopes] = useState<string[]>([]);
+  const [skillGaps, setSkillGaps] = useState<string[]>([
+    'Low AI Literacy',
+    'Lack of Security/Compliance Standards'
+  ]);
+  const [operationalReadiness, setOperationalReadiness] = useState<string | null>(
+    'Partially, we need a governance framework.'
+  );
+  const [targetScopes, setTargetScopes] = useState<string[]>([
+    'Chief of Staff (Strategic Intelligence)',
+    'COO (Operational Orchestration)'
+  ]);
 
   // Part 4 Official Request
   const [companyName, setCompanyName] = useState<string>('');
@@ -190,10 +198,10 @@ export default function ReadinessScorecard() {
           <div className="space-y-3.5 bg-zinc-50 p-4 border border-zinc-200 rounded-xl">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
               <div>
-                <span className="font-black text-slate-900 uppercase tracking-wide">A. Workflow: Manual task handling</span>
-                <p className="text-[10px] text-zinc-405">Evaluating spreadsheet workflows, raw copy-pasting, and manual dispatch emails.</p>
+                <span className="font-black text-slate-900 uppercase tracking-wide text-sm">A. Workflow: Manual task handling</span>
+                <p className="text-[12px] text-zinc-500">Evaluating spreadsheet workflows, raw copy-pasting, and manual dispatch emails.</p>
               </div>
-              <span className="text-xs font-black px-2.5 py-1 bg-slate-900 text-[#9DFF00] rounded">
+              <span className="text-sm font-black px-2.5 py-1 bg-slate-900 text-[#9DFF00] rounded">
                 Maturity: {workflowScore} / 5
               </span>
             </div>
@@ -203,7 +211,7 @@ export default function ReadinessScorecard() {
               onChange={(e) => setWorkflowScore(parseInt(e.target.value))}
               className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
             />
-            <div className="flex justify-between text-[8px] text-zinc-400 font-bold uppercase">
+            <div className="flex justify-between text-[10px] text-zinc-400 font-bold uppercase">
               <span>1 - Manual & Heavy Drag</span>
               <span>3 - Mixed Sheets</span>
               <span>5 - Fully Autonomous Process</span>
@@ -214,10 +222,10 @@ export default function ReadinessScorecard() {
           <div className="space-y-3.5 bg-zinc-50 p-4 border border-zinc-200 rounded-xl">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
               <div>
-                <span className="font-black text-slate-900 uppercase tracking-wide">B. Security: API & Credential management</span>
-                <p className="text-[10px] text-zinc-405">Vulnerability index of keys. Are developers leaking tokens into client variables?</p>
+                <span className="font-black text-slate-900 uppercase tracking-wide text-sm">B. Security: API & Credential management</span>
+                <p className="text-[12px] text-zinc-500">Vulnerability index of keys. Are developers leaking tokens into client variables?</p>
               </div>
-              <span className="text-xs font-black px-2.5 py-1 bg-slate-900 text-[#9DFF00] rounded">
+              <span className="text-sm font-black px-2.5 py-1 bg-slate-900 text-[#9DFF00] rounded">
                 Maturity: {securityScore} / 5
               </span>
             </div>
@@ -227,7 +235,7 @@ export default function ReadinessScorecard() {
               onChange={(e) => setSecurityScore(parseInt(e.target.value))}
               className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
             />
-            <div className="flex justify-between text-[8px] text-zinc-400 font-bold uppercase">
+            <div className="flex justify-between text-[10px] text-zinc-400 font-bold uppercase">
               <span>1 - Client-side Variables (Vulnerable)</span>
               <span>3 - Proprietary SaaS Vault</span>
               <span>5 - Hardened Server-side Proxies</span>
@@ -238,10 +246,10 @@ export default function ReadinessScorecard() {
           <div className="space-y-3.5 bg-zinc-50 p-4 border border-zinc-200 rounded-xl">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
               <div>
-                <span className="font-black text-slate-900 uppercase tracking-wide">C. Alerting: Exception handling protocols</span>
-                <p className="text-[10px] text-zinc-405">What happens during an operational failure? Slack-relay alerts or silent errors?</p>
+                <span className="font-black text-slate-900 uppercase tracking-wide text-sm">C. Alerting: Exception handling protocols</span>
+                <p className="text-[12px] text-zinc-500">What happens during an operational failure? Slack-relay alerts or silent errors?</p>
               </div>
-              <span className="text-xs font-black px-2.5 py-1 bg-slate-900 text-[#9DFF00] rounded">
+              <span className="text-sm font-black px-2.5 py-1 bg-slate-900 text-[#9DFF00] rounded">
                 Maturity: {alertingScore} / 5
               </span>
             </div>
@@ -251,7 +259,7 @@ export default function ReadinessScorecard() {
               onChange={(e) => setAlertingScore(parseInt(e.target.value))}
               className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
             />
-            <div className="flex justify-between text-[8px] text-zinc-400 font-bold uppercase">
+            <div className="flex justify-between text-[10px] text-zinc-400 font-bold uppercase">
               <span>1 - Reactive (No protocol / Manual)</span>
               <span>3 - Passive Email Reports</span>
               <span>5 - Real-time Webhook/SMS Relay</span>
@@ -262,10 +270,10 @@ export default function ReadinessScorecard() {
           <div className="space-y-3.5 bg-zinc-50 p-4 border border-zinc-200 rounded-xl">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
               <div>
-                <span className="font-black text-slate-900 uppercase tracking-wide">D. Data: Knowledge availability</span>
-                <p className="text-[10px] text-zinc-405">How accessible is company data? Is it ready for retrieval augmented AI generation?</p>
+                <span className="font-black text-slate-900 uppercase tracking-wide text-sm">D. Data: Knowledge availability</span>
+                <p className="text-[12px] text-zinc-500">How accessible is company data? Is it ready for retrieval augmented AI generation?</p>
               </div>
-              <span className="text-xs font-black px-2.5 py-1 bg-slate-900 text-[#9DFF00] rounded">
+              <span className="text-sm font-black px-2.5 py-1 bg-slate-900 text-[#9DFF00] rounded">
                 Maturity: {dataScore} / 5
               </span>
             </div>
@@ -275,7 +283,7 @@ export default function ReadinessScorecard() {
               onChange={(e) => setDataScore(parseInt(e.target.value))}
               className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
             />
-            <div className="flex justify-between text-[8px] text-zinc-400 font-bold uppercase">
+            <div className="flex justify-between text-[10px] text-zinc-400 font-bold uppercase">
               <span>1 - Fragmented & Siloed</span>
               <span>3 - Cloud Folders</span>
               <span>5 - Centralized RAG-ready Enclaves</span>
@@ -297,8 +305,8 @@ export default function ReadinessScorecard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 font-mono text-xs">
           {/* Skill Gap */}
           <div className="space-y-3">
-            <span className="font-black text-slate-900 uppercase block tracking-wider">// CURRENT SKILL GAP</span>
-            <p className="text-[10px] text-zinc-500">What is your team’s primary hurdle? Select all that apply:</p>
+            <span className="font-black text-slate-900 uppercase block tracking-wider text-sm">// CURRENT SKILL GAP</span>
+            <p className="text-[12px] text-zinc-500">What is your team’s primary hurdle? Select all that apply:</p>
             <div className="space-y-2">
               {[
                 'Low AI Literacy',
@@ -318,7 +326,7 @@ export default function ReadinessScorecard() {
                   <span className={`w-4 h-4 border flex items-center justify-center rounded-sm text-xs ${skillGaps.includes(gap) ? 'border-[#9DFF00] bg-zinc-800' : 'border-zinc-300'}`}>
                     {skillGaps.includes(gap) && <Check className="w-3 h-3 text-[#9DFF00]" />}
                   </span>
-                  <span className="text-[10.5px] leading-tight select-none uppercase font-bold">{gap}</span>
+                  <span className="text-[12.5px] leading-tight select-none uppercase font-bold">{gap}</span>
                 </button>
               ))}
             </div>
@@ -326,8 +334,8 @@ export default function ReadinessScorecard() {
 
           {/* Operational Readiness */}
           <div className="space-y-3">
-            <span className="font-black text-slate-900 uppercase block tracking-wider">// OPERATIONAL READINESS</span>
-            <p className="text-[10px] text-zinc-500">Are you prepared to implement "Human-in-the-Loop" authorization gates?</p>
+            <span className="font-black text-slate-900 uppercase block tracking-wider text-sm">// OPERATIONAL READINESS</span>
+            <p className="text-[12px] text-zinc-500">Are you prepared to implement "Human-in-the-Loop" authorization gates?</p>
             <div className="space-y-2">
               {[
                 'Yes, we have defined decision-makers.',
@@ -347,7 +355,7 @@ export default function ReadinessScorecard() {
                   <span className={`w-4 h-4 border flex items-center justify-center rounded-full text-xs ${operationalReadiness === ready ? 'border-[#9DFF00] bg-zinc-800' : 'border-zinc-300'}`}>
                     {operationalReadiness === ready && <span className="w-2 h-2 rounded-full bg-[#9DFF00]" />}
                   </span>
-                  <span className="text-[10.5px] leading-tight select-none uppercase font-bold">{ready}</span>
+                  <span className="text-[12.5px] leading-tight select-none uppercase font-bold">{ready}</span>
                 </button>
               ))}
             </div>
@@ -355,8 +363,8 @@ export default function ReadinessScorecard() {
 
           {/* Target Scope */}
           <div className="space-y-3">
-            <span className="font-black text-slate-900 uppercase block tracking-wider">// TARGET SCOPE DEPLOYMENT</span>
-            <p className="text-[10px] text-zinc-500">Which functional units are highest priority for immediate Agentic deployment?</p>
+            <span className="font-black text-slate-900 uppercase block tracking-wider text-sm">// TARGET SCOPE DEPLOYMENT</span>
+            <p className="text-[12px] text-zinc-500">Which functional units are highest priority for immediate Agentic deployment?</p>
             <div className="space-y-2">
               {[
                 'Chief of Staff (Strategic Intelligence)',
@@ -370,14 +378,14 @@ export default function ReadinessScorecard() {
                   onClick={() => handleToggleTargetScope(scope)}
                   className={`w-full text-left p-3 border rounded-xl flex items-center gap-3 transition-colors cursor-pointer ${
                     targetScopes.includes(scope) 
-                      ? 'bg-slate-900 border-slate-950 text-[#9DFF00]' 
+                      ? 'bg-[#9DFF00] border-slate-950 text-slate-950 font-black' 
                       : 'bg-white border-zinc-200 hover:bg-zinc-50 text-zinc-700'
                   }`}
                 >
-                  <span className={`w-4 h-4 border flex items-center justify-center rounded-sm text-xs ${targetScopes.includes(scope) ? 'border-[#9DFF00] bg-zinc-800' : 'border-zinc-300'}`}>
+                  <span className={`w-4 h-4 border flex items-center justify-center rounded-sm text-xs ${targetScopes.includes(scope) ? 'border-slate-950 bg-slate-900' : 'border-zinc-300'}`}>
                     {targetScopes.includes(scope) && <Check className="w-3 h-3 text-[#9DFF00]" />}
                   </span>
-                  <span className="text-[10.5px] leading-tight select-none uppercase font-bold">{scope}</span>
+                  <span className="text-[12.5px] leading-tight select-none uppercase font-bold">{scope}</span>
                 </button>
               ))}
             </div>
@@ -544,17 +552,17 @@ export default function ReadinessScorecard() {
 
           <div className="space-y-1 bg-white p-4 border border-zinc-200 rounded-xl">
             <strong className="text-slate-900 block font-bold uppercase text-[10px]">2. Receive Matrix</strong>
-            <p className="text-zinc-550 text-[10px] mt-1 leading-snug">Get a personalized dashboard highlighting maturity vs industry benchmarks.</p>
+            <p className="text-zinc-500 text-[10px] mt-1 leading-snug">Get a personalized dashboard highlighting maturity vs industry benchmarks.</p>
           </div>
 
           <div className="space-y-1 bg-white p-4 border border-zinc-200 rounded-xl">
             <strong className="text-slate-900 block font-bold uppercase text-[10px]">3. Academy Enrollment</strong>
-            <p className="text-zinc-550 text-[10px] mt-1 leading-snug">Your team gets assigned tailored courses in the Corporate Academy Lab based on scorecard trends.</p>
+            <p className="text-zinc-500 text-[10px] mt-1 leading-snug">Your team gets assigned tailored courses in the Corporate Academy Lab based on scorecard trends.</p>
           </div>
 
           <div className="space-y-1 bg-white p-4 border border-zinc-200 rounded-xl">
             <strong className="text-slate-900 block font-bold uppercase text-[10px]">4. Audit Lab Launch</strong>
-            <p className="text-zinc-550 text-[10px] mt-1 leading-snug">Schedule a technical deep-dive to harden server-side proxy routers and eliminate drag.</p>
+            <p className="text-zinc-500 text-[10px] mt-1 leading-snug">Schedule a technical deep-dive to harden server-side proxy routers and eliminate drag.</p>
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@ import GetStarted from './components/GetStarted';
 import ReadinessScorecard from './components/ReadinessScorecard';
 import ManifestoPage from './components/ManifestoPage';
 import ResiliencyRecon from './components/ResiliencyRecon';
+import TransformationSurvey from './components/TransformationSurvey';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthInterface from './components/AuthInterface';
 import MyPersonalWorkspace from './components/MyPersonalWorkspace';
@@ -64,7 +65,8 @@ type TabId =
   | 'get-started'
   | 'readiness-scorecard'
   | 'manifesto-section'
-  | 'resiliency-recon';
+  | 'resiliency-recon'
+  | 'transformation-survey';
 
 interface TabItem {
   id: TabId;
@@ -223,6 +225,12 @@ function AppContent() {
       icon: <FileSpreadsheet className="w-5 h-5 text-[#FF4F2E]" />
     },
     {
+      id: 'transformation-survey' as TabId,
+      label: 'TRANSFORMATION SURVEY & CASES',
+      sub: 'Share your journey & learn from cases',
+      icon: <HelpCircle className="w-5 h-5 text-indigo-500" />
+    },
+    {
       id: 'admin' as TabId,
       label: 'ADMIN CONTROL ROOM',
       sub: 'Sovereign site control room',
@@ -254,7 +262,7 @@ function AppContent() {
         <div className="fixed top-5 right-5 z-40 bg-white/90 backdrop-blur border border-zinc-200 rounded-xl px-3 py-1.5 shadow-md flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-2.5">
-              <span className="text-[10px] font-mono text-zinc-650">Logged as <strong className="text-slate-900">{profile?.fullName || user.email}</strong></span>
+              <span className="text-[10px] font-mono text-zinc-500">Logged as <strong className="text-slate-900">{profile?.fullName || user.email}</strong></span>
               <button
                 onClick={() => {
                   setShowDashboard(true);
@@ -335,7 +343,7 @@ function AppContent() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setShowDashboard(false)}
-              className="px-3.5 py-1.5 border border-zinc-200 bg-white hover:bg-zinc-50 font-mono text-[10px] font-bold text-zinc-805 transition-all cursor-pointer flex items-center gap-1.5 rounded-lg shadow-sm"
+              className="px-3.5 py-1.5 border border-zinc-200 bg-white hover:bg-zinc-50 font-mono text-[10px] font-bold text-zinc-800 transition-all cursor-pointer flex items-center gap-1.5 rounded-lg shadow-sm"
             >
               Landing Hub
             </button>
@@ -455,6 +463,7 @@ function AppContent() {
           {activeTab === 'readiness-scorecard' && <ReadinessScorecard />}
           {activeTab === 'manifesto-section' && <ManifestoPage />}
           {activeTab === 'resiliency-recon' && <ResiliencyRecon />}
+          {activeTab === 'transformation-survey' && <TransformationSurvey />}
           
           {/* Admin Control Center Protection Checks */}
           {activeTab === 'admin' && (
@@ -467,10 +476,10 @@ function AppContent() {
                   <AuthInterface defaultMode="login" onSuccess={refreshProfile} />
                 </div>
               ) : !isUserAdmin ? (
-                <div className="bg-white p-8 rounded-2xl border border-zinc-250 p-6 text-center space-y-4 max-w-md mx-auto shadow-xl">
+                <div className="bg-white p-8 rounded-2xl border border-zinc-200 p-6 text-center space-y-4 max-w-md mx-auto shadow-xl">
                   <Lock className="w-10 h-10 text-rose-500 mx-auto" />
                   <h3 className="font-black text-sm uppercase tracking-tight text-[#FF1A1A]">// ADMIN CLEARANCE FORM</h3>
-                  <p className="text-zinc-650 font-semibold text-xs leading-relaxed">
+                  <p className="text-zinc-500 font-semibold text-xs leading-relaxed">
                     Sovereign admin credentials are required. Your current email node <strong className="text-slate-950 font-bold">({user.email})</strong> is not listed.
                   </p>
                   <p className="text-xs text-zinc-500 font-mono tracking-tight font-bold">

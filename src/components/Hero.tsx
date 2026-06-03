@@ -753,7 +753,7 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
               </h2>
 
               <p className="text-xs md:text-sm text-zinc-650 font-sans font-medium leading-relaxed max-w-2xl">
-                Stop playing every role in your business. Experience the <strong className="text-slate-950">Lebanese AI Renaissance</strong> by deploying a digital executive team designed for the individual entrepreneur. Compile your startup variables below to configure workspace parameters instantly.
+                We are the infrastructure and implementation partner for building <strong>AI Coworkers</strong>. Our platform provides the technical scaffolding—the <strong>System Matrix</strong>—required to create autonomous agents that handle end-to-end business processes across your existing enterprise systems. Just as global alliances now pair model builders with transformation experts, we bridge the gap between technical potential and organizational reality. We recognize that while model capability is critical, implementation capability is what makes AI adoption stick.
               </p>
             </div>
 
@@ -1042,17 +1042,17 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
           </div>
 
           <div className="lg:col-span-4 glass-panel border border-zinc-200 p-8 rounded-2xl space-y-6 relative overflow-hidden bg-zinc-50/20">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF4F2E] rounded-full filter blur-xl opacity-20 transform translate-x-8 -translate-y-8"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500 rounded-full filter blur-xl opacity-20 transform translate-x-8 -translate-y-8"></div>
             
             <div className="flex items-center gap-2">
               <span className="flex h-2.5 w-2.5 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-405 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
-              <p className="font-mono text-xs text-red-650 font-extrabold tracking-widest uppercase">LIVE DISPATCHES</p>
+              <p className="font-mono text-xs text-emerald-600 font-extrabold tracking-widest uppercase">C-Suite Insights Board</p>
             </div>
             
-            <h3 className="font-mono text-sm font-black tracking-wider text-black uppercase">AI REVENUE SIGNALS</h3>
+            <h3 className="font-mono text-sm font-black tracking-wider text-black uppercase">STRATEGIC ALIGNMENTS</h3>
             
             <div className="space-y-4">
               {LATEST_NEWS.map((item) => (
@@ -1066,10 +1066,19 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
                       {item.sentiment}
                     </span>
                   </div>
-                  <h4 className="text-xs font-semibold leading-normal text-zinc-800 hover:text-black transition-colors cursor-pointer">{item.title}</h4>
+                  <h4 className="text-xs font-semibold leading-normal text-zinc-800 hover:text-black transition-colors cursor-pointer" onClick={() => onStartDashboard('csuite-insights')}>{item.title}</h4>
                   <p className="text-[10px] text-zinc-500 font-mono mt-0.5">{item.time}</p>
                 </div>
               ))}
+            </div>
+
+            <div className="pt-2 border-t border-zinc-200">
+              <button 
+                onClick={() => onStartDashboard('csuite-insights')}
+                className="w-full py-2 bg-slate-900 text-[#9DFF00] hover:bg-slate-950 font-mono text-[10px] font-bold uppercase tracking-widest rounded-lg transition-colors cursor-pointer text-center"
+              >
+                READ MORE ON THE BOARD &rarr;
+              </button>
             </div>
           </div>
         </div>
@@ -1101,6 +1110,74 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
           </section>
         ))}
 
+
+
+
+        {/* RESEARCH SUBSECTION: AI OR X TRANSFORMATION JOURNEY */}
+        <section className="mb-24 bg-slate-900 text-white border border-zinc-800 p-6 md:p-10 rounded-2xl relative overflow-hidden shadow-lg" id="transformation-research-block">
+          <div className="absolute top-0 right-0 w-44 h-44 bg-[#9DFF00]/10 rounded-full filter blur-3xl opacity-40 -z-10"></div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            {/* Column 1: Info (7 spans) */}
+            <div className="lg:col-span-7 space-y-5">
+              <div className="inline-block px-3 py-1 bg-white/10 border border-white/20 text-white font-mono text-[9px] tracking-wider font-extrabold uppercase rounded-lg">
+                ★ CO-OP RESEARCH MATRIX ★
+              </div>
+              
+              <h3 className="text-2xl md:text-4xl font-extrabold uppercase text-white tracking-tight leading-none font-sans">
+                Are you in the process of AI or X Transformation?
+              </h3>
+              
+              <p className="text-white font-bold text-sm tracking-wide uppercase font-mono">
+                // We need to learn from your experience.
+              </p>
+              
+              <p className="text-zinc-300 text-[13px] leading-relaxed">
+                Modern enterprise transformation isn't a simple plug-and-play upgrade; it is an active redesign of workflows and organizational structures. By contributing your current goals, bottlenecks, and stages of implementation, we can tailor custom agentic configurations that mitigate operational drag completely.
+              </p>
+
+              <div>
+                <button 
+                  onClick={() => onStartDashboard('transformation-survey')}
+                  className="px-6 py-3 bg-[#9DFF00] hover:bg-[#8cee00] text-slate-950 font-mono text-[10.5px] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center gap-2"
+                >
+                  <span>Go to Questionnaire & Cases</span>
+                  <ArrowRight className="w-4 h-4 text-slate-950" />
+                </button>
+              </div>
+            </div>
+
+            {/* Column 2: Cases Snapshot Preview (5 spans) */}
+            <div className="lg:col-span-5 bg-white/10 backdrop-blur-md p-5 border border-white/10 rounded-xl space-y-4">
+              <span className="font-mono text-[9px] text-[#9DFF00] font-black uppercase tracking-widest block border-b border-white/10 pb-2">
+                // CASE STUDIES DIRECTORY PREVIEW
+              </span>
+              
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <strong className="text-white text-[12px] block uppercase font-mono">1. Medical Information RAG</strong>
+                  <p className="text-zinc-300 text-[11px] leading-snug">Reduced historical triage retrieval lookup duration by 82% safely inside a secure healthcare proxy environment.</p>
+                </div>
+                
+                <div className="space-y-1">
+                  <strong className="text-white text-[12px] block uppercase font-mono">2. Logistics Capacity scheduling</strong>
+                  <p className="text-zinc-300 text-[11px] leading-snug">Autonomous freight dispatch agents bypass scheduling errors, raising peak operations capacity by 4.2x.</p>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button 
+                  onClick={() => onStartDashboard('transformation-survey')}
+                  className="text-[#9DFF00] hover:underline font-mono text-[10px] uppercase font-bold tracking-wider flex items-center gap-1 cursor-pointer"
+                >
+                  View All Real Case Studies &rarr;
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
 
 
         {/* CORPORATE ACADEMY HUB & WORKSPACE ALIGNMENT */}

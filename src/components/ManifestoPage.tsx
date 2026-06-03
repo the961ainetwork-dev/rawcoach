@@ -70,6 +70,62 @@ export default function ManifestoPage() {
           </div>
         </div>
       </div>
+
+      {/* ENTERPRISE PHILOSOPHY & Value Proposition */}
+      <div className="bg-white text-slate-900 rounded-3xl p-8 md:p-14 border border-zinc-200 relative overflow-hidden shadow-xs">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#9DFF00]/10 rounded-full filter blur-3xl opacity-20 -z-10 animate-pulse"></div>
+        
+        {/* First Row (One Column) */}
+        <div className="border-b border-zinc-200 pb-8 mb-8">
+          <div className="inline-block px-3 py-1 bg-lime-50 border border-lime-100 text-lime-700 font-mono text-[9px] tracking-wider font-extrabold uppercase rounded-lg mb-4">
+            ★ Enterprise Philosophy ★
+          </div>
+          <h3 className="text-2xl md:text-3xl font-black uppercase text-slate-900 tracking-tight leading-none font-sans mb-4">
+            Our Value Proposition: The Agentic Enterprise Architect
+          </h3>
+          <p className="text-[13.5px] text-zinc-650 leading-relaxed font-sans font-medium">
+            We are transitioning the Lebanese corporate landscape from passive AI adoption to active Agentic Orchestration. Mirroring the strategies of industry leaders like OpenAI and Anthropic, we do not merely provide AI tools; we embed specialized expertise directly into your operations to redesign, build, and deploy reliable, scalable agentic systems.
+          </p>
+        </div>
+
+        {/* Second Row (Two Columns) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[12.5px] font-sans font-medium leading-relaxed text-zinc-650">
+          {/* Column 1 */}
+          <div className="space-y-4">
+            <p>
+              By embedding our System Matrix and Agentic Swarm architectures, we bypass the slow, trial-and-error adoption rates typical of traditional consulting. We act as your specialized engineering partner, turning theoretical AI gains into durable, high-performance business workflows.
+            </p>
+            <div className="bg-zinc-50 border border-zinc-150 p-4.5 rounded-xl space-y-1">
+              <strong className="text-slate-950 block font-bold uppercase text-[10.5px] tracking-wide font-mono text-indigo-600">// Forward-Deployed Expertise</strong>
+              <p className="text-[12px] leading-relaxed text-zinc-600">
+                Much like the "Forward Deployed Engineer" model, we provide hands-on, expert-led guidance to embed agents directly into your company’s core architecture.
+              </p>
+            </div>
+          </div>
+
+          {/* Column 2 */}
+          <div className="space-y-3.5 bg-zinc-50/50 p-4.5 border border-zinc-150 rounded-xl">
+            <div className="flex gap-2.5 items-start">
+              <span className="text-white font-black shrink-0 bg-slate-950 rounded-full w-5 h-5 flex items-center justify-center text-[10px]">•</span>
+              <p>
+                <strong className="text-slate-900">The Academy Certification Pipeline:</strong> Similar to the Claude Partner Network, we utilize our Corporate Academy to certify your talent, building an in-house bench of experts capable of managing custom systems and integrating agents into your daily operations.
+              </p>
+            </div>
+            <div className="flex gap-2.5 items-start">
+              <span className="text-white font-black shrink-0 bg-slate-950 rounded-full w-5 h-5 flex items-center justify-center text-[10px]">•</span>
+              <p>
+                <strong className="text-slate-900">Infrastructure-as-Partnership:</strong> We move beyond software by establishing dedicated deployment frameworks, ensuring your business has the administrative tools, security controls, and agentic workflows required to compete at a global standard.
+              </p>
+            </div>
+            <div className="flex gap-2.5 items-start">
+              <span className="text-white font-black shrink-0 bg-slate-950 rounded-full w-5 h-5 flex items-center justify-center text-[10px]">•</span>
+              <p>
+                <strong className="text-slate-900">Enterprise Renaissance:</strong> By partnering with us, you are not just purchasing a service; you are gaining a sovereign intelligence hub that brings the power of applied, custom AI to your enterprise, ensuring you remain at the vanguard of the Lebanese AI Renaissance.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

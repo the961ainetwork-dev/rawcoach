@@ -111,6 +111,23 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "title", "author", "snippet", "content", "status", "createdAt"]
+    },
+    "transformationSurveyDoc": {
+      "title": "Transformation Survey",
+      "description": "User questionnaire entries regarding AI/X transformation experience",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "organizationName": { "type": "string" },
+        "goal": { "type": "string" },
+        "stage": { "type": "string" },
+        "bottleneck": { "type": "string" },
+        "narrative": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email", "goal", "stage", "narrative", "createdAt"]
     }
   },
   "firestore": {
@@ -141,6 +158,10 @@
     "csuiteInsights/{insightId}": {
       "schema": "csuiteInsight",
       "description": "Enterprise C-Suite Insight items laid out in Pinterest-style grid"
+    },
+    "transformationSurveys/{surveyId}": {
+      "schema": "transformationSurveyDoc",
+      "description": "Submitted questionnaires on AI/X transformation experience"
     }
   }
 }
