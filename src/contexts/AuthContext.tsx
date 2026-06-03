@@ -91,6 +91,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logIn = async (email: string, password: string) => {
+    // Lazy check site options
+    const bootstrapAdmin = email.toLowerCase() === "maanbarazy@gmail.com";
+    try {
+      const snap = await getDoc(doc(db, 'siteSettings', 'config'));
+      if (snap.exists()) {
+        const settings = snap.data();
+        if (settings.allowSignIns === false && !bootstrapAdmin) {
+          throw new Error("System sign-ins are temporarily closed by the administrator. Bypass auth codes are required.");
+        }
+      }
+    } catch (e: any) {
+      if (e.message && e.message.includes("closed")) {
+        throw e;
+      }
+      console.warn("Could not check site parameters, proceeding.", e);
+    }
     await signInWithEmailAndPassword(auth, email, password);
   };
 
@@ -99,12 +115,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string, 
     profileData: Omit<UserRegistrationProfile, 'uid' | 'registrationStatus' | 'isAdmin'>
   ) => {
+    const bootstrapAdmin = email.toLowerCase() === "maanbarazy@gmail.com";
+    let allowReg = true;
+    let requireApproval = true;
+
+    try {
+      const snap = await getDoc(doc(db, 'siteSettings', 'config'));
+      if (snap.exists()) {
+        const settings = snap.data();
+        allowReg = settings.allowRegistrations ?? true;
+        requireApproval = settings.requireApproval ?? true;
+      }
+    } catch (e) {
+      console.warn("Could not check site parameters, defaulting reg rules.", e);
+    }
+
+    if (!allowReg && !bootstrapAdmin) {
+      throw new Error("New co-founder registrations are temporarily disabled by administrative policy directives.");
+    }
+
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     const uid = cred.user.uid;
     const path = `registrations/${uid}`;
-    
-    // Bootstrapped admin if user email matches the spec email
-    const bootstrapAdmin = email.toLowerCase() === "maanbarazy@gmail.com";
     
     const initialProfile: UserRegistrationProfile = {
       uid,
@@ -114,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       companyName: profileData.companyName,
       companyDescription: profileData.companyDescription || 'No description provided.',
       phone: profileData.phone,
-      registrationStatus: bootstrapAdmin ? 'verified' : 'pending',
+      registrationStatus: bootstrapAdmin ? 'verified' : (requireApproval ? 'pending' : 'verified'),
       isAdmin: bootstrapAdmin,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
@@ -138,8 +170,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check if registration already exists
     const snap = await getDoc(doc(db, 'registrations', uid));
     if (!snap.exists()) {
-      // Create a pending skeleton profile, user can modify inside their workspace
       const bootstrapAdmin = email.toLowerCase() === "maanbarazy@gmail.com";
+      let allowReg = true;
+      let requireApproval = true;
+
+      try {
+        const optSnap = await getDoc(doc(db, 'siteSettings', 'config'));
+        if (optSnap.exists()) {
+          const settings = optSnap.data();
+          allowReg = settings.allowRegistrations ?? true;
+          requireApproval = settings.requireApproval ?? true;
+        }
+      } catch (e) {
+        console.warn("Could not read site parameters inside google auth, defaulting.", e);
+      }
+
+      if (!allowReg && !bootstrapAdmin) {
+        await signOut(auth);
+        throw new Error("New registrations are temporarily disabled by administrative policy directives.");
+      }
+
+      // Create a pending skeleton profile, user can modify inside their workspace
       const skeletonProfile: UserRegistrationProfile = {
         uid,
         fullName: name,
@@ -148,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         companyName: 'Unnamed Venture',
         companyDescription: 'Provisioned via Google authentication.',
         phone: 'N/A',
-        registrationStatus: bootstrapAdmin ? 'verified' : 'pending',
+        registrationStatus: bootstrapAdmin ? 'verified' : (requireApproval ? 'pending' : 'verified'),
         isAdmin: bootstrapAdmin,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()

@@ -187,5 +187,11 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
       allow list: if isAdmin();
     }
+
+    // Dynamic Centralized Admin Controls for Sign-ins, Sign-ups, and structural configurations
+    match /siteSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }

@@ -3,6 +3,7 @@ import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { 
   collection, 
   getDocs, 
+  getDoc,
   doc, 
   setDoc, 
   addDoc, 
@@ -37,7 +38,7 @@ import {
 import { UserRegistrationProfile } from '../contexts/AuthContext';
 import { InsightCard } from './CSuiteInsights';
 
-type AdminTab = 'registrations' | 'sections' | 'subscribers' | 'stories' | 'resources' | 'insights';
+type AdminTab = 'registrations' | 'sections' | 'subscribers' | 'stories' | 'resources' | 'insights' | 'settings';
 
 export default function AdminConsole() {
   const [activeTab, setActiveTab] = useState<AdminTab>('registrations');
@@ -98,6 +99,22 @@ export default function AdminConsole() {
   const [insStatus, setInsStatus] = useState<'draft' | 'published'>('published');
   const [insLikes, setInsLikes] = useState(0);
 
+  // Global administrative configurations state
+  const [allowRegistrations, setAllowRegistrations] = useState(true);
+  const [allowSignIns, setAllowSignIns] = useState(true);
+  const [requireApproval, setRequireApproval] = useState(false);
+  const [siteTitle, setSiteTitle] = useState('theCsuiteCOACH');
+  const [globalAlert, setGlobalAlert] = useState('');
+  const [activeModules, setActiveModules] = useState<{ [key: string]: boolean }>({
+    coaches: true,
+    simulator: true,
+    whatsapp: true,
+    mobile: true,
+    analytics: true,
+    insights: true,
+    transformation: true,
+  });
+
   // ---------------------------------------------------------------------------
   // Auto Loads / Fetch engines
   // ---------------------------------------------------------------------------
@@ -136,6 +153,20 @@ export default function AdminConsole() {
         const list: any[] = [];
         snap.forEach(d => list.push({ id: d.id, ...d.data() }));
         setInsights(list);
+      } else if (activeTab === 'settings') {
+        const docRef = doc(db, 'siteSettings', 'config');
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          setAllowRegistrations(data.allowRegistrations ?? true);
+          setAllowSignIns(data.allowSignIns ?? true);
+          setRequireApproval(data.requireApproval ?? false);
+          setSiteTitle(data.siteTitle ?? 'theCsuiteCOACH');
+          setGlobalAlert(data.globalAlert ?? '');
+          if (data.activeModules) {
+            setActiveModules(data.activeModules);
+          }
+        }
       }
     } catch (err: any) {
       console.error(err);
@@ -424,6 +455,31 @@ export default function AdminConsole() {
     }
   };
 
+  // Save site options override
+  const handleSaveSiteSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const docRef = doc(db, 'siteSettings', 'config');
+      await setDoc(docRef, {
+        allowRegistrations,
+        allowSignIns,
+        requireApproval,
+        siteTitle,
+        globalAlert,
+        activeModules,
+        updatedAt: serverTimestamp()
+      });
+      setSuccessMsg(`Global Site & Security parameters updated successfully.`);
+    } catch (err: any) {
+      setErrorMsg(`Failed to save settings: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // ---------------------------------------------------------------------------
   // Filters for lists based on search query
   // ---------------------------------------------------------------------------
@@ -479,7 +535,8 @@ export default function AdminConsole() {
           { id: 'subscribers', label: 'Newsletter list', icon: <Mail className="w-3.5 h-3.5" /> },
           { id: 'stories', label: 'Sheikh Stories', icon: <Flame className="w-3.5 h-3.5 animate-pulse" /> },
           { id: 'resources', label: 'Academy items', icon: <BookOpen className="w-3.5 h-3.5" /> },
-          { id: 'insights', label: 'C-Suite Briefs', icon: <FileCheck2 className="w-3.5 h-3.5" /> }
+          { id: 'insights', label: 'C-Suite Briefs', icon: <FileCheck2 className="w-3.5 h-3.5" /> },
+          { id: 'settings', label: 'Global Controls', icon: <Settings className="w-3.5 h-3.5" /> }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -516,6 +573,18 @@ export default function AdminConsole() {
           {activeTab === 'registrations' && (
             <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-2 text-center text-xs font-mono text-zinc-500">
               <p>User registrations are adjusted directly via rows in the main clearance board to the right.</p>
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-4 font-mono text-xs text-zinc-650 leading-relaxed">
+              <div className="text-slate-900 font-extrabold uppercase text-[10px] tracking-wider mb-1 flex items-center gap-1">
+                <Settings className="w-3.5 h-3.5 text-[#86d900]" /> // SECURE CONTROL DECK
+              </div>
+              <p>These configurations offer instant, system-wide toggling of essential site functionalities.</p>
+              <p>You can dynamically disable registrations, halt logs to maintain strict perimeter hygiene, and force manual co-founder approval.</p>
+              <div className="h-[1px] bg-zinc-150 my-2"></div>
+              <p className="text-zinc-400 text-[10.5px]">Save configurations on the right to transmit state updates globally.</p>
             </div>
           )}
 
@@ -863,8 +932,172 @@ export default function AdminConsole() {
 
         {/* Right Side Clearance Boards & Tables */}
         <div className="lg:col-span-8 space-y-4">
-          
-          {/* Diagnostic controls and search input */}
+
+          {activeTab === 'settings' && (
+            <div className="bg-white border border-zinc-200/95 rounded-2xl p-6 shadow-xs space-y-6">
+              <div className="pb-4 border-b border-zinc-100 flex items-center justify-between text-slate-800">
+                <div>
+                  <h3 className="font-extrabold text-sm text-slate-900 uppercase font-mono tracking-tight flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-slate-700" /> Site Controls & Access Gates
+                  </h3>
+                  <p className="text-[10px] text-zinc-400 font-mono">GLOBAL HARD ACCESS PERIMETER PARAMS</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => syncData()}
+                  className="p-1.5 border border-zinc-200 hover:bg-zinc-50 rounded-lg text-[9px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all"
+                >
+                  <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} /> RELOAD
+                </button>
+              </div>
+
+              {/* Success / Error Dispatches inside settings */}
+              {errorMsg && (
+                <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-rose-700 font-mono flex items-start gap-2">
+                  <AlertCircle className="w-4.5 h-4.5 text-rose-650 shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Action Disrupted:</strong> {errorMsg}
+                  </div>
+                </div>
+              )}
+
+              {successMsg && (
+                <div className="p-3.5 bg-emerald-50 border border-emerald-150 rounded-xl text-xs text-emerald-800 font-mono flex items-start gap-2">
+                  <Check className="w-4.5 h-4.5 text-[#86d900] shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Success:</strong> {successMsg}
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveSiteSettings} className="space-y-6 font-mono text-xs">
+                
+                {/* 1. BRANDING & ANNOUNCEMENTS */}
+                <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200/50 space-y-4">
+                  <h4 className="font-bold text-[10px] text-slate-900 uppercase tracking-wider flex items-center gap-1">
+                    <Layout className="w-3.5 h-3.5 text-zinc-650" /> // Live Branding & announcements
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-zinc-500 uppercase font-bold text-[8.5px] tracking-wide block">Site Branding Header</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={siteTitle}
+                        onChange={(e) => setSiteTitle(e.currentTarget.value)}
+                        placeholder="theCsuiteCOACH"
+                        className="w-full px-3 py-2 bg-white border border-zinc-250 rounded-lg text-slate-800"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-zinc-500 uppercase font-bold text-[8.5px] tracking-wide block">Broadcast System announcement alert</label>
+                      <input 
+                        type="text" 
+                        value={globalAlert}
+                        onChange={(e) => setGlobalAlert(e.target.value)}
+                        placeholder="e.g. Server maintenance or status broadcast..."
+                        className="w-full px-3 py-2 bg-white border border-zinc-250 rounded-lg text-slate-800"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. AUTH REGISTRATION GATES */}
+                <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200/50 space-y-4">
+                  <h4 className="font-bold text-[10px] text-slate-900 uppercase tracking-wider flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-zinc-650" /> // Hard Authentication Security Gates
+                  </h4>
+                  
+                  <div className="space-y-3 pt-1">
+                    <div className="flex items-center justify-between p-3 bg-white border border-zinc-200/80 rounded-xl transition-all hover:bg-zinc-50/20">
+                      <div className="space-y-0.5 max-w-[85%]">
+                        <p className="font-bold text-slate-850 uppercase text-[10px]">Permit new peer sign-ups (REGISTRATION)</p>
+                        <p className="text-[10px] text-zinc-400 font-sans leading-normal">Allows standard visitors to register new accounts. Disabling blocks standard visitor registration flows.</p>
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        checked={allowRegistrations}
+                        onChange={(e) => setAllowRegistrations(e.target.checked)}
+                        className="w-4.5 h-4.5 rounded border-zinc-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-white border border-zinc-200/80 rounded-xl transition-all hover:bg-zinc-50/20">
+                      <div className="space-y-0.5 max-w-[85%]">
+                        <p className="font-bold text-slate-850 uppercase text-[10px]">Permit existing user logs (SIGN-INS)</p>
+                        <p className="text-[10px] text-zinc-400 font-sans leading-normal font-medium">Freezes standard system log-ins. Admins (maanbarazy@gmail.com) retain absolute bypass clearance rules.</p>
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        checked={allowSignIns}
+                        onChange={(e) => setAllowSignIns(e.target.checked)}
+                        className="w-4.5 h-4.5 rounded border-zinc-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-white border border-zinc-200/80 rounded-xl transition-all hover:bg-zinc-50/20">
+                      <div className="space-y-0.5 max-w-[85%]">
+                        <p className="font-bold text-slate-850 uppercase text-[10px]">Require Administrator Manual Approval</p>
+                        <p className="text-[10px] text-zinc-450 font-sans leading-normal">New registrations are saved with "pending" status and locked out of personal workspaces until manually verified by the supervisor.</p>
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        checked={requireApproval}
+                        onChange={(e) => setRequireApproval(e.target.checked)}
+                        className="w-4.5 h-4.5 rounded border-zinc-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. CORE SYSTEM MODULE GATES */}
+                <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200/50 space-y-4">
+                  <h4 className="font-bold text-[10px] text-slate-900 uppercase tracking-wider flex items-center gap-1">
+                    <Layout className="w-3.5 h-3.5 text-zinc-650" /> // Site Section Module control Ledger
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                    {[
+                      { key: 'coaches', label: 'AI COACH DECK' },
+                      { key: 'simulator', label: 'ROLEPLAY ENGINE' },
+                      { key: 'whatsapp', label: 'WHATSAPP EDGE' },
+                      { key: 'mobile', label: 'MOBILE OFFICE PORTAL' },
+                      { key: 'analytics', label: 'METRICS BOARD' },
+                      { key: 'insights', label: 'C-SUITE INSIGHT BRIEF' },
+                      { key: 'transformation', label: 'AUDIT QUESTIONNAIRE' },
+                    ].map((m) => (
+                      <div key={m.key} className="flex items-center justify-between p-2.5 bg-white border border-zinc-200 rounded-lg">
+                        <span className="font-bold text-slate-700 tracking-tight text-[10px]">{m.label}</span>
+                        <input 
+                          type="checkbox" 
+                          checked={activeModules[m.key] ?? true}
+                          onChange={(e) => setActiveModules({ ...activeModules, [m.key]: e.target.checked })}
+                          className="w-4.5 h-4.5 rounded border-zinc-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button 
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-[#86d900] font-black uppercase text-[10px] tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                    {loading ? 'SYNCING POLICY CHANGES...' : 'PERSIST GLOBAL ACCESS POLICY'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {activeTab !== 'settings' && (
+            <>
+              {/* Diagnostic controls and search input */}
           <div className="bg-white p-4 rounded-xl border border-zinc-200/80 flex flex-col sm:flex-row gap-3 items-center justify-between shadow-xs">
             <div className="relative w-full sm:max-w-md">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -1200,6 +1433,8 @@ export default function AdminConsole() {
               </div>
             )}
           </div>
+          </>
+          )}
 
           {/* Quick instructions block */}
           <div className="bg-zinc-55/15 border border-zinc-200 p-4.5 rounded-xl space-y-2 text-xs leading-relaxed text-zinc-650">
