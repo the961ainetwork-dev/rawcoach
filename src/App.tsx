@@ -22,6 +22,10 @@ import AuthInterface from './components/AuthInterface';
 import MyPersonalWorkspace from './components/MyPersonalWorkspace';
 import AdminConsole from './components/AdminConsole';
 import CSuiteInsights from './components/CSuiteInsights';
+import FAQPage from './components/FAQPage';
+import LegalPage from './components/LegalPage';
+import GDPRBanner from './components/GDPRBanner';
+import ChatbotWidget from './components/ChatbotWidget';
 import { 
   Sparkles, 
   MessageSquareDiff, 
@@ -66,7 +70,9 @@ type TabId =
   | 'readiness-scorecard'
   | 'manifesto-section'
   | 'resiliency-recon'
-  | 'transformation-survey';
+  | 'transformation-survey'
+  | 'faq'
+  | 'legal';
 
 interface TabItem {
   id: TabId;
@@ -93,17 +99,62 @@ function AppContent() {
   const [showAuthOverlay, setShowAuthOverlay] = useState(false);
   const [authDefaultMode, setAuthDefaultMode] = useState<'login' | 'signup'>('login');
 
-  // Handle direct url path for /admin
+  // Handle direct url path & hash location routing (unified state management)
   useEffect(() => {
-    const pathNormalized = window.location.pathname.toLowerCase().replace(/\/$/, "");
-    const isPathAdmin = pathNormalized === '/admin' || 
-                        window.location.hash.toLowerCase().includes('admin') ||
-                        window.location.pathname.toLowerCase().startsWith('/admin');
-    if (isPathAdmin) {
-      setShowDashboard(true);
-      setActiveTab('admin');
-    }
+    const handleRouting = () => {
+      const path = window.location.pathname.toLowerCase().replace(/\/$/, "");
+      const hash = window.location.hash.toLowerCase().replace(/^#\/?/, "");
+      
+      let matchedTab: TabId | null = null;
+      if (path === '/admin' || path.startsWith('/admin') || hash === 'admin') {
+        matchedTab = 'admin';
+      } else {
+        const cleanPath = path.replace(/^\//, "");
+        const allTabIds: TabId[] = [
+          'copilot-workspace', 'ceo-coaching', 'corp-academy', 'ai-coaches', 
+          'roleplay', 'goal-tracker', 'human-marketplace', 'analytics', 
+          'whatsapp', 'mobile', 'my-workspace', 'admin', 'csuite-insights', 
+          'agentic-transformation', 'about-us', 'get-started', 
+          'readiness-scorecard', 'manifesto-section', 'resiliency-recon', 
+          'transformation-survey', 'faq', 'legal'
+        ];
+        
+        for (const tid of allTabIds) {
+          if (cleanPath === tid || hash === tid) {
+            matchedTab = tid;
+            break;
+          }
+        }
+      }
+      
+      if (matchedTab) {
+        setShowDashboard(true);
+        setActiveTab(matchedTab);
+      }
+    };
+
+    handleRouting();
+    window.addEventListener('popstate', handleRouting);
+    window.addEventListener('hashchange', handleRouting);
+    return () => {
+      window.removeEventListener('popstate', handleRouting);
+      window.removeEventListener('hashchange', handleRouting);
+    };
   }, []);
+
+  // Update hash when tab switches
+  useEffect(() => {
+    if (showDashboard) {
+      const currentHash = window.location.hash.toLowerCase().replace(/^#\/?/, "");
+      if (currentHash !== activeTab) {
+        window.location.hash = `/${activeTab}`;
+      }
+    } else {
+      if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
+        window.history.pushState(null, '', window.location.pathname);
+      }
+    }
+  }, [activeTab, showDashboard]);
 
   const handleStartDashboard = (tab?: TabId) => {
     if (tab) {
@@ -234,6 +285,18 @@ function AppContent() {
       icon: <HelpCircle className="w-5 h-5 text-indigo-500" />
     },
     {
+      id: 'faq' as TabId,
+      label: 'FREQUENTLY ASKED QUESTIONS',
+      sub: 'Transformation questions & answers',
+      icon: <HelpCircle className="w-5 h-5 text-indigo-600" />
+    },
+    {
+      id: 'legal' as TabId,
+      label: 'LEGAL & GDPR COMPLIANCE',
+      sub: 'Privacy, Terms & sovereign standards',
+      icon: <ShieldCheck className="w-5 h-5 text-zinc-550" />
+    },
+    {
       id: 'admin' as TabId,
       label: 'ADMIN CONTROL ROOM',
       sub: 'Sovereign site control room',
@@ -286,18 +349,18 @@ function AppContent() {
                   setAuthDefaultMode('login');
                   setShowAuthOverlay(true);
                 }}
-                className="px-2.5 py-1 text-slate-700 hover:text-slate-950 font-mono text-[9px] uppercase font-semibold transition-all cursor-pointer"
+                className="px-2.5 py-1 text-slate-700 hover:text-slate-950 font-mono text-[9px] uppercase font-bold transition-all cursor-pointer"
               >
-                Log In
+                Sign In
               </button>
               <button
                 onClick={() => {
                   setAuthDefaultMode('signup');
                   setShowAuthOverlay(true);
                 }}
-                className="px-2.5 py-1 bg-slate-900 text-white hover:text-yellow-350 font-mono text-[9px] uppercase font-semibold rounded-md transition-all cursor-pointer"
+                className="px-2.5 py-1 bg-slate-900 text-white hover:text-yellow-350 font-mono text-[9px] uppercase font-extrabold rounded-md transition-all cursor-pointer"
               >
-                Register
+                Sign Up
               </button>
             </div>
           )}
@@ -376,15 +439,26 @@ function AppContent() {
                   </button>
                 </>
               ) : (
-                <button
-                  onClick={() => {
-                    setAuthDefaultMode('login');
-                    setShowAuthOverlay(true);
-                  }}
-                  className="px-3.5 py-1 bg-slate-900 hover:bg-slate-800 text-[#9DFF00] font-mono text-[9px] uppercase font-extrabold rounded-md shadow transition-all cursor-pointer"
-                >
-                  Verify Access
-                </button>
+                <div className="flex items-center gap-1.5 animate-scaleUp">
+                  <button
+                    onClick={() => {
+                      setAuthDefaultMode('login');
+                      setShowAuthOverlay(true);
+                    }}
+                    className="px-3 py-1.5 text-slate-800 hover:text-slate-950 font-mono text-[9.5px] uppercase font-bold transition-all cursor-pointer"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => {
+                      setAuthDefaultMode('signup');
+                      setShowAuthOverlay(true);
+                    }}
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 text-[#9DFF00] font-mono text-[9.5px] uppercase font-extrabold rounded-md shadow transition-all cursor-pointer"
+                  >
+                    Sign Up
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -467,6 +541,8 @@ function AppContent() {
           {activeTab === 'manifesto-section' && <ManifestoPage />}
           {activeTab === 'resiliency-recon' && <ResiliencyRecon />}
           {activeTab === 'transformation-survey' && <TransformationSurvey />}
+          {activeTab === 'faq' && <FAQPage />}
+          {activeTab === 'legal' && <LegalPage />}
           
           {/* Admin Control Center Protection Checks */}
           {activeTab === 'admin' && (
@@ -544,6 +620,10 @@ function AppContent() {
           />
         </div>
       )}
+
+      {/* Global GDPR cookies overlay and C-Suite Agentic FAQ chatbot */}
+      <GDPRBanner />
+      <ChatbotWidget />
     </div>
   );
 }

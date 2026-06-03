@@ -411,12 +411,72 @@ ${narrative}
         </div>
       ) : (
         /* Standard Questionnaire + Case studies view */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="space-y-12">
           
-          {/* Left Column: Form Questionnaire (Conspicuously Structured) */}
-          <div className="lg:col-span-7 bg-white border border-zinc-200 p-6 md:p-8 rounded-2xl shadow-xs">
+          {/* Curated Case Studies Section: Horizontal Grid Layout */}
+          <div className="space-y-6 animate-scaleUp">
+            <div className="bg-slate-900 text-white p-6 md:p-8 rounded-3xl border border-zinc-850 space-y-3 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-[#9DFF00]/5 rounded-full filter blur-2xl opacity-40"></div>
+              <div className="relative z-10 space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#9DFF00]/10 border border-[#9DFF00]/25 text-[#9DFF00] font-mono text-[9px] tracking-wider font-extrabold uppercase rounded">
+                  ★ CERTIFIED INTELLIGENCE DIRECTORY
+                </div>
+                <h3 className="font-sans font-black text-2xl tracking-tight uppercase">// CURATED CASES</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed font-medium max-w-3xl">
+                  Explore real enterprise transformations from our historical directory. We design, implement, and orchestrate highly available state engines and secure custom agent swarms that drive measurable operational leverage.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {REAL_CASE_STUDIES.map((study) => (
+                <div 
+                  key={study.id}
+                  className="bg-white border border-zinc-200 p-6 rounded-2xl hover:border-slate-900 transition-all flex flex-col justify-between group relative overflow-hidden shadow-xs hover:shadow-md"
+                >
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#9DFF00]/10 rounded-full filter blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  
+                  <div className="space-y-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="font-mono text-[8px] font-bold px-2 py-0.5 bg-zinc-100 border border-zinc-200 text-zinc-650 uppercase rounded tracking-wider">
+                          {study.tag}
+                        </span>
+                        <span className="font-mono text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded">
+                          {study.metric}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <strong className="text-slate-950 block font-sans font-black leading-tight uppercase text-[14px] group-hover:text-indigo-600 transition-colors">
+                          {study.title}
+                        </strong>
+                        <p className="text-zinc-600 text-[11.5px] leading-relaxed font-medium">
+                          {study.excerpt}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Elegant Read More Trigger Button */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCase(study)}
+                      className="w-full mt-4 py-2.5 bg-zinc-50 hover:bg-slate-950 border border-zinc-200 hover:border-slate-950 text-slate-800 hover:text-[#9DFF00] font-mono text-[9px] font-extrabold uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 group-hover:bg-slate-900 group-hover:text-[#9DFF00] group-hover:border-slate-900"
+                    >
+                      <BookOpen className="w-3.5 h-3.5" />
+                      <span>Read More</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Survey Input Section: Beautiful Centered Form Layout */}
+          <div className="bg-white border border-zinc-200 p-6 md:p-10 rounded-3xl shadow-xs max-w-4xl mx-auto w-full">
             <div className="border-b border-zinc-200 pb-5 mb-6">
-              <h3 className="font-extrabold text-lg uppercase text-slate-900 tracking-tight flex items-center gap-2">
+              <h3 className="font-extrabold text-xl uppercase text-slate-900 tracking-tight flex items-center gap-2">
                 <Activity className="w-5 h-5 text-indigo-600 animate-pulse" />
                 Sovereign Transformation Questionnaire
               </h3>
@@ -758,73 +818,22 @@ ${narrative}
             </AnimatePresence>
           </div>
 
-          {/* Right Column: Case Studies Panel (Highly polished, high contrast cards) */}
-          <div className="lg:col-span-5 space-y-6 animate-scaleUp">
-            <div className="bg-slate-900 text-white p-5 md:p-6 rounded-2xl border border-zinc-850 space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#9DFF00]/10 border border-[#9DFF00]/25 text-[#9DFF00] font-mono text-[8.5px] tracking-wider font-extrabold uppercase rounded">
-                ★ CERTIFIED INTELLIGENCE
-              </div>
-              <h3 className="font-sans font-black text-xl tracking-tight uppercase">// CURATED CASES</h3>
-              <p className="text-zinc-400 text-xs leading-relaxed font-medium">
-                Explore real enterprise transformations. We engineer highly available state engines and secure custom agent swarms that drive measurable operational leverage.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {REAL_CASE_STUDIES.map((study) => (
-                <div 
-                  key={study.id}
-                  className="bg-white border border-zinc-200 p-5 rounded-2xl hover:border-slate-900 transition-all flex flex-col justify-between group relative overflow-hidden shadow-xs hover:shadow-md"
-                >
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#9DFF00]/10 rounded-full filter blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-start gap-4">
-                      <span className="font-mono text-[8px] font-bold px-2 py-0.5 bg-zinc-100 border border-zinc-200 text-zinc-650 uppercase rounded tracking-wider">
-                        {study.tag}
-                      </span>
-                      <span className="font-mono text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded">
-                        {study.metric}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <strong className="text-slate-950 block font-sans font-black leading-tight uppercase text-[13.5px] group-hover:text-indigo-600 transition-colors">
-                        {study.title}
-                      </strong>
-                      <p className="text-zinc-600 text-[11.5px] leading-relaxed font-medium">
-                        {study.excerpt}
-                      </p>
-                    </div>
-
-                    {/* Elegant Read More Trigger Button */}
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCase(study)}
-                      className="w-full py-2.5 bg-zinc-55 hover:bg-slate-950 border border-zinc-200 hover:border-slate-950 text-slate-800 hover:text-[#9DFF00] font-mono text-[9px] font-extrabold uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 group-hover:bg-slate-900 group-hover:text-[#9DFF00] group-hover:border-slate-900"
-                    >
-                      <BookOpen className="w-3.5 h-3.5" />
-                      <span>Read More & View Blueprint</span>
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
         </div>
       )}
 
       {/* CURATED CASES METADATA BLUEPRINT DIALOG/MODAL */}
       <AnimatePresence>
         {selectedCase && (
-          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div 
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 cursor-pointer"
+            onClick={() => setSelectedCase(null)}
+          >
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white border border-zinc-200 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-zinc-200 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh] cursor-default"
             >
               {/* Terminal Blueprint Banner */}
               <div className="bg-slate-900 text-white p-6 relative flex justify-between items-center shrink-0">
