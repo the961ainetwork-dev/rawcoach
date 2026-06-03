@@ -328,6 +328,10 @@ async function start() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
+    // Explicit route for admin paths to guarantee they return index.html
+    app.get(['/admin', '/admin/*'], (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });

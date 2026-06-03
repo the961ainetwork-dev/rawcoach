@@ -95,7 +95,10 @@ function AppContent() {
 
   // Handle direct url path for /admin
   useEffect(() => {
-    const isPathAdmin = window.location.pathname === '/admin' || window.location.hash === '#/admin';
+    const pathNormalized = window.location.pathname.toLowerCase().replace(/\/$/, "");
+    const isPathAdmin = pathNormalized === '/admin' || 
+                        window.location.hash.toLowerCase().includes('admin') ||
+                        window.location.pathname.toLowerCase().startsWith('/admin');
     if (isPathAdmin) {
       setShowDashboard(true);
       setActiveTab('admin');

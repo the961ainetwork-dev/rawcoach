@@ -79,11 +79,18 @@ const REAL_CASE_STUDIES = [
   {
     id: 'case-1',
     title: 'Middle East Medical Nexus: Re-Architecting Information Availability',
+    excerpt: 'Redesigned patient triage data routing using custom Llama configurations, decreasing operational doctor lookup times from 14 minutes down to 180 seconds under a secure sovereign container setup.',
     context: 'Traditional patient files and triage history were highly fragmented, resulting in an average response drag of 14 minutes per operational medical lookup.',
     action: 'Implemented our System Matrix RAG pipeline to synthesize historic telemetry into localized, high-speed cached indexes served by autonomous workspace agents.',
     result: 'Reduced information latency of lookup files by 82% while keeping all clinical data fully locked inside private secure proxy environments.',
     metric: '180s Access Time',
     tag: 'Healthcare Realization',
+    fullReport: {
+      background: ' Levant emergency branches suffered from high-latency delays because historical triage logs were stored across separate local clinics, requiring slow manual coordination, telephone relays, and paper checks.',
+      implementation: 'We mapped the secure clinical workflow into a specialized three-agent coordination state, utilizing Pinecone-backed semantic lookup caches to fetch triage insights inside secure private servers.',
+      architecture: 'Developed an active gateway that sanitizes incoming search queries, validates credential tokens, hashes natural language inputs into medical vectors, and exposes anonymized operational trends on local dashboards.',
+      results: 'Clinical lookup time plummeted from 14 minutes to an average of just 180 seconds. Clinical personnel reported substantial relief from operational administrative drag and certified zero security or access leaks.'
+    },
     blueprint: {
       model: 'Customized Med-Llama-3 (70B) + Claude-3.5 Secure Gateway',
       orchestration: 'Stateful LangGraph Swarm with pinecone semantic lookup caches',
@@ -98,11 +105,18 @@ const REAL_CASE_STUDIES = [
   {
     id: 'case-2',
     title: 'Sovereign Logistics Guild: Automating High-Frequency Scheduling',
+    excerpt: 'Deployed an event-driven multi-agent routing swarm that processes inbound trucking invoices and optimizes routes automatically, driving a 4.2x increase in daily route dispatch volume.',
     context: 'Spreadsheet workflows, manual copy-pasting from clients, and raw dispatch emails represented a massive labor overhead for scheduling trucks.',
     action: 'Deployed a coordinated multi-agent dispatch swarm that parsed inbound requests via custom APIs, checked freight capacities, and sent secure webhook dispatch logs.',
     result: 'Bypassed human scheduling fatigue, processing up to 1,200 active routes daily with zero dispatcher intervention required.',
     metric: '4.2x Daily Output',
     tag: 'Agentic Logistics',
+    fullReport: {
+      background: 'Dispatchers spent hours compiling scheduling queries from infinite inbound client emails, copy-pasting weight constraints, and matching cargo manifests with available truck routes using fragile manual Excel spreadsheets.',
+      implementation: 'Engineered an event-driven swarm that listens to client portals, processes inbound invoices, and triggers parallel optimizations across trailer capacities using high-speed Gemini integration.',
+      architecture: 'Demuxer nodes read PDF invoices via structured APIs, route the freight dimensions to capacity optimization algorithms, auto-assign certified local drivers, and update WhatsApp dispatch nodes.',
+      results: 'Boosted daily logistical scheduling capacity by 4.2x. Handed scheduling fatigue back to algorithmic models, cutting dispatch errors and lowering empty carrier mileage across all Levant networks.'
+    },
     blueprint: {
       model: 'Dual Gemini-2.5-Flash + Localized DeepSeek-R1 Router',
       orchestration: 'Event-driven node network executing complex webhook routing logic',
@@ -117,11 +131,18 @@ const REAL_CASE_STUDIES = [
   {
     id: 'case-3',
     title: 'Lebanese FinTech Syndicate: Securing Client Workspace Gaps',
+    excerpt: 'Implemented a secure prompt-injection scanner and token proxy sandboxing protocol, certifying 100% of executive and development staff on sovereign standards.',
     context: 'Developers and administrative staff were vulnerability-prone, leaking API tokens into external browser fields and utilizing unprotected public terminals.',
     action: 'Instituted zero-trust API sandboxes and an in-house Academy Pipeline to certify personnel on administrative governance protocols.',
     result: 'Zero security breaches reported, with 100% of executive staff certified on sovereign credentials under audited benchmarks.',
     metric: '100% Compliance',
     tag: 'Finance & Security',
+    fullReport: {
+      background: 'Corporate development groups and spreadsheet clerks were inadvertently exposing secret client API keys and financial spreadsheet metadata inside unsecured public browser fields.',
+      implementation: 'Constructed an active reverse-proxy shield running a customized instance of Llama Guard to prevent raw PII or backend database connection strings from leaving internal networks.',
+      architecture: 'A local sandbox environment audits every network payload, acts as a credential firewall, and warns staff in real-time, backed by an audited corporate certification training framework.',
+      results: 'Secured 100% staff compliance on modern digital security. Since launch, zero sensitive telemetry leaks or security incidents have occurred across their sovereign data nodes.'
+    },
     blueprint: {
       model: 'Sovereign Hosted Private Enclave Llama Guard + Mistral Large',
       orchestration: 'Zero-knowledge secure token gateway and strict prompt-injection scanners',
@@ -164,6 +185,13 @@ export default function TransformationSurvey() {
 
   // Selected Case Study Blueprint Modal
   const [selectedCase, setSelectedCase] = useState<any | null>(null);
+  const [activeModalTab, setActiveModalTab] = useState<'report' | 'blueprint'>('report');
+
+  useEffect(() => {
+    if (selectedCase) {
+      setActiveModalTab('report');
+    }
+  }, [selectedCase]);
 
   const isUserAdmin = profile?.isAdmin || user?.email?.toLowerCase() === "maanbarazy@gmail.com";
 
@@ -732,10 +760,13 @@ ${narrative}
 
           {/* Right Column: Case Studies Panel (Highly polished, high contrast cards) */}
           <div className="lg:col-span-5 space-y-6 animate-scaleUp">
-            <div className="bg-slate-900 text-white p-5 md:p-6 rounded-2xl border border-zinc-800 space-y-2">
-              <h3 className="font-black uppercase tracking-tight text-sm font-mono text-[#9DFF00] flex items-center gap-1.5">// HISTORICAL CASE DIRECTORY</h3>
-              <p className="text-zinc-400 text-[15px] leading-relaxed">
-                Explore concrete examples of real-world transformation. We don't just supply consulting bullet points—we engineer highly available state engines that scale.
+            <div className="bg-slate-900 text-white p-5 md:p-6 rounded-2xl border border-zinc-850 space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#9DFF00]/10 border border-[#9DFF00]/25 text-[#9DFF00] font-mono text-[8.5px] tracking-wider font-extrabold uppercase rounded">
+                ★ CERTIFIED INTELLIGENCE
+              </div>
+              <h3 className="font-sans font-black text-xl tracking-tight uppercase">// CURATED CASES</h3>
+              <p className="text-zinc-400 text-xs leading-relaxed font-medium">
+                Explore real enterprise transformations. We engineer highly available state engines and secure custom agent swarms that drive measurable operational leverage.
               </p>
             </div>
 
@@ -743,47 +774,38 @@ ${narrative}
               {REAL_CASE_STUDIES.map((study) => (
                 <div 
                   key={study.id}
-                  className="bg-white border border-zinc-200 p-5 rounded-2xl hover:border-slate-900 transition-all flex flex-col justify-between group relative overflow-hidden"
+                  className="bg-white border border-zinc-200 p-5 rounded-2xl hover:border-slate-900 transition-all flex flex-col justify-between group relative overflow-hidden shadow-xs hover:shadow-md"
                 >
                   <div className="absolute top-0 right-0 w-16 h-16 bg-[#9DFF00]/10 rounded-full filter blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="flex justify-between items-start gap-4">
                       <span className="font-mono text-[8px] font-bold px-2 py-0.5 bg-zinc-100 border border-zinc-200 text-zinc-650 uppercase rounded tracking-wider">
                         {study.tag}
                       </span>
-                      <span className="font-mono text-[10px] font-black text-rose-500 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded">
+                      <span className="font-mono text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded">
                         {study.metric}
                       </span>
                     </div>
 
-                    <strong className="text-slate-950 block font-sans font-bold leading-tight uppercase text-[12.5px] group-hover:text-indigo-600 transition-colors">
-                      {study.title}
-                    </strong>
+                    <div className="space-y-1.5">
+                      <strong className="text-slate-950 block font-sans font-black leading-tight uppercase text-[13.5px] group-hover:text-indigo-600 transition-colors">
+                        {study.title}
+                      </strong>
+                      <p className="text-zinc-600 text-[11.5px] leading-relaxed font-medium">
+                        {study.excerpt}
+                      </p>
+                    </div>
 
-                    <p className="text-zinc-650 text-[11.5px] leading-relaxed">
-                      <span className="text-zinc-400 font-extrabold uppercase text-[9px] block mb-0.5 font-mono">PROBLEM SPACE:</span>
-                      {study.context}
-                    </p>
-
-                    <p className="text-zinc-650 text-[11.5px] leading-relaxed pt-2 border-t border-zinc-100">
-                      <span className="text-indigo-600 font-extrabold uppercase text-[9px] block mb-0.5 font-mono">SOLUTION ARCHITECTURE:</span>
-                      {study.action}
-                    </p>
-
-                    <p className="text-zinc-700 font-semibold text-[11px] leading-relaxed bg-zinc-50 p-2.5 rounded-lg border border-zinc-200">
-                      <span className="text-emerald-600 font-black uppercase text-[8.5px] block font-mono">MEASURABLE IMPACT:</span>
-                      {study.result}
-                    </p>
-
-                    {/* Highly Polished Interactive Blueprint trigger button */}
+                    {/* Elegant Read More Trigger Button */}
                     <button
                       type="button"
                       onClick={() => setSelectedCase(study)}
-                      className="w-full mt-2 py-2 border border-dashed border-zinc-300 hover:border-slate-900 text-zinc-600 hover:text-slate-900 font-mono text-[9px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 focus:outline-none"
+                      className="w-full py-2.5 bg-zinc-55 hover:bg-slate-950 border border-zinc-200 hover:border-slate-950 text-slate-800 hover:text-[#9DFF00] font-mono text-[9px] font-extrabold uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 group-hover:bg-slate-900 group-hover:text-[#9DFF00] group-hover:border-slate-900"
                     >
                       <BookOpen className="w-3.5 h-3.5" />
-                      VIEW SWARM ARCHITECTURAL BLUEPRINT
+                      <span>Read More & View Blueprint</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
                     </button>
                   </div>
                 </div>
@@ -808,7 +830,7 @@ ${narrative}
               <div className="bg-slate-900 text-white p-6 relative flex justify-between items-center shrink-0">
                 <div className="space-y-1">
                   <span className="font-mono text-[8px] font-extrabold tracking-widest text-[#9DFF00] block uppercase">
-                    // HIGH DEMAND MULTI-AGENT CADENCE SPECS
+                    // CORE FEASIBILITY INTEL RECORD
                   </span>
                   <h3 className="text-lg md:text-xl font-black uppercase text-white font-sans tracking-tight">
                     {selectedCase.title}
@@ -822,6 +844,32 @@ ${narrative}
                 </button>
               </div>
 
+              {/* Tab Selector Inside Modal */}
+              <div className="bg-zinc-50 border-b border-zinc-200 px-6 py-2 flex gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveModalTab('report')}
+                  className={`px-4 py-2 text-[10.5px] font-mono font-bold uppercase transition-all rounded-lg cursor-pointer ${
+                    activeModalTab === 'report'
+                      ? 'bg-slate-900 text-[#9DFF00]'
+                      : 'text-zinc-550 hover:bg-zinc-150'
+                  }`}
+                >
+                  Detailed Report
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveModalTab('blueprint')}
+                  className={`px-4 py-2 text-[10.5px] font-mono font-bold uppercase transition-all rounded-lg cursor-pointer ${
+                    activeModalTab === 'blueprint'
+                      ? 'bg-slate-900 text-[#9DFF00]'
+                      : 'text-zinc-550 hover:bg-zinc-150'
+                  }`}
+                >
+                  System Swarm Blueprint
+                </button>
+              </div>
+
               {/* Sub-content scrollframe */}
               <div className="p-6 md:p-8 overflow-y-auto space-y-6">
                 
@@ -829,73 +877,133 @@ ${narrative}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-zinc-50 border border-zinc-150 p-3 rounded-xl">
                     <span className="font-mono text-[8.5px] font-bold text-zinc-400 uppercase">TELEMETRY SCORE</span>
-                    <span className="text-rose-600 font-black text-xs uppercase block mt-1">{selectedCase.metric}</span>
+                    <span className="text-indigo-600 font-extrabold text-xs uppercase block mt-1">{selectedCase.metric}</span>
                   </div>
                   <div className="bg-zinc-50 border border-zinc-150 p-3 rounded-xl">
                     <span className="font-mono text-[8.5px] font-bold text-zinc-400 uppercase">RECOVERY SECTOR</span>
-                    <span className="text-indigo-600 font-black text-xs uppercase block mt-1">{selectedCase.tag}</span>
+                    <span className="text-[#10B981] font-extrabold text-xs uppercase block mt-1">{selectedCase.tag}</span>
                   </div>
                 </div>
 
-                {/* Model and Orchestration Stack */}
-                <div className="space-y-3">
-                  <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black">
-                    [A] INTEGRATED FOUNDRY MODELS & MIDDLEWARE
-                  </h4>
-                  <div className="p-4 bg-zinc-900 text-[#9DFF00] border border-zinc-850 rounded-xl space-y-2 font-mono text-xs">
-                    <div>
-                      <span className="text-zinc-400 block">// DEPLOYED FRAMEWORK MODELS:</span>
-                      <strong className="text-white text-[12px]">{selectedCase.blueprint.model}</strong>
-                    </div>
-                    <div>
-                      <span className="text-zinc-400 block">// COMPILER ORCHESTRATION LAYER:</span>
-                      <strong className="text-white text-[12px]">{selectedCase.blueprint.orchestration}</strong>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Nodes directory */}
-                <div className="space-y-3">
-                  <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black">
-                    [B] CUSTOM ACTIVE WORKING COWORKERS (SWARM DEPLOYMENT)
-                  </h4>
-                  <div className="space-y-2">
-                    {selectedCase.blueprint.nodes.map((node: string, index: number) => (
-                      <div key={index} className="flex gap-3 items-start p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl">
-                        <div className="w-5 h-5 rounded-full bg-slate-900 text-[#9DFF00] font-mono text-[9px] font-extrabold flex items-center justify-center shrink-0">
-                          0{index + 1}
-                        </div>
-                        <p className="text-zinc-700 font-medium text-xs font-sans leading-tight pt-0.5">{node}</p>
+                <AnimatePresence mode="wait">
+                  {activeModalTab === 'report' ? (
+                    <motion.div 
+                      key="report-section"
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      className="space-y-6"
+                    >
+                      <div className="space-y-2">
+                        <h4 className="text-[10.5px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [1] OPERATIONAL BACKGROUND
+                        </h4>
+                        <p className="text-zinc-700 text-xs md:text-[13px] leading-relaxed font-sans font-medium">
+                          {selectedCase.fullReport?.background}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Schematic Stream flowchart representation */}
-                <div className="space-y-3">
-                  <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black">
-                    [C] SCHEMATIC TELEMETRY PROTOCOL (DATA FLOW PATHWAYS)
-                  </h4>
-                  <div className="bg-zinc-50 border border-dashed border-zinc-300 p-4 rounded-xl">
-                    <div className="flex flex-col items-center space-y-3">
-                      
-                      {/* Tokenization parsing steps visually represented */}
-                      {selectedCase.blueprint.flowDescription.split(' -> ').map((step: string, sIndex: number, arr: string[]) => (
-                        <React.Fragment key={sIndex}>
-                          <div className="bg-white px-4 py-2 border border-zinc-200 text-slate-900 font-mono text-[10.5px] font-bold rounded-lg shadow-sm text-center">
-                            {step}
+                      <div className="space-y-2 pt-4 border-t border-zinc-100">
+                        <h4 className="text-[10.5px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [2] SYSTEM ENGINEERING IMPLEMENTATION
+                        </h4>
+                        <p className="text-zinc-700 text-xs md:text-[13px] leading-relaxed font-sans font-medium">
+                          {selectedCase.fullReport?.implementation}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2 pt-4 border-t border-zinc-100">
+                        <h4 className="text-[10.5px] font-mono text-indigo-600 uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [3] TOPOLOGY & INFRASTRUCTURE ARCHITECTURE
+                        </h4>
+                        <p className="text-zinc-700 text-xs md:text-[13px] leading-relaxed font-sans font-medium pb-2">
+                          {selectedCase.fullReport?.architecture}
+                        </p>
+                        <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl font-mono text-[11px] text-zinc-650 leading-normal">
+                          <span className="text-indigo-600 uppercase font-black text-[9px] block mb-1">// DEPLOYED FRAMEWORK MODELS</span>
+                          {selectedCase.blueprint?.model}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-4 border-t border-zinc-100">
+                        <h4 className="text-[10.5px] font-mono text-[#10B981] uppercase tracking-widest font-black flex items-center gap-1.5">
+                          [4] REALIZED BUSINESS OUTCOMES & IMPACT
+                        </h4>
+                        <p className="text-zinc-700 text-xs md:text-[13px] leading-relaxed font-sans font-semibold text-slate-800 bg-lime-50/50 border border-lime-150 p-4 rounded-xl">
+                          {selectedCase.fullReport?.results}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div 
+                      key="blueprint-section"
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      className="space-y-6"
+                    >
+                      {/* Model and Orchestration Stack */}
+                      <div className="space-y-3">
+                        <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black">
+                          [A] INTEGRATED FOUNDRY MODELS & MIDDLEWARE
+                        </h4>
+                        <div className="p-4 bg-zinc-900 text-[#9DFF00] border border-zinc-850 rounded-xl space-y-2 font-mono text-xs">
+                          <div>
+                            <span className="text-zinc-400 block">// DEPLOYED FRAMEWORK MODELS:</span>
+                            <strong className="text-white text-[12px]">{selectedCase.blueprint?.model}</strong>
                           </div>
-                          {sIndex < arr.length - 1 && (
-                            <div className="w-0.5 h-4 bg-zinc-300 relative">
-                              <div className="absolute -bottom-1 -left-1 text-[8px] text-zinc-400">&darr;</div>
-                            </div>
-                          )}
-                        </React.Fragment>
-                      ))}
+                          <div>
+                            <span className="text-zinc-400 block">// COMPILER ORCHESTRATION LAYER:</span>
+                            <strong className="text-white text-[12px]">{selectedCase.blueprint?.orchestration}</strong>
+                          </div>
+                        </div>
+                      </div>
 
-                    </div>
-                  </div>
-                </div>
+                      {/* Nodes directory */}
+                      <div className="space-y-3">
+                        <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black">
+                          [B] CUSTOM ACTIVE WORKING COWORKERS (SWARM DEPLOYMENT)
+                        </h4>
+                        <div className="space-y-2">
+                          {selectedCase.blueprint?.nodes.map((node: string, index: number) => (
+                            <div key={index} className="flex gap-3 items-start p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl">
+                              <div className="w-5 h-5 rounded-full bg-slate-900 text-[#9DFF00] font-mono text-[9px] font-extrabold flex items-center justify-center shrink-0">
+                                0{index + 1}
+                              </div>
+                              <p className="text-zinc-700 font-medium text-xs font-sans leading-tight pt-0.5">{node}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Schematic Stream flowchart representation */}
+                      <div className="space-y-3">
+                        <h4 className="text-[10px] font-mono text-indigo-600 uppercase tracking-widest font-black">
+                          [C] SCHEMATIC TELEMETRY PROTOCOL (DATA FLOW PATHWAYS)
+                        </h4>
+                        <div className="bg-zinc-50 border border-dashed border-zinc-300 p-4 rounded-xl">
+                          <div className="flex flex-col items-center space-y-3">
+                            
+                            {/* Tokenization parsing steps visually represented */}
+                            {selectedCase.blueprint?.flowDescription.split(' -> ').map((step: string, sIndex: number, arr: string[]) => (
+                              <React.Fragment key={sIndex}>
+                                <div className="bg-white px-4 py-2 border border-zinc-200 text-slate-900 font-mono text-[10.5px] font-bold rounded-lg shadow-sm text-center">
+                                  {step}
+                                </div>
+                                {sIndex < arr.length - 1 && (
+                                  <div className="w-0.5 h-4 bg-zinc-300 relative">
+                                    <div className="absolute -bottom-1 -left-1 text-[8px] text-zinc-400">&darr;</div>
+                                  </div>
+                                )}
+                              </React.Fragment>
+                            ))}
+
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
               </div>
               
