@@ -803,12 +803,7 @@ export default function CorporateAssessmentHub() {
             );
           })}
 
-          <div className="p-4 bg-zinc-50/70 border border-zinc-200/80 rounded-xl space-y-2 text-[13px] text-zinc-500">
-            <span className="font-bold text-zinc-800 uppercase text-[11px] block">💡 Strategic Recommendation</span>
-            <p className="leading-relaxed">
-              We recommend auditing all development and operations personnel weekly to identify transition gaps.
-            </p>
-          </div>
+
         </aside>
 
         {/* Core display Area */}

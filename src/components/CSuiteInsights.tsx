@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, getDocs, doc, updateDoc, increment } from 'firebase/firestore';
+import CommunityInsights from './CommunityInsights';
 import { 
   Heart, 
   User, 
@@ -31,6 +32,62 @@ export interface InsightCard {
 }
 
 const DEFAULT_INSIGHTS: InsightCard[] = [
+  {
+    id: 'insight-economics-lebanon',
+    title: 'THE ECONOMICS OF AI IN ORGANIZATIONS – CASE STUDY LEBANON',
+    author: 'Maan Barazy',
+    role: 'Founder - AlKhawarizmi | President NCEI Lebanon reg 2220',
+    snippet: 'The current landscape of Artificial Intelligence (AI) in business is characterized by a significant shift from the excitement of "building" custom models to the pragmatic challenge of "managing" implementation and operational costs under volatile environments.',
+    content: `Strategic Analysis: The Economics of AI in Organizations - Case Study Lebanon
+The current landscape of Artificial Intelligence (AI) in business is characterized by a significant shift from the excitement of "building" custom models to the pragmatic challenge of "managing" implementation and operational costs. While development costs for enterprise AI can reach millions, the true burden lies in the ongoing Total Cost of Ownership (TCO), which is often underestimated during the pilot phase.
+
+1. Key Findings: The AI Cost Paradox
+• Implementation Outweighs Development: While initial development for complex projects averages $2.7 million, ongoing maintenance typically costs 15–25% of the initial build annually (Lamatic, Keyholesoftware).
+• Infrastructure Inflation: Compute costs for organizations using Generative AI are expected to climb 89% between 2023 and 2025 (Ibm).
+• The "Production Gap": Approximately 95% of generative AI pilots fail to transition to full production due to unexpected operational complexities and poor readiness (Keyholesoftware).
+• Data Dominance: Data preparation and management account for 60–80% of total project effort, making it the single largest hidden cost factor (Keyholesoftware).
+
+2. Cost Breakdown by Solution Complexity
+AI development costs vary dramatically based on the technical scope and intended business application.
+
++-----------------------------------------------------------------------------------------+
+| SOLUTION TYPE        | TYPICAL COST RANGE (USD) | PRIMARY COST DRIVERS     | SOURCE     |
++-----------------------------------------------------------------------------------------+
+| Simple Chatbot       | $5,000 – $80,000         | Platform fees, basic NLP | Keyhole    |
+| Predictive Analytics | $50,000 – $200,000       | Data complexity, BI      | Keyhole    |
+| NLP System           | $50,000 – $300,000       | Custom training, real-t  | Keyhole    |
+| Computer Vision      | $100,000 – $500,000+     | Hardware, intensity      | Keyhole    |
+| Agentic AI Pilot     | $80,000 – $180,000+      | Workflows, integrations  | Keyhole    |
++-----------------------------------------------------------------------------------------+
+
+3. Economic Solutions for High AI Operational Costs
+To mitigate the risk of AI becoming a "cost center," organizations are adopting several strategic and technical solutions.
+
+Strategic Optimization: "Build vs. Buy"
+Approximately 76% of enterprises now opt to "buy" commodity AI (SaaS) for standard tasks, reserving "build" budgets only for high-differentiation use cases that provide a unique competitive advantage (Keyholesoftware).
+
+Technical Efficiency Solutions
+• Small Language Models (SLMs): Shifting from massive LLMs to task-specific SLMs can significantly reduce compute costs while maintaining or improving accuracy (Keyholesoftware, Ibm).
+• LLM Routing: Implementing intelligent gateways that direct simple queries to cheaper, faster models (e.g., GPT-3.5 or specialized SLMs) while reserving premium models only for complex tasks (Keyholesoftware).
+• FinOps for AI: Establishing dedicated financial operations to monitor token usage and cloud API costs in real-time, preventing "sticker shock" during scaling (Keyholesoftware).
+
+4. Case Study: The AI Economic Landscape in Lebanon
+Lebanon presents a unique case study where AI adoption is driven by survival necessity amidst a prolonged financial crisis. Organizations in the region face distinct cost structures and strategic priorities compared to global benchmarks.
+
+National Investment & Adoption
+• Government Commitment: The Lebanese government, supported by the World Bank, has launched a $30M – $50M investment plan (2025–2026) focused on Generative AI and Digital Public Infrastructure (Biometricupdate, Tips-Lb).
+• Survival-Driven ROI: AI-enabled firms reported 89% operational continuity during the financial crisis, significantly higher than the 56% reported by traditional firms (Sapub).
+• Operational Efficiency: Early adopters in Lebanon have achieved 25% – 40% reductions in operational overhead, helping to offset the impacts of hyperinflation (Sapub).
+
+Regional Cost Drivers & Solutions
+• Infrastructure "Hidden Costs": Organizations face significant costs related to chronic electricity shortages and internet instability, requiring heavy investment in private power generation and redundant connectivity to keep AI systems running (Tips-Lb).
+• Alternative Credit Scoring: Due to the collapse of traditional banking, Lebanese firms are investing in AI for alternative credit scoring (using mobile and social data) to manage risk and provide financial services (Sapub).
+• Brain Drain Mitigation: To manage the cost of losing local AI talent (approx. 40% loss since 2019), companies are leveraging cloud-based infrastructures and open-source frameworks to reduce reliance on on-site expertise and licensing fees (Tips-Lb).`,
+    bgColor: 'bg-amber-50 border-amber-200 text-slate-900',
+    tag: 'STRATEGIC ANALYSIS',
+    likesCount: 395,
+    status: 'published'
+  },
   {
     id: 'insight-maan-affordability',
     title: 'CAN LEBANESE COMPANIES & STARTUPS AFFORD AI TRANSFORMATION?',
@@ -556,6 +613,11 @@ export default function CSuiteInsights() {
           })}
         </div>
       )}
+
+      {/* Community Insights Section for organic peer Q&A and transformation breakthroughs */}
+      <div className="pt-4">
+        <CommunityInsights />
+      </div>
 
       {/* Selected Insight Detail Overlay Modal */}
       {selectedInsight && (

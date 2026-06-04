@@ -61,3 +61,16 @@ export interface NewsItem {
   sentiment: 'Bullish' | 'Hype' | 'Neutral' | 'Skeptical';
   url?: string;
 }
+
+export interface CommunityInsight {
+  id: string;
+  authorUid: string;
+  authorName: string;
+  authorRole: string;
+  title: string;
+  type: 'question' | 'experience' | 'case_study';
+  content: string;
+  likesCount: number;
+  createdAt: any;
+  updatedAt: any;
+}

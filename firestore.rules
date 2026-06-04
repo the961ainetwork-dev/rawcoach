@@ -72,6 +72,20 @@ service cloud.firestore {
              data.createdAt == request.time;
     }
 
+    // Validation Blueprint for Community Insights
+    function isValidCommunityInsight(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.authorUid is string && data.authorUid.size() <= 128 &&
+             data.authorName is string && data.authorName.size() <= 200 &&
+             data.authorRole is string && data.authorRole.size() <= 200 &&
+             data.title is string && data.title.size() <= 250 &&
+             data.type is string && (data.type in ['question', 'experience', 'case_study']) &&
+             data.content is string && data.content.size() <= 10000 &&
+             data.likesCount is int && data.likesCount >= 0 && data.likesCount <= 100000 &&
+             data.createdAt == request.time &&
+             data.updatedAt == request.time;
+    }
+
     // Path Rules for registrations
     match /registrations/{userId} {
       allow read: if isOwner(userId) || isAdmin();
@@ -186,6 +200,44 @@ service cloud.firestore {
                       isValidTransformationSurvey(incoming());
       allow read, update, delete: if isAdmin();
       allow list: if isAdmin();
+    }
+
+    // Community Insights Posts (Anyone can read, signed-in users can write and upvote, authors/admins can delete)
+    match /communityInsights/{insightId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+                      isValidId(insightId) &&
+                      isValidCommunityInsight(incoming()) &&
+                      incoming().id == insightId &&
+                      incoming().authorUid == request.auth.uid &&
+                      incoming().likesCount == 0;
+      allow update: if isSignedIn() && (
+                      // Option A: Upvote (likesCount increments, other fields stay same)
+                      (incoming().likesCount == existing().likesCount + 1 &&
+                       incoming().id == existing().id &&
+                       incoming().authorUid == existing().authorUid &&
+                       incoming().authorName == existing().authorName &&
+                       incoming().authorRole == existing().authorRole &&
+                       incoming().title == existing().title &&
+                       incoming().type == existing().type &&
+                       incoming().content == existing().content &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt == request.time) ||
+                      // Option B: Author updates their own contribution
+                      (incoming().authorUid == request.auth.uid &&
+                       existing().authorUid == request.auth.uid &&
+                       incoming().id == existing().id &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().likesCount == existing().likesCount &&
+                       incoming().updatedAt == request.time &&
+                       incoming().title is string && incoming().title.size() <= 250 &&
+                       incoming().type is string && (incoming().type in ['question', 'experience', 'case_study']) &&
+                       incoming().content is string && incoming().content.size() <= 10000 &&
+                       incoming().authorName is string && incoming().authorName.size() <= 200 &&
+                       incoming().authorRole is string && incoming().authorRole.size() <= 200) ||
+                      isAdmin()
+                    );
+      allow delete: if (isSignedIn() && existing().authorUid == request.auth.uid) || isAdmin();
     }
 
     // Dynamic Centralized Admin Controls for Sign-ins, Sign-ups, and structural configurations

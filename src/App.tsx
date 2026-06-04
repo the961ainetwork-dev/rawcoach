@@ -344,15 +344,15 @@ function AppContent() {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5">
+             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   setAuthDefaultMode('login');
                   setShowAuthOverlay(true);
                 }}
-                className="px-2.5 py-1 text-slate-700 hover:text-slate-950 font-mono text-[9px] uppercase font-bold transition-all cursor-pointer"
+                className="px-2.5 py-1 text-slate-700 hover:text-slate-950 font-mono text-[9px] uppercase font-bold transition-all cursor-pointer border border-zinc-200 rounded hover:bg-slate-50"
               >
-                Sign In
+                Receive Assessment & Sign In
               </button>
               <button
                 onClick={() => {
@@ -361,7 +361,7 @@ function AppContent() {
                 }}
                 className="px-2.5 py-1 bg-slate-900 text-white hover:text-yellow-350 font-mono text-[9px] uppercase font-extrabold rounded-md transition-all cursor-pointer"
               >
-                Sign Up
+                Standard Sign Up (Just Scroll)
               </button>
             </div>
           )}
@@ -446,9 +446,9 @@ function AppContent() {
                       setAuthDefaultMode('login');
                       setShowAuthOverlay(true);
                     }}
-                    className="px-3 py-1.5 text-slate-800 hover:text-slate-950 font-mono text-[9.5px] uppercase font-bold transition-all cursor-pointer"
+                    className="px-3 py-1.5 text-slate-800 hover:text-slate-950 font-mono text-[9.5px] uppercase font-bold transition-all cursor-pointer border border-zinc-200 rounded hover:bg-slate-50"
                   >
-                    Sign In
+                    Receive Assessment & Sign In
                   </button>
                   <button
                     onClick={() => {
@@ -457,7 +457,7 @@ function AppContent() {
                     }}
                     className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 text-[#9DFF00] font-mono text-[9.5px] uppercase font-extrabold rounded-md shadow transition-all cursor-pointer"
                   >
-                    Sign Up
+                    Standard Sign Up (Just Scroll)
                   </button>
                 </div>
               )}

@@ -26,6 +26,7 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
   const { logIn, signUp, signUpWithGoogle } = useAuth();
   
   const [mode, setMode] = useState<'login' | 'signup'>(defaultMode);
+  const [signupType, setSignupType] = useState<'founder' | 'scroller'>('scroller'); // Default to scroller for ease
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
@@ -47,9 +48,15 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
       return;
     }
 
-    if (mode === 'signup' && (!fullName || !companyName || !phone)) {
-      setErrorMsg('All registration parameters are required (Full Name, Company Name, Phone).');
-      return;
+    if (mode === 'signup') {
+      if (!fullName) {
+        setErrorMsg('Please specify your full name.');
+        return;
+      }
+      if (signupType === 'founder' && (!companyName || !phone)) {
+        setErrorMsg('Venture Name and Contact Phone are required for full Co-Founder Registration.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -66,10 +73,12 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
       } else {
         const profileData = {
           fullName,
-          role,
-          companyName,
-          companyDescription: companyDescription || 'A stealth modern agentic startup.',
-          phone
+          role: signupType === 'scroller' ? 'Viewer / Spectator' : role,
+          companyName: signupType === 'scroller' ? 'Public Exploration' : companyName,
+          companyDescription: signupType === 'scroller' 
+            ? 'Just scrolling, reading, and exploring insights.' 
+            : (companyDescription || 'A stealth modern agentic startup.'),
+          phone: signupType === 'scroller' ? 'N/A' : phone
         };
         await signUp(email, password, profileData);
         setInfoMsg('Secure Profile Registered & Saved to Firestore. Deploying your sovereign workspace...');
@@ -121,49 +130,71 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
       <div className="space-y-6">
         {/* Terminal Header Info */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-zinc-900 border border-zinc-700 text-[#9DFF00] font-mono text-[8px] tracking-wider font-extrabold uppercase rounded">
-            <Shield className="w-3 h-3" /> SECURE GATEWAY ID: CO_LBN_99
+          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-zinc-900 border border-zinc-700 text-[#9DFF00] font-mono text-[8.5px] tracking-wider font-extrabold uppercase rounded">
+            <Shield className="w-3.5 h-3.5" /> SECURE GATEWAY ID: CO_LBN_99
           </div>
-          <h3 className="text-2xl font-black uppercase tracking-tight text-white font-sans">
-            {mode === 'login' ? 'VERIFY SECURITY CREDENTIALS' : 'BUILD SOVEREIGN CO-FOUNDER PROFILE'}
+          <h3 className="text-lg md:text-xl font-black uppercase tracking-tight text-white font-sans leading-snug">
+            {mode === 'login' 
+              ? 'RECEIVE YOUR CLIENT TRANSFORMATION SCORECARD ASSESSMENT' 
+              : signupType === 'founder'
+                ? 'BUILD SOVEREIGN CO-FOUNDER PROFILE'
+                : 'STANDARD SIGN UP (EXPLORE & SCROLL)'}
           </h3>
           <p className="text-[10px] text-zinc-400 font-mono tracking-wider">
             {mode === 'login' 
-              ? 'Enter credentials to authorize secure workspace session.' 
-              : 'Register your startup data directly to Lebanese sovereign-grade repository.'
+              ? 'Sign in to access your coaching results and complete your scorecard review.' 
+              : signupType === 'founder'
+                ? 'Register your enterprise parameters securely to initialize your co-founder credentials.'
+                : 'Sign up with standard access parameters to explore, read research and scroll freely.'
             }
           </p>
         </div>
 
         {/* Toggles */}
-        <div className="grid grid-cols-2 bg-zinc-900/80 p-1 border border-zinc-800 rounded-xl">
+        <div className="grid grid-cols-3 bg-zinc-900/80 p-1 border border-zinc-800 rounded-xl gap-1">
           <button
             type="button"
             onClick={() => {
               setMode('login');
               setErrorMsg('');
             }}
-            className={`py-2 font-mono text-[9px] font-bold uppercase rounded-lg transition-all cursor-pointer ${
+            className={`py-2 px-1 font-mono text-[8.5px] font-bold uppercase rounded-lg transition-all cursor-pointer leading-tight text-center ${
               mode === 'login' 
-                ? 'bg-zinc-800 text-white border-zinc-750 shadow-inner' 
+                ? 'bg-zinc-800 text-[#9DFF00] border border-zinc-750 shadow-inner scale-[1.02]' 
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
-            1. Log In Portal
+            1. SCORECARD<br/>ASSESSMENT
           </button>
           <button
             type="button"
             onClick={() => {
               setMode('signup');
+              setSignupType('founder');
               setErrorMsg('');
             }}
-            className={`py-2 font-mono text-[9px] font-bold uppercase rounded-lg transition-all cursor-pointer ${
-              mode === 'signup' 
-                ? 'bg-zinc-800 text-[#9DFF00] border-zinc-750 shadow-inner' 
+            className={`py-2 px-1 font-mono text-[8.5px] font-bold uppercase rounded-lg transition-all cursor-pointer leading-tight text-center ${
+              mode === 'signup' && signupType === 'founder'
+                ? 'bg-zinc-800 text-[#9DFF00] border border-zinc-750 shadow-inner scale-[1.02]' 
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
-            2. Register Profile
+            2. CO-FOUNDER<br/>SIGN UP
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode('signup');
+              setSignupType('scroller');
+              setErrorMsg('');
+            }}
+            className={`py-2 px-1 font-mono text-[8.5px] font-bold uppercase rounded-lg transition-all cursor-pointer leading-tight text-center ${
+              mode === 'signup' && signupType === 'scroller'
+                ? 'bg-zinc-800 text-[#9DFF00] border border-zinc-750 shadow-inner scale-[1.02]' 
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            3. STANDARD<br/>(JUST SCROLL)
           </button>
         </div>
 
@@ -189,7 +220,7 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
         )}
 
         {/* Real Dynamic Form Block */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 font-mono text-xs">
           <div className="space-y-3.5">
             {/* Email Field */}
             <div className="space-y-1">
@@ -229,15 +260,19 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
 
             {/* EXPANDED PROFILE INFO FIELDS UPON SIGN UP */}
             {mode === 'signup' && (
-              <div className="space-y-3 pt-3 border-t border-zinc-900/80 animate-fadeIn">
-                <div className="text-left">
-                  <span className="font-mono text-[7px] text-amber-500 uppercase tracking-widest font-extrabold block">// WORKSPACE PARAMS REQUIRED</span>
+              <div className="space-y-3 pt-3 border-t border-zinc-900/80 animate-fadeIn text-left">
+                <div className="text-left font-mono">
+                  <span className="text-[7.5px] text-amber-500 uppercase tracking-widest font-extrabold block">
+                    {signupType === 'founder' 
+                      ? '// WORKSPACE PARAMETERS REQUIRED' 
+                      : '// STANDARD REGISTRATION PARAMETERS'}
+                  </span>
                 </div>
 
                 {/* Full name */}
                 <div className="space-y-1">
-                  <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block">
-                    FOUNDER_FULL_NAME
+                  <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block font-bold">
+                    FULL_NAME / ALIAS
                   </label>
                   <input
                     type="text"
@@ -250,69 +285,79 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
                   />
                 </div>
 
-                {/* Company / Startup Name */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block">
-                      VENTURE_NAME
-                    </label>
-                    <input
-                      type="text"
-                      required={mode === 'signup'}
-                      value={companyName}
-                      disabled={loading}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      placeholder="e.g. Cedar Agentic"
-                      className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-550 focus:outline-none focus:border-zinc-550 font-mono"
-                    />
-                  </div>
-                  {/* Role */}
-                  <div className="space-y-1">
-                    <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block">
-                      OFFICER_ROLE
-                    </label>
-                    <input
-                      type="text"
-                      required={mode === 'signup'}
-                      value={role}
-                      disabled={loading}
-                      onChange={(e) => setRole(e.target.value)}
-                      placeholder="CEO & Co-founder"
-                      className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-550 focus:outline-none focus:border-zinc-550 font-mono"
-                    />
-                  </div>
-                </div>
+                {signupType === 'founder' && (
+                  <>
+                    {/* Company / Startup Name */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block font-bold">
+                          VENTURE_NAME
+                        </label>
+                        <input
+                          type="text"
+                          required={signupType === 'founder'}
+                          value={companyName}
+                          disabled={loading}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          placeholder="e.g. Cedar Agentic"
+                          className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-550 focus:outline-none focus:border-zinc-550 font-mono"
+                        />
+                      </div>
+                      {/* Role */}
+                      <div className="space-y-1">
+                        <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block font-bold">
+                          OFFICER_ROLE
+                        </label>
+                        <input
+                          type="text"
+                          required={signupType === 'founder'}
+                          value={role}
+                          disabled={loading}
+                          onChange={(e) => setRole(e.target.value)}
+                          placeholder="CEO & Co-founder"
+                          className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-550 focus:outline-none focus:border-zinc-550 font-mono"
+                        />
+                      </div>
+                    </div>
 
-                {/* Phone number */}
-                <div className="space-y-1">
-                  <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block">
-                    SECURED_CONTACT_PHONE
-                  </label>
-                  <input
-                    type="tel"
-                    required={mode === 'signup'}
-                    value={phone}
-                    disabled={loading}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="e.g. +961 3 123456"
-                    className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3.5 py-2 text-xs text-white placeholder-zinc-550 focus:outline-none focus:border-zinc-550 font-mono"
-                  />
-                </div>
+                    {/* Phone number */}
+                    <div className="space-y-1">
+                      <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block font-bold">
+                        SECURED_CONTACT_PHONE
+                      </label>
+                      <input
+                        type="tel"
+                        required={signupType === 'founder'}
+                        value={phone}
+                        disabled={loading}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="e.g. +961 3 123456"
+                        className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3.5 py-2 text-xs text-white placeholder-zinc-550 focus:outline-none focus:border-zinc-550 font-mono"
+                      />
+                    </div>
 
-                {/* Startup Description */}
-                <div className="space-y-1">
-                  <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block">
-                    VENTURE_MISSION (BRIEF)
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={companyDescription}
-                    disabled={loading}
-                    onChange={(e) => setCompanyDescription(e.target.value)}
-                    placeholder="Decoupled automated micro-finance logistics tracking."
-                    className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3.5 py-2 text-[11px] text-white placeholder-zinc-550 focus:outline-none focus:border-zinc-550 font-mono resize-none"
-                  />
-                </div>
+                    {/* Startup Description */}
+                    <div className="space-y-1">
+                      <label className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest block font-bold">
+                        VENTURE_MISSION (BRIEF)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={companyDescription}
+                        disabled={loading}
+                        onChange={(e) => setCompanyDescription(e.target.value)}
+                        placeholder="Decoupled automated micro-finance logistics tracking."
+                        className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3.5 py-2 text-[11px] text-white placeholder-zinc-550 focus:outline-none focus:border-zinc-550 font-mono resize-none"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {signupType === 'scroller' && (
+                  <div className="p-3 bg-zinc-900/65 border border-zinc-800 rounded-lg text-[10px] text-zinc-400 leading-normal font-mono">
+                    💡 <strong>Standard Scroller Pass:</strong> You bypass deep corporate profiling. Your secure session will authorize complete reading clearance for ecosystem surveys, Lebanese policy cases and analysis reels immediately.
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -329,8 +374,10 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
               {loading 
                 ? 'COMPILING PROTOCOLS...' 
                 : mode === 'login' 
-                  ? 'AUTHORIZE WORKSPACE' 
-                  : 'REGISTER SOVEREIGN TEAM & START'
+                  ? 'RECEIVE ASSESSMENT & SIGN IN' 
+                  : signupType === 'scroller'
+                    ? 'INITIATE STANDARD SCROLL PASS'
+                    : 'REGISTER SOVEREIGN TEAM & ENTER'
               }
             </button>
           </div>

@@ -719,15 +719,15 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
                     <div className="flex flex-col gap-1.5">
                       <button
                         onClick={() => onOpenAuth?.('login')}
-                        className="w-full text-center py-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-slate-900 font-mono text-[9.5px] uppercase font-black rounded-lg cursor-pointer transition-all shadow-xs"
+                        className="w-full text-center py-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-slate-900 font-mono text-[9px] uppercase font-black rounded-lg cursor-pointer transition-all shadow-xs leading-tight px-1"
                       >
-                        Sign In
+                        Receive Assessment & Sign In
                       </button>
                       <button
                         onClick={() => onOpenAuth?.('signup')}
-                        className="w-full text-center py-2 bg-slate-900 hover:bg-slate-800 text-white font-mono text-[9.5px] uppercase font-black rounded-lg cursor-pointer transition-all shadow-xs"
+                        className="w-full text-center py-2 bg-slate-900 hover:bg-slate-800 text-white font-mono text-[9px] uppercase font-black rounded-lg cursor-pointer transition-all shadow-xs leading-tight px-1"
                       >
-                        Sign Up
+                        Standard Sign Up (Just Scroll)
                       </button>
                     </div>
                   </div>
