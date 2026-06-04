@@ -135,14 +135,14 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
           </div>
           <h3 className="text-lg md:text-xl font-black uppercase tracking-tight text-white font-sans leading-snug">
             {mode === 'login' 
-              ? 'RECEIVE YOUR CLIENT TRANSFORMATION SCORECARD ASSESSMENT' 
+              ? 'SECURE MEMBER ACCESS PORTAL' 
               : signupType === 'founder'
                 ? 'BUILD SOVEREIGN CO-FOUNDER PROFILE'
                 : 'STANDARD SIGN UP (EXPLORE & SCROLL)'}
           </h3>
           <p className="text-[10px] text-zinc-400 font-mono tracking-wider">
             {mode === 'login' 
-              ? 'Sign in to access your coaching results and complete your scorecard review.' 
+              ? 'Sign in to access your private sovereign workspace, coaching history, and active modules.' 
               : signupType === 'founder'
                 ? 'Register your enterprise parameters securely to initialize your co-founder credentials.'
                 : 'Sign up with standard access parameters to explore, read research and scroll freely.'
@@ -164,7 +164,7 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
-            1. SCORECARD<br/>ASSESSMENT
+            1. SECURE<br/>SIGN IN
           </button>
           <button
             type="button"
@@ -374,7 +374,7 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
               {loading 
                 ? 'COMPILING PROTOCOLS...' 
                 : mode === 'login' 
-                  ? 'RECEIVE ASSESSMENT & SIGN IN' 
+                  ? 'SECURE MEMBER SIGN IN' 
                   : signupType === 'scroller'
                     ? 'INITIATE STANDARD SCROLL PASS'
                     : 'REGISTER SOVEREIGN TEAM & ENTER'

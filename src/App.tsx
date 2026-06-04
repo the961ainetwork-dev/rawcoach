@@ -26,6 +26,8 @@ import FAQPage from './components/FAQPage';
 import LegalPage from './components/LegalPage';
 import GDPRBanner from './components/GDPRBanner';
 import ChatbotWidget from './components/ChatbotWidget';
+import { db } from './lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { 
   Sparkles, 
   MessageSquareDiff, 
@@ -95,10 +97,52 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState<TabId>('copilot-workspace');
   const [hasAdminOverride, setHasAdminOverride] = useState(false);
   const [isAdminPasswordUnlocked, setIsAdminPasswordUnlocked] = useState(false);
+
+  const isUserAdmin = profile?.isAdmin || user?.email?.toLowerCase() === "maanbarazy@gmail.com" || hasAdminOverride;
   
+  // Dynamic visible sections mapped from admin activeModules config
+  const [activeModules, setActiveModules] = useState<Record<string, boolean>>({
+    manifestoPage: true,
+    csuiteInsightsBoard: true,
+    corpAcademy: true,
+  });
+
   // Auth modal overlay states
   const [showAuthOverlay, setShowAuthOverlay] = useState(false);
   const [authDefaultMode, setAuthDefaultMode] = useState<'login' | 'signup'>('login');
+
+  // Listen to Firestore site settings config in real-time
+  useEffect(() => {
+    const unsub = onSnapshot(
+      doc(db, 'siteSettings', 'config'),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          if (data.activeModules) {
+            setActiveModules(data.activeModules);
+          }
+        }
+      },
+      (error) => {
+        console.error('Failed to stream site settings config:', error);
+      }
+    );
+    return () => unsub();
+  }, []);
+
+  // Safety redirect: If standard user attempts to load a disabled section, reset activeTab
+  useEffect(() => {
+    if (!loading && !isUserAdmin) {
+      const isCurrentTabHidden =
+        (activeTab === 'manifesto-section' && activeModules.manifestoPage === false) ||
+        (activeTab === 'csuite-insights' && activeModules.csuiteInsightsBoard === false) ||
+        (activeTab === 'corp-academy' && activeModules.corpAcademy === false);
+      
+      if (isCurrentTabHidden) {
+        setActiveTab(user ? 'my-workspace' : 'readiness-scorecard');
+      }
+    }
+  }, [activeTab, activeModules, isUserAdmin, loading, user]);
 
   // Handle direct url path & hash location routing (unified state management)
   useEffect(() => {
@@ -165,8 +209,6 @@ function AppContent() {
     }
     setShowDashboard(true);
   };
-
-  const isUserAdmin = profile?.isAdmin || user?.email?.toLowerCase() === "maanbarazy@gmail.com" || hasAdminOverride;
 
   // Build the dynamic tab listings
   const tabs: TabItem[] = [
@@ -352,7 +394,7 @@ function AppContent() {
                 }}
                 className="px-2.5 py-1 text-slate-700 hover:text-slate-950 font-mono text-[9px] uppercase font-bold transition-all cursor-pointer border border-zinc-200 rounded hover:bg-slate-50"
               >
-                Receive Assessment & Sign In
+                Secure Member Sign In
               </button>
               <button
                 onClick={() => {
@@ -361,7 +403,7 @@ function AppContent() {
                 }}
                 className="px-2.5 py-1 bg-slate-900 text-white hover:text-yellow-350 font-mono text-[9px] uppercase font-extrabold rounded-md transition-all cursor-pointer"
               >
-                Standard Sign Up (Just Scroll)
+                Standard Sign Up (Explore)
               </button>
             </div>
           )}
@@ -446,9 +488,9 @@ function AppContent() {
                       setAuthDefaultMode('login');
                       setShowAuthOverlay(true);
                     }}
-                    className="px-3 py-1.5 text-slate-800 hover:text-slate-950 font-mono text-[9.5px] uppercase font-bold transition-all cursor-pointer border border-zinc-200 rounded hover:bg-slate-50"
+                    className="px-3 py-1.5 text-slate-800 hover:text-slate-950 font-mono text-[9.5px] uppercase font-bold transition-all cursor-pointer border border-zinc-205 rounded hover:bg-slate-50"
                   >
-                    Receive Assessment & Sign In
+                    Secure Member Sign In
                   </button>
                   <button
                     onClick={() => {
@@ -457,7 +499,7 @@ function AppContent() {
                     }}
                     className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 text-[#9DFF00] font-mono text-[9.5px] uppercase font-extrabold rounded-md shadow transition-all cursor-pointer"
                   >
-                    Standard Sign Up (Just Scroll)
+                    Standard Sign Up (Explore)
                   </button>
                 </div>
               )}
@@ -479,7 +521,16 @@ function AppContent() {
           </div>
 
           <nav className="space-y-1.5">
-            {tabs.filter(tab => tab.id !== 'admin').map((tab) => {
+            {tabs
+              .filter(tab => tab.id !== 'admin')
+              .filter(tab => {
+                if (isUserAdmin) return true;
+                if (tab.id === 'manifesto-section' && activeModules.manifestoPage === false) return false;
+                if (tab.id === 'csuite-insights' && activeModules.csuiteInsightsBoard === false) return false;
+                if (tab.id === 'corp-academy' && activeModules.corpAcademy === false) return false;
+                return true;
+              })
+              .map((tab) => {
               const isSelected = activeTab === tab.id;
               return (
                 <button
@@ -523,7 +574,7 @@ function AppContent() {
 
         {/* Dynamic Display Area */}
         <main className="lg:col-span-9 bg-transparent w-full">
-          {activeTab === 'my-workspace' && <MyPersonalWorkspace />}
+          {activeTab === 'my-workspace' && <MyPersonalWorkspace onTabChange={(id) => setActiveTab(id)} />}
           {activeTab === 'copilot-workspace' && <CopilotWorkspace onTabChange={(id) => setActiveTab(id)} />}
           {activeTab === 'ceo-coaching' && <CeoCoaching />}
           {activeTab === 'corp-academy' && <CorporateAssessmentHub />}

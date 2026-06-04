@@ -325,6 +325,22 @@ async function start() {
       appType: "spa",
     });
     app.use(vite.middlewares);
+    // Explicit fallback for client routing like /admin /my-workspace etc in development
+    app.get('*', async (req, res, next) => {
+      const url = req.originalUrl || req.url;
+      if (url.startsWith('/api/')) {
+        return next();
+      }
+      try {
+        const fs = await import('fs');
+        const indexHtml = path.join(process.cwd(), 'index.html');
+        let html = fs.readFileSync(indexHtml, 'utf-8');
+        html = await vite.transformIndexHtml(url, html);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+      } catch (e) {
+        next(e);
+      }
+    });
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));

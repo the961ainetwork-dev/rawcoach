@@ -113,6 +113,9 @@ export default function AdminConsole() {
     analytics: true,
     insights: true,
     transformation: true,
+    manifestoPage: true,
+    csuiteInsightsBoard: true,
+    corpAcademy: true,
   });
 
   // ---------------------------------------------------------------------------
@@ -1076,6 +1079,42 @@ export default function AdminConsole() {
                           onChange={(e) => setActiveModules({ ...activeModules, [m.key]: e.target.checked })}
                           className="w-4.5 h-4.5 rounded border-zinc-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                         />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 4. STANDARD USER PORTAL - SECTION VISIBILITY TOGGLES */}
+                <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200/50 space-y-4">
+                  <h4 className="font-bold text-[10px] text-slate-900 uppercase tracking-wider flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-zinc-650" /> // STANDARD MEMBER TAB VISIBILITY CONTROL
+                  </h4>
+                  <p className="text-[10px] text-zinc-450 leading-relaxed font-sans">
+                    Toggle visibility of specific primary sections on the sidebar navigation menus for non-admin standard users in real-time.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    {[
+                      { key: 'manifestoPage', label: 'MANIFESTO BOARD', desc: 'The C-Suite Manifesto philosophy section' },
+                      { key: 'csuiteInsightsBoard', label: 'INSIGHTS BOARD', desc: 'Central pinboard of daily news & briefs' },
+                      { key: 'corpAcademy', label: 'CORPORATE ACADEMY', desc: 'Structured employee training alignment platform' }
+                    ].map((item) => (
+                      <div key={item.key} className="p-3 bg-white border border-zinc-200 rounded-xl flex flex-col justify-between gap-2.5">
+                        <div className="space-y-1">
+                          <span className="font-bold text-slate-850 tracking-tight text-[10px] block">{item.label}</span>
+                          <span className="text-[9.5px] text-zinc-400 font-sans block leading-normal">{item.desc}</span>
+                        </div>
+                        <div className="flex items-center justify-between border-t border-zinc-100 pt-2 mt-auto">
+                          <span className="text-[9px] text-zinc-500 uppercase font-mono font-bold">
+                            {activeModules[item.key] !== false ? '● Visible' : '○ Hidden'}
+                          </span>
+                          <input 
+                            type="checkbox" 
+                            checked={activeModules[item.key] ?? true}
+                            onChange={(e) => setActiveModules({ ...activeModules, [item.key]: e.target.checked })}
+                            className="w-4.5 h-4.5 rounded border-zinc-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>

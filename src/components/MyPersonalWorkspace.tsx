@@ -32,7 +32,11 @@ interface Task {
   updatedAt: any;
 }
 
-export default function MyPersonalWorkspace() {
+interface MyPersonalWorkspaceProps {
+  onTabChange?: (tabId: string) => void;
+}
+
+export default function MyPersonalWorkspace({ onTabChange }: MyPersonalWorkspaceProps) {
   const { user, profile, refreshProfile, setProfileLocal } = useAuth();
 
   // Onboarding local states
@@ -444,6 +448,28 @@ export default function MyPersonalWorkspace() {
             This is your private administrative vault. Here, your critical venture blueprints, tactical action streams, and organizational metadata are recorded securely inside our hardened cloud database.
           </p>
         </div>
+      </div>
+
+      {/* OPTIONAL CLINICAL SCORECARD ASSESSMENT PROMPT */}
+      <div className="bg-[#9DFF00]/10 border border-[#9DFF00]/30 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 animate-fadeIn">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-1 bg-[#9DFF00]/20 border border-[#9DFF00]/30 text-slate-950 px-2.5 py-0.5 rounded font-mono text-[8.5px] uppercase font-black">
+            📊 ACTIONABLE COACHING DIAGNOSTIC
+          </div>
+          <h4 className="text-lg font-extrabold tracking-tight text-slate-900 uppercase">
+            Sovereign Digital Agility Scorecard
+          </h4>
+          <p className="text-zinc-650 text-xs max-w-2xl leading-relaxed">
+            Measure workflow maturity, assess compliance overhead, identify legacy copy-paste bottlenecks, and generate structural transition checklists. You can complete or refresh this scorecard at any time without forcing upfront registration constraints.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => onTabChange?.('readiness-scorecard')}
+          className="px-5 py-3 bg-zinc-950 hover:bg-zinc-800 text-[#9DFF00] font-mono text-[9.5px] font-black uppercase rounded-xl tracking-wider hover:scale-[1.01] transition-all cursor-pointer shadow shrink-0"
+        >
+          GENERATE ROADMAP CHECKLIST &rarr;
+        </button>
       </div>
 
       {/* STRATEGIC COMPREHENSIVE ONBOARDING BLUEPRINT */}

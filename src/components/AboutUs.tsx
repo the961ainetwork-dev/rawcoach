@@ -162,12 +162,7 @@ export default function AboutUs() {
                 <li>• <strong>Certifications:</strong> AI governance credential matching.</li>
               </ul>
 
-              <div className="pt-2 border-t border-zinc-200 text-[#FF4F2E]">
-                <strong className="uppercase font-extrabold block text-[10px]">💡 STRATEGIC RECOMMENDATION:</strong>
-                <p className="mt-1 leading-relaxed text-[10px]">
-                  We recommend auditing all development and operations personnel weekly to identify transition gaps and ensure your workforce is evolving alongside your agentic infrastructure.
-                </p>
-              </div>
+              {/* Removed weekly auditing recommendation block per request */}
             </div>
           </div>
         </div>

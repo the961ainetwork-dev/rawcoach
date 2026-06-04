@@ -721,13 +721,13 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
                         onClick={() => onOpenAuth?.('login')}
                         className="w-full text-center py-2 bg-white border border-zinc-200 hover:bg-zinc-50 text-slate-900 font-mono text-[9px] uppercase font-black rounded-lg cursor-pointer transition-all shadow-xs leading-tight px-1"
                       >
-                        Receive Assessment & Sign In
+                        Secure Member Sign In
                       </button>
                       <button
                         onClick={() => onOpenAuth?.('signup')}
                         className="w-full text-center py-2 bg-slate-900 hover:bg-slate-800 text-white font-mono text-[9px] uppercase font-black rounded-lg cursor-pointer transition-all shadow-xs leading-tight px-1"
                       >
-                        Standard Sign Up (Just Scroll)
+                        Standard Sign Up (Explore)
                       </button>
                     </div>
                   </div>
