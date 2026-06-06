@@ -1089,7 +1089,7 @@ ${narrative}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white border border-zinc-200 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh] cursor-default"
+              className="bg-white border border-zinc-200 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh] cursor-default"
             >
               {/* Terminal Blueprint Banner */}
               <div className="bg-slate-900 text-white p-6 relative flex justify-between items-center shrink-0">

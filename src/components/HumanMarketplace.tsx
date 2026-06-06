@@ -97,7 +97,7 @@ export default function HumanMarketplace() {
       {/* Broadcast Action Overlay Dialog */}
       {broadcastActive && (
         <div className="fixed inset-0 bg-black/80 z-[99999] flex items-center justify-center p-6 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white border-2 border-black p-6 rounded-2xl w-full max-w-lg shadow-xl space-y-6">
+          <div className="bg-white border-2 border-black p-6 rounded-2xl w-full max-w-md shadow-xl space-y-6">
             <div className="border-b border-zinc-200 pb-3 flex justify-between items-center">
               <h4 className="font-mono text-xs font-black uppercase text-red-605 flex items-center gap-1.5 animate-pulse">
                 <AlertTriangle className="w-4 h-4 text-red-500" /> INITIATE EMERGENCY ROADBLOCK PAGE
@@ -205,7 +205,7 @@ export default function HumanMarketplace() {
       {/* Booking Modal Box Popup */}
       {selectedExpert && (
         <div className="fixed inset-0 bg-black/80 z-[99999] flex items-center justify-center p-6 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white border-2 border-black p-6 rounded-3xl w-full max-w-md shadow-2xl relative overflow-hidden text-zinc-900">
+          <div className="bg-white border-2 border-black p-6 rounded-3xl w-full max-w-sm shadow-2xl relative overflow-hidden text-zinc-900">
             {bookSuccess ? (
               <div className="py-12 text-center space-y-4 animate-scaleUp">
                 <div className="w-14 h-14 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center mx-auto text-emerald-800 font-bold text-2xl select-none">

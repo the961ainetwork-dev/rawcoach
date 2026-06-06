@@ -33,6 +33,60 @@ export interface InsightCard {
 
 const DEFAULT_INSIGHTS: InsightCard[] = [
   {
+    id: 'insight-model-resilience-intelligence',
+    title: 'A POTENTIAL MODEL FOR RESILIENCE THROUGH INTELLIGENCE',
+    author: 'Maan Barazy',
+    role: 'Founder - AlKhawarizmi | President NCEI Lebanon reg 2220',
+    snippet: 'To support the Lebanese ecosystem in 2026, the strategy must move beyond standard startup acceleration to build modern, AI-native systems of sovereign recovery.',
+    content: `Strategic Brief: A Potential Model for Resilience Through Intelligence - Lebanon 2026
+
+To support the Lebanese ecosystem in 2026, the strategy must move beyond standard startup acceleration. Because the traditional financial and public infrastructures are fractured, the "innovation" must be foundational—acting as a digital surrogate for missing state services. 
+
+The Economic Context: Managed Fragility
+The current economic state is characterized by "artificial calm." While the Lebanese pound has hovered near 89,500 to the dollar, analysts warn this is a result of tight liquidity control by the Banque du Liban (BDL) rather than genuine economic expansion.
+• GDP Contraction: Ongoing regional conflict is projected to shrink real GDP by 7%–10% in 2026, with estimated damages already reaching approximately $20 billion.
+• Sectoral Stress: Real estate and construction, once the pillars of the economy, saw a significant decline in Q1 2026, with property sales dropping by nearly 30% compared to the previous year.
+• Fiscal Reality: The country remains out of international capital markets, relying on remittances and a highly dollarized consumer market to stave off total collapse. 
+
+The Technological "Survival Logic"
+In this environment, technology is not just an efficiency tool; it is a critical component of institutional and individual survival. 
+• Fintech as Infrastructure: Because the traditional banking system lost credibility after 2019, digital wallets (like MyMonty and PinPay) and payment processors have become the de facto financial infrastructure. The regulatory environment is slowly maturing, with BDL’s January 2026 circular setting clearer guidelines for these providers. 
+• Digital Transformation: The World Bank’s $150 million "Digital Acceleration Project" highlights the importance of public-private partnerships (PPPs) in building resilient, decentralized infrastructure—moving beyond legacy systems to cloud-based, AI-enhanced governance. 
+• AI as a Leapfrog Strategy: There is a strong, expert-led push to use AI to "leapfrog" traditional, inefficient government services. AI-driven platforms are being proposed to manage everything from smart city utilities to predictive economic modeling, effectively treating Lebanon as a laboratory for rapid technological adoption in the face of structural crisis. 
+
+Why the "Lebanon Case" is Unique - a potential model for resilience through intelligence.
+• Crisis-Driven Innovation: The "Lebanon Case" proves that when traditional institutions fail, the private sector and agile startups step in to provide essential services (payments, data processing, communication).
+• Agentic Future: By focusing on agentic workflows and decentralized architecture, you are addressing the specific fragility of Lebanon’s 20th-century systems. The strategy isn't to fix the old systems, but to build modern, AI-native ones that can operate effectively despite the surrounding instability.
+In short, the "Lebanon Case" is a study in technological sovereignty. It is about building a digital layer that remains functional, productive, and scalable, even when the national physical and financial infrastructure is under constant, severe pressure.
+
+Where do we go from here
+Based on the current trajectory of the ecosystem, here is what can be done to create structural impact:
+
+1. From "Product" to "Public Infrastructure"
+Startups in Lebanon are increasingly vital because they provide functions the state cannot.
+• Digital Trust Layers: With the banking sector’s credibility damaged, the ecosystem needs platforms that don't just "process payments" but provide verifiable digital identity and transaction history. Projects like those you are leading with 961AI or similar networking hubs can function as the "new registry," establishing a foundation of trust that legacy systems currently lack.
+• API-First Governance: The work being done by the "Behavioral Innovation and Digital Transformation Lab" (BIND-Leb) is a start, but the ecosystem needs a broader "Government-as-a-Service" API movement. Startups should build modular, integrable tools that the public sector can "plug into" rather than waiting for large-scale government procurement projects, which are often stalled by bureaucratic gridlock.
+
+2. Strategic "Export-to-Sustain"
+The local market is constrained by purchasing power and currency instability. 
+• Focus on Regional Servicing: The most successful Lebanese tech firms (like Murex or the broader diaspora-linked SaaS ecosystem) survive by building for the GCC and global markets while keeping engineering costs (and headquarters) in Beirut. The ecosystem needs more "Headquarters in Beirut, Revenue in the Gulf" business models. This maintains high-value jobs locally while insulating the business from the local economic contraction.
+• Diaspora-Direct Investment: Shift from "fundraising" toward "talent-equity" partnerships. Instead of just seeking VC funding, Lebanese founders should leverage the massive diaspora network to create technical bridgehead roles—where Lebanese engineers serve as the core R&D arm for international corporations.
+
+3. Solving the "Efficiency Gap" with Agentic AI
+Given the extreme scarcity of resources (power, time, administrative bandwidth), Lebanon is the ideal testing ground for Agentic AI.
+• Hyper-Automated Operations: Lebanese businesses that traditionally rely on manual, friction-heavy administrative tasks can use agentic swarms to bridge the gap. By automating document processing, permit navigation, and inter-departmental communication, you essentially create a "virtual administrative layer" that bypasses current state inefficiencies.
+• Resource Management: Deploying AI for decentralized infrastructure—specifically in the private-generation solar sector—is a massive opportunity. AI-driven fleet management for distributed energy can turn a fragmented power landscape into a more stable, efficient micro-grid ecosystem.
+
+4. Human Capital Retention via "Reskilling Cycles"
+With the brain drain continuing, the ecosystem must invest in fast-track, specialized vocational AI training. 
+• The "AI-First" Workforce: Partnerships with tech giants (like the Microsoft/Oracle initiatives mentioned in recent government announcements) should be deepened to ensure that Lebanese graduates aren't just "tech-literate" but are "Agentic-Architect-ready."
+• Focus on Niche Engineering: Lebanon has an advantage in high-end financial engineering and healthcare tech. Doubling down on these specific verticals, rather than generalist software, will keep the country "disproportionately relevant" in global wholesale-finance AI and medical AI, as seen with local hospital systems.`,
+    bgColor: 'bg-lime-50/70 border-lime-200 text-slate-900',
+    tag: 'STRATEGIC OUTLOOK',
+    likesCount: 512,
+    status: 'published'
+  },
+  {
     id: 'insight-economics-lebanon',
     title: 'THE ECONOMICS OF AI IN ORGANIZATIONS – CASE STUDY LEBANON',
     author: 'Maan Barazy',
@@ -489,7 +543,9 @@ export default function CSuiteInsights() {
       });
       
       if (list.length > 0) {
-        setInsights(list);
+        const dbIds = new Set(list.map(item => item.id));
+        const missingDefaults = DEFAULT_INSIGHTS.filter(item => !dbIds.has(item.id));
+        setInsights([...list, ...missingDefaults]);
       } else {
         setInsights(DEFAULT_INSIGHTS);
       }
@@ -622,7 +678,7 @@ export default function CSuiteInsights() {
       {/* Selected Insight Detail Overlay Modal */}
       {selectedInsight && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-4xl w-full border border-zinc-250 overflow-hidden shadow-2xl animate-scaleUp max-h-[90vh] flex flex-col" id="insight-modal-container">
+          <div className="bg-white rounded-3xl max-w-2xl w-full border border-zinc-250 overflow-hidden shadow-2xl animate-scaleUp max-h-[90vh] flex flex-col" id="insight-modal-container">
             
             {/* Header top colored bar */}
             <div className="bg-slate-900 text-white p-6 relative flex justify-between items-center shrink-0">

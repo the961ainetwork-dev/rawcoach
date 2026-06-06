@@ -1298,7 +1298,7 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
 
       {showSolopreneurPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn" id="solopreneur-popup-overlay">
-          <div className="bg-white border-2 border-zinc-900 rounded-3xl p-6 md:p-8 max-w-lg w-full relative overflow-hidden shadow-2xl animate-scaleUp">
+          <div className="bg-white border-2 border-zinc-900 rounded-3xl p-6 md:p-8 max-w-md w-full relative overflow-hidden shadow-2xl animate-scaleUp">
             {/* Minimal Background Gradients */}
             <div className="absolute top-0 right-0 w-44 h-44 bg-[#9DFF00]/10 rounded-full filter blur-2xl opacity-60 pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-44 h-44 bg-[#FF4F2E]/5 rounded-full filter blur-2xl opacity-60 pointer-events-none"></div>

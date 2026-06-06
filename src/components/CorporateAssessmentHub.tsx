@@ -1417,7 +1417,7 @@ export default function CorporateAssessmentHub() {
               {/* Certificate Modal Overlay Display */}
               {activeCertificateModal && (
                 <div className="bg-slate-950/45 fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xs select-none">
-                  <div className="bg-white border-4 border-slate-950 p-6 md:p-8 rounded-2xl max-w-xl w-full space-y-6 text-center relative shadow-2xl">
+                  <div className="bg-white border-4 border-slate-950 p-6 md:p-8 rounded-2xl max-w-md w-full space-y-6 text-center relative shadow-2xl">
                     <div className="absolute top-4 right-4">
                       <button 
                         onClick={() => setActiveCertificateModal(null)}

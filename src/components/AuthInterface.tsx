@@ -122,7 +122,7 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
   };
 
   return (
-    <div className="bg-slate-950 text-white max-w-md w-full mx-auto p-6 md:p-8 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden" id="auth-interface-container">
+    <div className="bg-slate-950 text-white max-w-sm w-full mx-auto p-5 md:p-6 rounded-2xl border border-zinc-800 shadow-2xl relative overflow-hidden" id="auth-interface-container">
       {/* Decorative ambient visual background indicators */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full filter blur-xl opacity-45 -z-10"></div>
       <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-rose-500/15 rounded-full filter blur-xl opacity-35 -z-10"></div>
