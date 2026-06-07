@@ -4,8 +4,11 @@ import { CoachId, Message } from '../types';
 import { Send, Cpu, CheckCircle } from 'lucide-react';
 
 export default function AICoaches() {
-  const [selectedCoachId, setSelectedCoachId] = useState<CoachId>('general');
+  const [selectedCoachId, setSelectedCoachId] = useState<CoachId>('strategist');
   const [messages, setMessages] = useState<Record<CoachId, Message[]>>({
+    strategist: [
+      { id: '1', sender: 'coach', text: COACHES.strategist.welcomeMessage, timestamp: '10:00 AM' }
+    ],
     general: [
       { id: '1', sender: 'coach', text: COACHES.general.welcomeMessage, timestamp: '10:00 AM' }
     ],

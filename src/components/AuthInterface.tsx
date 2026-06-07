@@ -234,10 +234,11 @@ export default function AuthInterface({ onSuccess, onCancel, defaultMode = 'logi
                   value={email}
                   disabled={loading}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@company.com"
+                  placeholder="e.g. name@gmail.com, outlook, or company email"
                   className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3.5 py-2 text-xs text-white placeholder-zinc-550 focus:outline-none focus:border-zinc-500 font-mono"
                 />
               </div>
+              <span className="text-[7.5px] text-zinc-500 font-mono block mt-0.5">// GMAIL, OUTLOOK, YAHOO, AND PERSONAL/WORK DOMAINS PERMITTED</span>
             </div>
 
             {/* Password Field */}

@@ -5,7 +5,7 @@ export interface Message {
   timestamp: string;
 }
 
-export type CoachId = 'general' | 'career' | 'leadership' | 'learning';
+export type CoachId = 'general' | 'career' | 'leadership' | 'learning' | 'strategist';
 
 export interface Coach {
   id: CoachId;

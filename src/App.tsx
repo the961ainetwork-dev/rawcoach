@@ -50,7 +50,12 @@ import {
   Settings,
   Lock,
   RefreshCw,
-  BookOpen
+  BookOpen,
+  Menu,
+  X,
+  Search,
+  Command,
+  Home
 } from 'lucide-react';
 
 type TabId = 
@@ -99,6 +104,9 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState<TabId>('copilot-workspace');
   const [hasAdminOverride, setHasAdminOverride] = useState(false);
   const [isAdminPasswordUnlocked, setIsAdminPasswordUnlocked] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const isUserAdmin = profile?.isAdmin || user?.email?.toLowerCase() === "maanbarazy@gmail.com" || hasAdminOverride;
   
@@ -355,6 +363,24 @@ function AppContent() {
     }
   ];
 
+  // Dynamically filter matching tabs/coaching modules based on search query
+  const searchedTabs = searchQuery.trim() === ''
+    ? []
+    : tabs
+        .filter(tab => {
+          if (tab.id === 'admin') return isUserAdmin;
+          if (tab.id === 'manifesto-section' && activeModules.manifestoPage === false) return false;
+          if (tab.id === 'csuite-insights' && activeModules.csuiteInsightsBoard === false) return false;
+          if (tab.id === 'corp-academy' && activeModules.corpAcademy === false) return false;
+          return true;
+        })
+        .filter(tab => 
+          tab.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          tab.sub.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+  const currentTab = tabs.find(t => t.id === activeTab);
+
   if (loading) {
     return (
       <div className="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center font-mono text-xs space-y-4">
@@ -455,6 +481,92 @@ function AppContent() {
             <span className="hidden md:inline-block font-mono text-[9px] uppercase font-semibold text-zinc-500 bg-zinc-100 px-2.5 py-1 border border-zinc-200/80 rounded">
               Active Workspace
             </span>
+
+            {/* Global Search Bar */}
+            <div className="relative z-50 ml-1 hidden sm:block w-48 md:w-64" id="header-global-search">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-450" />
+                <input
+                  type="text"
+                  placeholder="Search modules..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setIsSearchFocused(true);
+                  }}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => {
+                    // Slight delay to allow clicked items to fire click events
+                    setTimeout(() => setIsSearchFocused(false), 200);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setSearchQuery('');
+                      setIsSearchFocused(false);
+                      (e.target as HTMLInputElement).blur();
+                    }
+                  }}
+                  className="w-full pl-8 pr-7 py-1.5 bg-zinc-50 border border-zinc-200/80 hover:border-slate-300 focus:bg-white focus:border-slate-900 rounded-lg text-[10px] font-mono tracking-tight text-slate-900 focus:outline-none transition-all placeholder:text-zinc-400"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-slate-900 cursor-pointer font-mono text-[9px] p-0.5"
+                    title="Clear Search"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* Floating Dropdown Results */}
+              {isSearchFocused && searchQuery.trim() !== '' && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-slate-950 shadow-xl rounded-xl overflow-hidden max-h-72 overflow-y-auto z-50">
+                  <div className="bg-slate-950 px-3 py-1.5 border-b border-slate-900 flex items-center justify-between">
+                    <span className="text-[8px] font-mono text-[#9DFF00] uppercase font-black tracking-widest flex items-center gap-1">
+                      <Command className="w-2.5 h-2.5" /> MODULE MATCHES
+                    </span>
+                    <span className="text-[7px] text-zinc-450 font-mono">
+                      {searchedTabs.length} matched
+                    </span>
+                  </div>
+
+                  <div className="p-1 space-y-0.5">
+                    {searchedTabs.length === 0 ? (
+                      <div className="p-3 text-center text-[9px] font-mono text-zinc-400">
+                        No matches registered.
+                      </div>
+                    ) : (
+                      searchedTabs.map((tab) => (
+                        <button
+                          key={tab.id}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setActiveTab(tab.id);
+                            setShowDashboard(true);
+                            setSearchQuery('');
+                            setIsSearchFocused(false);
+                          }}
+                          className="w-full text-left p-2 hover:bg-zinc-50 active:bg-zinc-100 transition-colors flex items-center gap-2.5 rounded-lg border border-transparent hover:border-zinc-200"
+                        >
+                          <div className="w-6 h-6 rounded-md bg-zinc-55 text-white bg-slate-900 flex items-center justify-center shrink-0 select-none">
+                            {tab.icon}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="text-[10px] font-bold text-slate-900 uppercase tracking-tight truncate leading-tight">
+                              {tab.label}
+                            </h4>
+                            <p className="text-[8px] text-zinc-400 truncate leading-none mt-0.5">
+                              {tab.sub}
+                            </p>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -463,6 +575,16 @@ function AppContent() {
               className="px-3.5 py-1.5 border border-zinc-200 bg-white hover:bg-zinc-50 font-mono text-[10px] font-bold text-zinc-800 transition-all cursor-pointer flex items-center gap-1.5 rounded-lg shadow-sm"
             >
               Landing Hub
+            </button>
+
+            {/* Mobile Menu Action Trigger */}
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden px-3 py-1.5 bg-slate-900 text-[#9DFF00] hover:text-white border border-slate-950 font-mono text-[10px] font-extrabold transition-all cursor-pointer flex items-center gap-1.5 rounded-lg shadow-sm"
+              title="Open Workspace Menu"
+            >
+              <Menu className="w-4 h-4" />
+              <span>Menu</span>
             </button>
 
             {/* Profile badge replaces mock secured nodes */}
@@ -516,10 +638,46 @@ function AppContent() {
         </div>
       </header>
 
+      {/* Breadcrumb Navigation Trail */}
+      <div className="bg-white/80 border-b border-zinc-200/50 py-3 px-6 shadow-xs" id="breadcrumb-navigation">
+        <div className="max-w-7xl mx-auto flex items-center gap-2.5 text-[10px] font-mono tracking-tight uppercase text-zinc-500">
+          <button
+            onClick={() => setShowDashboard(false)}
+            className="flex items-center gap-1 hover:text-slate-900 transition-colors cursor-pointer font-bold shrink-0"
+            title="Navigate to Landing Hub"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Home</span>
+          </button>
+          
+          <ChevronRight className="w-3 h-3 text-zinc-350 shrink-0" />
+          
+          <button
+            onClick={() => {
+              setActiveTab('copilot-workspace');
+              setShowDashboard(true);
+            }}
+            className="hover:text-slate-900 transition-colors cursor-pointer font-bold shrink-0"
+            title="Focus Co-Pilot Workspace"
+          >
+            Active Workspace
+          </button>
+          
+          {currentTab && (
+            <>
+              <ChevronRight className="w-3 h-3 text-zinc-350 shrink-0" />
+              <span className="text-slate-900 font-extrabold truncate max-w-[200px] sm:max-w-none">
+                {currentTab.label}
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+
       {/* Main Workspace Frame */}
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Side Navigation Columns */}
-        <aside className="lg:col-span-3 space-y-4">
+        {/* Left Side Navigation Columns - Inline on Desktop only */}
+        <aside className="hidden lg:block lg:col-span-3 space-y-4">
           <div className="bg-slate-900 px-4 py-3 rounded-lg border border-slate-800 shadow-sm text-center lg:text-left">
             <h3 className="font-semibold text-xs text-white uppercase flex items-center justify-center lg:justify-start gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -679,6 +837,106 @@ function AppContent() {
           />
         </div>
       )}
+
+      {/* Mobile Drawer Navigation (Slide up/over from Left side) */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-55 lg:hidden flex">
+          {/* Backdrop with fade-in */}
+          <div 
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          
+          {/* Menu Drawer Content sliding from left */}
+          <div className="relative w-full max-w-[310px] bg-[#FAF9F6] h-full shadow-2xl flex flex-col z-10 overflow-hidden border-r-2 border-slate-900 animate-[slideRight_0.25s_ease-out]">
+            {/* Header / Brand block */}
+            <div className="bg-slate-950 px-5 py-4 border-b border-zinc-850 flex items-center justify-between">
+              <div>
+                <h3 className="font-sans font-black text-xs text-white uppercase flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#86d900] animate-pulse"></span>
+                  COACHING MODULES
+                </h3>
+                <p className="text-[8px] text-zinc-400 mt-0.5 uppercase font-mono tracking-wider">Configure active display view</p>
+              </div>
+              <button 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-1.5 bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+                title="Minimize Menu"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* List of tabs */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
+              {tabs
+                .filter(tab => tab.id !== 'admin')
+                .filter(tab => {
+                  if (isUserAdmin) return true;
+                  if (tab.id === 'manifesto-section' && activeModules.manifestoPage === false) return false;
+                  if (tab.id === 'csuite-insights' && activeModules.csuiteInsightsBoard === false) return false;
+                  if (tab.id === 'corp-academy' && activeModules.corpAcademy === false) return false;
+                  return true;
+                })
+                .map((tab) => {
+                  const isSelected = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        setIsMobileMenuOpen(false); // AUTO MINIMIZE/CLOSE DRAWER so user can see page immediately!
+                      }}
+                      className={`w-full text-left p-3 border transition-all cursor-pointer flex items-center justify-between group rounded-xl ${
+                        isSelected
+                          ? 'bg-slate-950 text-white border-transparent'
+                          : 'bg-white text-zinc-550 border-zinc-200/80 hover:bg-zinc-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8.5 h-8.5 border rounded-lg flex items-center justify-center font-bold text-xs select-none ${
+                          isSelected 
+                            ? 'bg-zinc-900 text-[#9DFF00] border-transparent' 
+                            : 'bg-zinc-50 text-zinc-700 border-zinc-200'
+                        }`}>
+                          {tab.icon}
+                        </div>
+                        <div>
+                          <h4 className={`font-bold text-[11px] uppercase tracking-tight leading-none ${
+                            isSelected ? 'text-white font-extrabold' : 'text-zinc-750 font-bold'
+                          }`}>{tab.label}</h4>
+                          <p className={`text-[8px] font-mono mt-1 ${isSelected ? 'text-zinc-400' : 'text-zinc-400'}`}>{tab.sub}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className={`w-3.5 h-3.5 ${isSelected ? 'text-[#9DFF00]' : 'text-zinc-400'}`} />
+                    </button>
+                  );
+                })}
+            </div>
+
+            {/* Quick minimize at bottom */}
+            <div className="p-4 bg-zinc-100 border-t border-zinc-200">
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full py-2.5 bg-slate-950 text-white hover:text-[#9DFF00] font-mono text-[9px] uppercase font-black tracking-widest rounded-xl cursor-pointer transition-colors text-center border-2 border-slate-950 shadow-md"
+              >
+                ✕ Minimize Menu popup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Menu Action launcher (bottom-left) for quick mobile popup trigger */}
+      <div className="lg:hidden fixed bottom-6 left-6 z-40">
+        <button
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="flex items-center gap-2 px-4 py-3 bg-slate-950 text-[#9DFF00] font-mono text-[9px] font-black uppercase tracking-widest rounded-full shadow-2xl border-2 border-slate-800 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
+          <Menu className="w-4 h-4 animate-pulse text-[#9DFF00]" />
+          <span>Workspace Menu</span>
+        </button>
+      </div>
 
       {/* Global GDPR cookies overlay and C-Suite Agentic FAQ chatbot */}
       <GDPRBanner />

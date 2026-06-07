@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth, UserRegistrationProfile } from '../contexts/AuthContext';
+import RecentActivityFeed from './RecentActivityFeed';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { 
@@ -677,6 +678,16 @@ export default function MyPersonalWorkspace({ onTabChange }: MyPersonalWorkspace
           </div>
         )}
       </div>
+
+      {/* RECENT ACTIVITY & ENGAGEMENT MONITOR */}
+      <RecentActivityFeed 
+        user={user}
+        profile={profile}
+        widerCompleted={widerCompleted}
+        widerAnswers={widerAnswers}
+        tasks={tasks}
+        onTabChange={onTabChange}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left column: Edit Registration Data ("record all info") */}

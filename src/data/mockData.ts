@@ -1,6 +1,17 @@
 import { Coach, Scenario, Goal, HumanCoach, NewsItem } from '../types';
 
 export const COACHES: Record<string, Coach> = {
+  strategist: {
+    id: 'strategist',
+    name: 'Lead Strategist & AI Coach',
+    tagline: 'GEOPOLITICAL & ECONOMIC REALITY',
+    avatar: '🔱',
+    avatarBg: 'bg-slate-950 text-[#9DFF00] border-2 border-[#9DFF00]',
+    specialty: 'High-Density Geopolitical, Economic & Leadership Triage',
+    description: 'Elite strategist applying high-density economic, geopolitical risk synthesis and resilient leadership frameworks.',
+    welcomeMessage: 'Welcome Client. I am your Lead Strategist and AI Coach. As an economic reasoning engine, I am synchronized with our private intellectual property assets and sovereign frameworks. Specify your strategic dilemma (e.g. supply chain choke points, Levant capital routes, or leadership transition matrix) to begin.',
+    systemPrompt: ''
+  },
   general: {
     id: 'general',
     name: 'theCsuiteCOACH',

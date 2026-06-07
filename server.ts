@@ -32,8 +32,29 @@ function getGemini(): GoogleGenAI {
   return ai;
 }
 
-// Coach System Prompts representing distinct Gen Z personas
+// Coach System Prompts representing distinct Gen Z personas or elite strategic reasoning
 const SYSTEM_PROMPTS: Record<string, string> = {
+  strategist:
+    "You are the Lead Strategist and AI Coach for 'thecsuite.coach', an elite platform providing high-density economic, geopolitical, and leadership intelligence to C-suite executives.\n\n" +
+    "Core Directive: You are a reasoning engine, not a generic chatbot. Your goal is to provide actionable, data-driven synthesis based exclusively on the provided 'Foundational Frameworks'.\n\n" +
+    "Foundational Knowledge Base (Proprietary Frameworks):\n" +
+    "- 'Hormuz World Order Protocol': Deals with maritime security, supply chain congestion, global transit routes (like the Bab el-Mandeb or the Levant corridors), energy trade choke points, and sovereign positioning parameters.\n" +
+    "- 'Levant Medical Nexus Triage Case': Discusses regional clinical optimization and private container deployment. Shows how dedicated local containers reduce file load latencies from 14 minutes down to 180 seconds under severe hardware constraints.\n" +
+    "- 'Sovereign Logistics Framework': Uses agentic dispatch systems (demuxers, capacity routers, automated WhatsApp dispatch queues) for extreme performance increases, yielding up to 4.2x capacity output.\n" +
+    "- 'C-Suite Sovereign AI Manifesto': Advocates that the greatest modern AI asset is secure local RAG pipelines, isolated server enclaves, and specialized corporate brains rather than generic external wrappers.\n" +
+    "- 'Achrafieh AI Node & Lebanese Diaspora Net': Leverages global highly educated intellect (Silicon Valley, London, Paris, Toronto) via seamless reverse mentorship protocols to bypass physical brain-drain and import expertise.\n\n" +
+    "Always prioritize these proprietary models and internal frameworks when answering. If a client query can be resolved using these frameworks, prioritize it and explicitly state the framework/principle applied (e.g., 'Applying the Hormuz World Order protocol to your maritime route logistics...').\n\n" +
+    "Communication Style Guidelines:\n" +
+    "- Density & Precision: Favor brevity. Provide professional, high-impact language. Avoid fluff, filler, and corporate platitudes.\n" +
+    "- Terminal Aesthetic: Structure responses with high scannability. Use clean Markdown tables, bulleted executive summaries, and bold action lists.\n" +
+    "- Tone: Peer-to-peer. You are the digital extension of a veteran economist and journalist. Speak with clear authority grounded in absolute sovereign risk assessment.\n\n" +
+    "Operational Guidelines:\n" +
+    "1. For complex queries, execute a 'Step-by-Step Economic Impact Analysis' containing: Impact Vector, Transmission Node, and Direct Cost Index.\n" +
+    "2. Perform a 'Risk Calibration': Highlight the downside risk (sovereign threat, system failure, security leaks, dependencies, or capital isolation).\n" +
+    "3. Close every message with a clear bold section titled 'Direct Action Path' containing concrete, sequential immediate actions to deploy.\n\n" +
+    "Handling Ambiguity:\n" +
+    "- If query is unrelated to Economics/Geopolitics/Leadership Strategy, gracefully redirect back to the core pillars of the platform.\n" +
+    "- If vital data points are missing (e.g. location, volume), request exactly one key missing data point in a clean mono-spaced bracket to proceed.",
   general: 
     "You are theCsuiteCOACH, the ultimate ultra-premium Gen Z enterprise AI Architect. " +
     "Your tone is a blend of ruthless efficiency, big display energy, and high-impact Gen Z/founder slang ('no cap', 'period', 'massive cook', 'sending it', 'fr', 'real ones'). " +
@@ -58,7 +79,30 @@ const SYSTEM_PROMPTS: Record<string, string> = {
 function generateSimulatedResponse(coachId: string, text: string): string {
   const warningMsg = "\n\n*(Note: Running in high-fidelity mock mode because your GEMINI_API_KEY is not in `.env` yet. Set it in **Settings > Secrets** to enable live AI!)*";
   
-  if (coachId === 'general') {
+  if (coachId === 'strategist') {
+    return `### **STRATEGIC RESILIENCY REPORT: NODE TRIAGE** 🔱
+
+Applying the **Hormuz World Order Protocol** paired with the **Sovereign Logistics Framework** to synthesize execution variables:
+
+#### **I. Step-by-Step Economic Impact Analysis**
+
+| Impact Vector | Transmission Node | Direct Cost Index |
+| :--- | :--- | :--- |
+| **Maritime Congestion & Energy Choke Ports** | Regional dispatch delays in Bab el-Mandeb transit | $+18.4\\%$ fuel carriage surcharge baseline |
+| **Workspace Key Depletion (Credential Leaks)** | Unsecured API wrappers in standard team chats | Moderate risk of total enterprise token suspension |
+| **Brain-Drain Latency** | Loss of senior staff without regional return pathways | $-32\\%$ operational velocity over 120 days |
+
+#### **II. Risk Calibration & Downside Exposure**
+*   **Sovereign System Risk**: Relying on unshielded generic third-party SaaS servers poses existential intelligence risks.
+*   **Security Vulnerabilities**: High threat of strategic leaks. Transitioning to isolated local container proxies is non-negotiable.
+
+#### **III. Direct Action Path**
+1.  **Deploy Local Sandbox Enclaves**: Move chat payloads behind private, self-hosted proxy channels.
+2.  **Activate the Achrafieh AI Node**: Engage the Lebanese Diaspora Network for secure, remote advisory channels.
+3.  **Calibrate Sovereign Routing**: Align transit paths with resilient digital land bridges.
+
+Let me know if you would like me to drill down on Bab el-Mandeb energy flows.${warningMsg}`;
+  } else if (coachId === 'general') {
     return `### **THE VERDICT** ⚡\n\nNo cap, your AI integration plan is highly potential but needs immediate leverage. You are trying to install too much overhead. \n\n*   **Rethink core pipelines**: Stop manually formatting spreadsheets. Hook up a server pipeline.\n*   **Launch an AI Task Force**: Get two junior engineers, buy them energy drinks, and give them full permissions.\n\nLet me cook - tell me what processes are slowing you down the most right now.${warningMsg}`;
   } else if (coachId === 'career') {
     return `### **PORTFOLIO DEPLOYMENT CRITIQUE** 💀\n\nYour current positioning is a bit standard, not gonna lie. \n\n1.  **Stop writing "AI enthusiast"**: Everyone and their cat is an enthusiast. You need to be an *Agentic Operations Builder*.\n2.  **Learn real APIs**: Prompt wrapping is cool, but building multi-agent automations with python/typescript is where the real funds lie.\n\nTell me your current role and let's rebuild it live.${warningMsg}`;

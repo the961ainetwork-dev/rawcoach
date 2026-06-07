@@ -1390,7 +1390,7 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your professional email..."
+              placeholder="Your email (Gmail, Outlook, company etc)..."
               required
               className="flex-1 px-4 py-3.5 bg-white border border-zinc-200 text-slate-900 font-mono text-xs rounded-lg focus:outline-none focus:border-slate-900 transition-colors placeholder:text-zinc-405"
             />

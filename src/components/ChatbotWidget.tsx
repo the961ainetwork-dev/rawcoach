@@ -44,7 +44,7 @@ export default function ChatbotWidget() {
     }
   }, [messages, isTyping]);
 
-  const handleSendMessage = (textToSend: string) => {
+  const handleSendMessage = async (textToSend: string) => {
     if (!textToSend.trim()) return;
 
     const userMsgId = 'msg-' + Date.now();
@@ -55,17 +55,43 @@ export default function ChatbotWidget() {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages(prev => [...prev, newUserMsg]);
+    const updatedMessages = [...messages, newUserMsg];
+    setMessages(updatedMessages);
     setInput('');
     setIsTyping(true);
 
-    // Simulate smart dynamic advisor responses
-    setTimeout(() => {
+    try {
+      const formattedHistory = updatedMessages.map(m => ({
+        sender: m.sender === 'bot' ? 'coach' : 'user',
+        text: m.text
+      }));
+
+      const response = await fetch('/api/coach/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          coachId: 'strategist',
+          messages: formattedHistory
+        })
+      });
+
+      const data = await response.json();
+      
+      const replyMsg: ChatMessage = {
+        id: 'reply-' + Date.now(),
+        sender: 'bot',
+        text: data.text || "I apologize. An error occurred in our reasoning pipeline.",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setMessages(prev => [...prev, replyMsg]);
+    } catch (err) {
+      console.error("Chatbot fetch error, using local fallback execution:", err);
       let replyText = "I have recognized your inquiry node inside our sovereign simulation matrix. Our advisory swarms are compiled to resolve legacy bottlenecks. For deeper architectural details, check our FAQ directory or consult directly with human experts.";
       const queryLower = textToSend.toLowerCase();
 
       if (queryLower.includes('manifesto') || queryLower.includes('philosophy')) {
-        replyText = "The C-Suite Manifesto represents a call for high-trust executive technology leadership in the Middle East and Levant. It advocates for moving away from generic public API wrappers to localized sovereign RAG pipelines, fully private models, and active sandbox guardrails to secure client-workspace compliance.";
+        replyText = "The C-Suite Manifesto represents a call for high-trust executive technology leadership. It advocates for moving away from generic public API wrappers to localized sovereign RAG pipelines, fully private models, and active sandbox guardrails to secure client-workspace compliance.";
       } else if (queryLower.includes('medical') || queryLower.includes('nexus') || queryLower.includes('healthcare')) {
         replyText = "In our Middle East Medical Nexus case study, emergency triage data retrieval was reduced from 14 minutes per file to just 180 seconds under private containers. Specialized autonomous agents securely check historic logs and run compliance filters using Med-Llama models.";
       } else if (queryLower.includes('security') || queryLower.includes('api') || queryLower.includes('safeguard') || queryLower.includes('leak')) {
@@ -84,8 +110,9 @@ export default function ChatbotWidget() {
       };
 
       setMessages(prev => [...prev, replyMsg]);
+    } finally {
       setIsTyping(false);
-    }, 1200);
+    }
   };
 
   return (
