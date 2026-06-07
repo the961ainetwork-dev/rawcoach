@@ -654,6 +654,7 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
                   { id: 'intro', label: '01 // TOP ARCHITECT' },
                   { id: 'manifesto', label: '02 // THE MANIFESTO', tabId: 'manifesto-section' },
                   { id: 'insights', label: '03 // C-SUITE INSIGHTS', tabId: 'csuite-insights' },
+                  { id: 'magazine', label: '03B // C-SUITE MAGAZINE', tabId: 'csuite-magazine' },
                   { id: 'recon', label: '04 // RESILIENCY RECON', tabId: 'resiliency-recon' },
                   { id: 'transformation', label: '05 // AGENTIC TRANSFORMATION', tabId: 'agentic-transformation' },
                   { id: 'about-us', label: '06 // ABOUT THE PROGRAM', tabId: 'about-us' },
@@ -1083,6 +1084,137 @@ export default function Hero({ onStartDashboard, onOpenAuth }: HeroProps) {
           </div>
         </div>
 
+
+        {/* HIGH-IMPACT C-SUITE EDITORIAL SHOWCASE */}
+        <section className="mb-24 scroll-mt-24 bg-white border-2 border-slate-900/90 p-8 md:p-12 rounded-2xl relative overflow-hidden shadow-sm" id="csuite-magazine-spotlight">
+          {/* Subtle elegant background element */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-900/5 rounded-full filter blur-3xl opacity-30 -z-10"></div>
+          <div className="absolute -left-10 -bottom-10 w-44 h-44 bg-[#FF4F2E]/5 rounded-full filter blur-2xl opacity-25 -z-10"></div>
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-6 border-b border-zinc-200">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-900 text-[#9DFF00] font-mono text-[9px] uppercase tracking-widest font-black rounded">
+                ★ OUTSTANDING PUBLICATION DISPATCH ★
+              </div>
+              <h3 className="text-3xl md:text-4xl font-black uppercase text-slate-950 tracking-tight leading-none font-sans">
+                THE C-SUITE MAGAZINE
+              </h3>
+              <p className="text-sm font-semibold text-[#FF4F2E] font-mono tracking-wide uppercase">
+                STRATEGIC SIGNAL OVER INFRASTRUCTURE NOISE
+              </p>
+            </div>
+            <div>
+              <button 
+                onClick={() => onStartDashboard('csuite-magazine')}
+                className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-slate-950 text-white hover:bg-zinc-800 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all cursor-pointer border border-transparent shadow-md"
+              >
+                <BookOpen className="w-4 h-4 text-[#9DFF00]" />
+                ENTER THE EDITORIAL PORTAL &rarr;
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {/* Header intro explicitly matching requested wording */}
+            <p className="text-zinc-700 leading-relaxed font-sans text-sm md:text-base font-medium max-w-4xl italic border-l-4 border-slate-950 pl-4">
+              "To create a high-impact magazine for a C-suite audience, the content must be strategic, time-efficient, and intellectually stimulating. Executives are pressed for time, so our digest is engineered from the ground up to offer <span className="text-slate-955 font-bold underline decoration-[#FF4F2E] decoration-2">signal over noise</span>."
+            </p>
+
+            {/* Grid of the 4 Essential Strategic Sections */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+              {/* Section 1 */}
+              <div className="bg-zinc-50 border border-zinc-200 p-5 rounded-xl flex flex-col justify-between">
+                <div>
+                  <span className="font-mono text-xs text-[#FF4F2E] font-extrabold block mb-1">01 // ESSENTIALS</span>
+                  <h4 className="font-sans font-black text-sm text-slate-950 uppercase mb-2">The Executive Brief</h4>
+                  <ul className="text-[11.5px] text-zinc-500 space-y-1.5 list-disc pl-4 font-sans font-medium">
+                    <li><strong className="text-zinc-700">Executive Summary:</strong> Crucial at-a-glance trends.</li>
+                    <li><strong className="text-zinc-700">Macro-Pulse:</strong> Geomarkets, policy risks, & 6-12 mo vectors.</li>
+                    <li><strong className="text-zinc-700">Regulatory Watch:</strong> Regulatory & compliance shifts.</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Section 2 */}
+              <div className="bg-zinc-50 border border-zinc-200 p-5 rounded-xl flex flex-col justify-between">
+                <div>
+                  <span className="font-mono text-xs text-[#FF4F2E] font-extrabold block mb-1">02 // STRATEGY</span>
+                  <h4 className="font-sans font-black text-sm text-slate-950 uppercase mb-2">Thought Leadership</h4>
+                  <ul className="text-[11.5px] text-zinc-500 space-y-1.5 list-disc pl-4 font-sans font-medium">
+                    <li><strong className="text-zinc-700">The Deep Dive:</strong> Single core challenge cover stories.</li>
+                    <li><strong className="text-zinc-700">C-Suite Interview:</strong> Elite peers sharing actionable blueprints.</li>
+                    <li><strong className="text-zinc-700">Future-Proofing:</strong> Navigating tech, AI, & workforce stress.</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Section 3 */}
+              <div className="bg-zinc-50 border border-zinc-200 p-5 rounded-xl flex flex-col justify-between">
+                <div>
+                  <span className="font-mono text-xs text-[#FF4F2E] font-extrabold block mb-1">03 // HUMANS</span>
+                  <h4 className="font-sans font-black text-sm text-slate-950 uppercase mb-2">Personal Effectiveness</h4>
+                  <ul className="text-[11.5px] text-zinc-500 space-y-1.5 list-disc pl-4 font-sans font-medium">
+                    <li><strong className="text-zinc-700">Human Element:</strong> Burnout mitigation & focus strategies.</li>
+                    <li><strong className="text-zinc-700">Board Dynamics:</strong> Managing investor & stakeholder expectations.</li>
+                    <li><strong className="text-zinc-700">The Toolkit:</strong> Selected checklists, hacks & software.</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Section 4 */}
+              <div className="bg-zinc-50 border border-zinc-200 p-5 rounded-xl flex flex-col justify-between">
+                <div>
+                  <span className="font-mono text-xs text-[#FF4F2E] font-extrabold block mb-1">04 // COLLABORATIVE</span>
+                  <h4 className="font-sans font-black text-sm text-slate-950 uppercase mb-2">Networking</h4>
+                  <ul className="text-[11.5px] text-zinc-500 space-y-1.5 list-disc pl-4 font-sans font-medium">
+                    <li><strong className="text-zinc-700">Roundtable Highlights:</strong> Peer perspectives on local grids.</li>
+                    <li><strong className="text-zinc-700">Curated Connections:</strong> Secure avenues for private dialog.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Layout Table Layout Structure requested */}
+            <div className="border border-zinc-200/90 rounded-xl overflow-hidden bg-zinc-50/50">
+              <div className="bg-zinc-100 p-3 border-b border-zinc-200">
+                <h4 className="font-mono text-[10px] uppercase font-bold text-zinc-650 tracking-wider">EDITORIAL ARCHITECTURE (SUGGESTED LAYOUT STRUCTURE)</h4>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left font-mono text-[11px] border-collapse">
+                  <thead>
+                    <tr className="border-b border-zinc-200 bg-zinc-50/70 text-zinc-600">
+                      <th className="p-3 font-bold uppercase">Section</th>
+                      <th className="p-3 font-bold uppercase">Content Style</th>
+                      <th className="p-3 font-bold uppercase">Tone</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-200 text-zinc-700">
+                    <tr>
+                      <td className="p-3 font-sans font-bold text-slate-950">The Pulse</td>
+                      <td className="p-3 font-sans">Data visuals, bulleted briefs, regulatory watch tickers</td>
+                      <td className="p-3 font-semibold text-amber-600">Objective & Urgent</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-sans font-bold text-slate-950">Strategy</td>
+                      <td className="p-3 font-sans">Analytical essays, case studies, future-proofing grids</td>
+                      <td className="p-3 font-semibold text-emerald-600">Authoritative & Visionary</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-sans font-bold text-slate-950">Leadership</td>
+                      <td className="p-3 font-sans">Narrative interviews, board psychology, toolkit hacks</td>
+                      <td className="p-3 font-semibold text-indigo-600">Personal & Relatable</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-sans font-bold text-slate-950">The Close</td>
+                      <td className="p-3 font-sans">High-level books, sovereign philosophy, leisure assets</td>
+                      <td className="p-3 font-semibold text-purple-600">Sophisticated & Reflective</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
 
 
         {/* Dynamic Page Sections added by Administration Console */}

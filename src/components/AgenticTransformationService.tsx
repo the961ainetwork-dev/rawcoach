@@ -27,6 +27,7 @@ interface AgentMessage {
 }
 
 export default function AgenticTransformationService() {
+  const [selectedChallenge, setSelectedChallenge] = useState<string>('manual_dispatch');
   const [strategyInput, setStrategyInput] = useState<string>('Accelerate expansion into EMEA while automating sales dispatch overheads by 45%');
   const [simulationState, setSimulationState] = useState<'idle' | 'running' | 'completed'>('idle');
   const [simulationSteps, setSimulationSteps] = useState<AgentMessage[]>([]);
@@ -244,6 +245,333 @@ export default function AgenticTransformationService() {
               <p><strong>• Bottleneck Detection:</strong> Identifies process friction points (e.g., approval delays).</p>
               <p><strong>• Orchestration:</strong> Re-routes tasks and optimizes resource allocation between departments.</p>
               <p><strong>• Reporting:</strong> Generates real-time performance dashboards for executive review.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SERVICE OPTIMIZATION SUGGESTION MATRIX */}
+      <div className="bg-zinc-50 border-2 border-slate-900 p-6 md:p-10 rounded-2xl shadow-sm space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-200 pb-5">
+          <div>
+            <span className="font-mono text-[9px] text-[#FF4F2E] font-black uppercase tracking-widest block">
+              ★ REAL-TIME OPTIMIZATION ENGINE ★
+            </span>
+            <h4 className="text-2xl font-black tracking-tight text-slate-955 mt-1 uppercase font-sans">
+              Workload & Service Optimizer
+            </h4>
+            <p className="text-xs text-zinc-500 font-mono mt-1">
+              Select your organization's primary bottleneck to find the suggested high-impact service optimization.
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FF4F2E]/10 border border-[#FF4F2E]/20 text-[#FF4F2E] rounded-lg font-mono text-[10px] uppercase font-black">
+            <Zap className="w-3.5 h-3.5 animate-pulse" /> SUGGESTION PROTOCOL ACTIVE
+          </div>
+        </div>
+
+        {/* Bottleneck selectors */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+          <button
+            onClick={() => setSelectedChallenge('manual_dispatch')}
+            className={`p-4 border text-left rounded-xl transition-all cursor-pointer font-sans ${
+              selectedChallenge === 'manual_dispatch'
+                ? 'bg-slate-950 text-white border-slate-950 shadow-md ring-2 ring-[#9DFF00]/50'
+                : 'bg-white text-slate-800 hover:bg-zinc-100 border-zinc-200'
+            }`}
+          >
+            <span className="block font-mono text-[9px] font-bold text-[#FF4F2E] mb-1.5">01 // LATENCY</span>
+            <span className="font-bold text-xs block uppercase leading-tight">Manual Reporting & Dispatch</span>
+          </button>
+
+          <button
+            onClick={() => setSelectedChallenge('market_volatility')}
+            className={`p-4 border text-left rounded-xl transition-all cursor-pointer font-sans ${
+              selectedChallenge === 'market_volatility'
+                ? 'bg-slate-950 text-white border-slate-950 shadow-md ring-2 ring-[#9DFF00]/50'
+                : 'bg-white text-slate-800 hover:bg-zinc-100 border-zinc-200'
+            }`}
+          >
+            <span className="block font-mono text-[9px] font-bold text-[#FF4F2E] mb-1.5">02 // UNCERTAINTY</span>
+            <span className="font-bold text-xs block uppercase leading-tight">Economic Shifts & Risk</span>
+          </button>
+
+          <button
+            onClick={() => setSelectedChallenge('approval_bottlenecks')}
+            className={`p-4 border text-left rounded-xl transition-all cursor-pointer font-sans ${
+              selectedChallenge === 'approval_bottlenecks'
+                ? 'bg-slate-950 text-white border-slate-950 shadow-md ring-2 ring-[#9DFF00]/50'
+                : 'bg-white text-slate-800 hover:bg-zinc-100 border-zinc-200'
+            }`}
+          >
+            <span className="block font-mono text-[9px] font-bold text-[#FF4F2E] mb-1.5">03 // SILOS</span>
+            <span className="font-bold text-xs block uppercase leading-tight">Approval & Delay Loops</span>
+          </button>
+
+          <button
+            onClick={() => setSelectedChallenge('cognitive_burnout')}
+            className={`p-4 border text-left rounded-xl transition-all cursor-pointer font-sans ${
+              selectedChallenge === 'cognitive_burnout'
+                ? 'bg-slate-950 text-white border-slate-950 shadow-md ring-2 ring-[#9DFF00]/50'
+                : 'bg-white text-slate-800 hover:bg-zinc-100 border-zinc-200'
+            }`}
+          >
+            <span className="block font-mono text-[9px] font-bold text-[#FF4F2E] mb-1.5">04 // EXHAUSTION</span>
+            <span className="font-bold text-xs block uppercase leading-tight">C-Suite Burnout & Focus</span>
+          </button>
+
+          <button
+            onClick={() => setSelectedChallenge('skills_gap')}
+            className={`p-4 border text-left rounded-xl transition-all cursor-pointer font-sans ${
+              selectedChallenge === 'skills_gap'
+                ? 'bg-slate-950 text-white border-slate-950 shadow-md ring-2 ring-[#9DFF00]/50'
+                : 'bg-white text-slate-800 hover:bg-zinc-100 border-zinc-200'
+            }`}
+          >
+            <span className="block font-mono text-[9px] font-bold text-[#FF4F2E] mb-1.5">05 // CAPACITY</span>
+            <span className="font-bold text-xs block uppercase leading-tight">AI Orchestration Skills Gap</span>
+          </button>
+        </div>
+
+        {/* Dynamic Suggester Output Panel */}
+        <div className="bg-white border border-zinc-200 p-6 md:p-8 rounded-xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch relative overflow-hidden">
+          {/* Subtle graphic accent */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF4F2E]/5 rounded-full filter blur-2xl"></div>
+
+          {/* Left info column */}
+          <div className="lg:col-span-7 space-y-6 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-zinc-900 text-[#9DFF00] rounded font-mono text-[9px] font-bold uppercase tracking-wider">
+                💡 STRATEGIC DEPLOYMENT RECOMMENDATION
+              </div>
+
+              {selectedChallenge === 'manual_dispatch' && (
+                <div className="space-y-3 animate-fadeIn text-sans">
+                  <h5 className="text-xl font-black text-slate-950 uppercase">Optimize: Process Optimizer (COO) Agent Node</h5>
+                  <p className="text-sm text-zinc-650 leading-relaxed font-semibold">
+                    Executives and operations managers are spending up to 2.5 hours daily formatting and parsing operational updates across EMEA. Standardizing a programmatic dispatch pipeline using <strong className="text-slate-955">automated notification triggers (WhatsApp Sandbox proxy)</strong> is suggested immediately.
+                  </p>
+                  <p className="text-xs text-[#FF4F2E] font-mono leading-relaxed bg-[#FF4F2E]/5 p-3 border-l-2 border-[#FF4F2E] rounded">
+                    <strong>THE EXECUTIVE BLUEPRINT:</strong> Integrate the Process Optimizer client to map the recurring communication intervals, routing alerts to regional supervisors automatically.
+                  </p>
+                </div>
+              )}
+
+              {selectedChallenge === 'market_volatility' && (
+                <div className="space-y-3 animate-fadeIn text-sans">
+                  <h5 className="text-xl font-black text-slate-950 uppercase">Optimize: Predictive "Market Analyst" Agent Node</h5>
+                  <p className="text-sm text-zinc-650 leading-relaxed font-semibold">
+                    With regulatory shifting rules and macroeconomic inflation threatening product supply lines, manual assessment delays decision windows. Standardizing a live market watch telemetry feed is suggested.
+                  </p>
+                  <p className="text-xs text-[#FF4F2E] font-mono leading-relaxed bg-[#FF4F2E]/5 p-3 border-l-2 border-[#FF4F2E] rounded">
+                    <strong>THE EXECUTIVE BLUEPRINT:</strong> Embed Contextual Grounding (RAG feeds) within the simulation console to detect Eurozone compliance shifts under 60 seconds.
+                  </p>
+                </div>
+              )}
+
+              {selectedChallenge === 'approval_bottlenecks' && (
+                <div className="space-y-3 animate-fadeIn text-sans">
+                  <h5 className="text-xl font-black text-slate-950 uppercase">Optimize: Strategic "Chief of Staff" Gateways</h5>
+                  <p className="text-sm text-zinc-650 leading-relaxed font-semibold">
+                    Critical strategic plans stagnate for days in multiple nested email validation loops. Implement unified <strong className="text-slate-955">asynchronous validation gates</strong> to accelerate turnaround.
+                  </p>
+                  <p className="text-xs text-[#FF4F2E] font-mono leading-relaxed bg-[#FF4F2E]/5 p-3 border-l-2 border-[#FF4F2E] rounded">
+                    <strong>THE EXECUTIVE BLUEPRINT:</strong> Establish strict one-click validation prompts on mobile nodes, routing escalation triggers instantly to secondary controllers if silent for 180 minutes.
+                  </p>
+                </div>
+              )}
+
+              {selectedChallenge === 'cognitive_burnout' && (
+                <div className="space-y-3 animate-fadeIn text-sans">
+                  <h5 className="text-xl font-black text-slate-950 uppercase">Optimize: The C-Suite Magazine & Focus Enclave</h5>
+                  <p className="text-sm text-zinc-650 leading-relaxed font-semibold">
+                    Unstructured metrics overflow dashboard interfaces, inducing executive fatigue. Filter incoming noise with the <strong className="text-slate-955">high-impact editorial summary architecture</strong>.
+                  </p>
+                  <p className="text-xs text-[#FF4F2E] font-mono leading-relaxed bg-[#FF4F2E]/5 p-3 border-l-2 border-[#FF4F2E] rounded">
+                    <strong>THE EXECUTIVE BLUEPRINT:</strong> Adopt the Elegant Editorial table layout (The Pulse, Weekly Focus, Toolkit) to guarantee complete strategic visibility under 4 minutes.
+                  </p>
+                </div>
+              )}
+
+              {selectedChallenge === 'skills_gap' && (
+                <div className="space-y-3 animate-fadeIn text-sans">
+                  <h5 className="text-xl font-black text-slate-950 uppercase">Optimize: Corporate Academy & AI Coaches Track</h5>
+                  <p className="text-sm text-zinc-650 leading-relaxed font-semibold">
+                    Employees require months to correctly master complex prompt workflows and multi-agent coordination frameworks. Standardize interactive upskilling sandboxes.
+                  </p>
+                  <p className="text-xs text-[#FF4F2E] font-mono leading-relaxed bg-[#FF4F2E]/5 p-3 border-l-2 border-[#FF4F2E] rounded">
+                    <strong>THE EXECUTIVE BLUEPRINT:</strong> Enroll regional management in Module 4 (Agentic Orchestration) while letting users run simulated client interactions in absolute privacy.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Action plan checklist */}
+            <div className="space-y-3 border-t border-zinc-100 pt-4.5">
+              <span className="font-mono text-[10px] uppercase font-bold text-zinc-700">Priority Action Steps:</span>
+              <ul className="text-xs text-zinc-600 font-sans font-medium space-y-2.5">
+                {selectedChallenge === 'manual_dispatch' && (
+                  <>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Build centralized triggers routing automated brief summaries.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Deploy the WhatsApp sandbox simulator to test regional relay paths.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Recover 45.8% of manual dispatch latency within 14 business days.
+                    </li>
+                  </>
+                )}
+                {selectedChallenge === 'market_volatility' && (
+                  <>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Map Bloomberg sentiment indicators to the "Virtual Boardroom" model.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Initialize defensive hedge calculations for procuring local server space.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Verify currency compliance registers automatically.
+                    </li>
+                  </>
+                )}
+                {selectedChallenge === 'approval_bottlenecks' && (
+                  <>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Incorporate direct mobile Slack-relay action listeners.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Map permission escalation flows to secondary authority nodes.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Eradicate redundant validation steps for sub-critical milestones.
+                    </li>
+                  </>
+                )}
+                {selectedChallenge === 'cognitive_burnout' && (
+                  <>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Incorporate "Zen Focus" reading filters on standard summaries.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Set strict 4-minute maximum reading constraints for analytical essays.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Introduce offline-safe executive toolkits and daily focus trackers.
+                    </li>
+                  </>
+                )}
+                {selectedChallenge === 'skills_gap' && (
+                  <>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Assign self-paced Module 4 (Agentic Orchestration) sequences.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Simulate high-risk mock disputes within the interactive roleplay terminal.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      Track learning streak scores on the collective admin console.
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+          </div>
+
+          {/* Right scorecard column */}
+          <div className="lg:col-span-5 bg-zinc-950 text-white p-6 rounded-xl flex flex-col justify-between border border-zinc-850 shadow-inner font-mono text-xs">
+            <div className="space-y-4">
+              <span className="text-[10px] font-bold text-zinc-400 block border-b border-zinc-850 pb-2">
+                METRIC MATRIX PROJECTION
+              </span>
+
+              <div className="space-y-4">
+                <div>
+                  <span className="text-zinc-500 text-[10px] block uppercase">Suggested Actionable Node</span>
+                  <span className="text-[#9DFF00] font-black text-sm uppercase">
+                    {selectedChallenge === 'manual_dispatch' && 'CEO/COO Automated WhatsApp Sandbox'}
+                    {selectedChallenge === 'market_volatility' && 'RAG Grounded board Simulation'}
+                    {selectedChallenge === 'approval_bottlenecks' && 'Chief of Staff Authorization Gates'}
+                    {selectedChallenge === 'cognitive_burnout' && 'Editorial Magazine Format Engine'}
+                    {selectedChallenge === 'skills_gap' && 'Modular Roleplay Terminal Training'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <span className="text-zinc-550 text-[9px] block">Impact Efficiency</span>
+                    <span className="text-2xl font-black text-white">
+                      {selectedChallenge === 'manual_dispatch' && '92.4%'}
+                      {selectedChallenge === 'market_volatility' && '85.1%'}
+                      {selectedChallenge === 'approval_bottlenecks' && '78.2%'}
+                      {selectedChallenge === 'cognitive_burnout' && '95.0%'}
+                      {selectedChallenge === 'skills_gap' && '89.6%'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-zinc-550 text-[9px] block">difficulty rank</span>
+                    <span className={`text-xs font-bold uppercase block mt-1 px-2 py-0.5 rounded text-center max-w-[80px] ${
+                      selectedChallenge === 'manual_dispatch' ? 'bg-[#FF4F2E]/10 border border-[#FF4F2E]/30 text-[#FF4F2E]' :
+                      selectedChallenge === 'market_volatility' ? 'bg-amber-500/10 border border-amber-500/30 text-amber-500' :
+                      'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                    }`}>
+                      {selectedChallenge === 'manual_dispatch' && 'Medium'}
+                      {selectedChallenge === 'market_volatility' && 'High'}
+                      {selectedChallenge === 'approval_bottlenecks' && 'Low'}
+                      {selectedChallenge === 'cognitive_burnout' && 'Low'}
+                      {selectedChallenge === 'skills_gap' && 'Medium'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <span className="text-zinc-500 text-[10px] block uppercase">PROJECTED ROI FOCUS</span>
+                  <p className="text-xs text-zinc-350 leading-relaxed font-sans font-semibold">
+                    {selectedChallenge === 'manual_dispatch' && 'Recovers 14.5 labor-hours per user every week.'}
+                    {selectedChallenge === 'market_volatility' && 'Avoids pricing errors with $120k projected risk protection.'}
+                    {selectedChallenge === 'approval_bottlenecks' && 'Saves average 3.2 operating days per strategic cycle.'}
+                    {selectedChallenge === 'cognitive_burnout' && 'Maximizes decision confidence and focused clarity.'}
+                    {selectedChallenge === 'skills_gap' && 'Reduces target operational competence latency by 6 days.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-zinc-850 mt-4">
+              <span className="text-[10px] text-zinc-650 font-bold block mb-2">ACTIONS AVAILABLE:</span>
+              <button
+                onClick={() => {
+                  if (selectedChallenge === 'manual_dispatch') {
+                    setStrategyInput('Automate EMEA dispatch relays and reduce communication turnaround bottleneck');
+                  } else if (selectedChallenge === 'market_volatility') {
+                    setStrategyInput('Deploy real-time macro hedging and EUR/USD volatility warning indicators');
+                  } else if (selectedChallenge === 'approval_bottlenecks') {
+                    setStrategyInput('Build autonomous chief validation loops with SMS authorization codes');
+                  } else if (selectedChallenge === 'cognitive_burnout') {
+                    setStrategyInput('Refocus operational outputs into clear bullet summaries');
+                  } else if (selectedChallenge === 'skills_gap') {
+                    setStrategyInput('Upskill workforce via simulated practice scenarios and agent modules');
+                  }
+                }}
+                className="w-full text-center py-2.5 bg-zinc-800 hover:bg-zinc-750 text-white hover:text-[#9DFF00] font-mono text-[10px] font-black uppercase tracking-widest rounded-lg cursor-pointer transition-colors"
+              >
+                📥 Apply To Swarm Input &rarr;
+              </button>
             </div>
           </div>
         </div>

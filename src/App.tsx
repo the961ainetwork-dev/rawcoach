@@ -22,6 +22,7 @@ import AuthInterface from './components/AuthInterface';
 import MyPersonalWorkspace from './components/MyPersonalWorkspace';
 import AdminConsole from './components/AdminConsole';
 import CSuiteInsights from './components/CSuiteInsights';
+import CSuiteMagazine from './components/CSuiteMagazine';
 import FAQPage from './components/FAQPage';
 import LegalPage from './components/LegalPage';
 import GDPRBanner from './components/GDPRBanner';
@@ -66,6 +67,7 @@ type TabId =
   | 'my-workspace' 
   | 'admin'
   | 'csuite-insights'
+  | 'csuite-magazine'
   | 'agentic-transformation'
   | 'about-us'
   | 'get-started'
@@ -159,7 +161,7 @@ function AppContent() {
           'copilot-workspace', 'ceo-coaching', 'corp-academy', 'ai-coaches', 
           'roleplay', 'goal-tracker', 'human-marketplace', 'analytics', 
           'whatsapp', 'mobile', 'my-workspace', 'admin', 'csuite-insights', 
-          'agentic-transformation', 'about-us', 'get-started', 
+          'csuite-magazine', 'agentic-transformation', 'about-us', 'get-started', 
           'readiness-scorecard', 'manifesto-section', 'resiliency-recon', 
           'transformation-survey', 'faq', 'legal'
         ];
@@ -290,6 +292,12 @@ function AppContent() {
       label: 'C-Suite Insights Board',
       sub: 'Decentralized layout pins',
       icon: <Brain className="w-5 h-5 text-emerald-500" />
+    },
+    {
+      id: 'csuite-magazine' as TabId,
+      label: 'C-SUITE MAGAZINE',
+      sub: 'High-impact analytical digest',
+      icon: <BookOpen className="w-5 h-5 text-[#FF4F2E]" />
     },
     {
       id: 'resiliency-recon' as TabId,
@@ -586,6 +594,7 @@ function AppContent() {
           {activeTab === 'whatsapp' && <WhatsAppSandbox />}
           {activeTab === 'mobile' && <PhoneSimulator />}
           {activeTab === 'csuite-insights' && <CSuiteInsights />}
+          {activeTab === 'csuite-magazine' && <CSuiteMagazine />}
           {activeTab === 'agentic-transformation' && <AgenticTransformationService />}
           {activeTab === 'about-us' && <AboutUs />}
           {activeTab === 'get-started' && <GetStarted />}
