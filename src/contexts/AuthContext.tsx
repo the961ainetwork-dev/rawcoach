@@ -58,7 +58,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const snap = await getDoc(doc(db, 'registrations', uid));
       if (snap.exists()) {
-        setProfile(snap.data() as UserRegistrationProfile);
+        const profileData = snap.data() as UserRegistrationProfile;
+        setProfile(profileData);
+        
+        // Dynamic Daily Active User (DAU) tracker registration (Firestore 'users' collection)
+        try {
+          const today = new Date().toISOString().split('T')[0]; // e.g. '2026-06-07'
+          await setDoc(doc(db, 'users', uid), {
+            uid,
+            email: (profileData.email || '').toLowerCase(),
+            fullName: profileData.fullName || 'Anonymous Peer',
+            lastActive: today
+          }, { merge: true });
+        } catch (activeErr) {
+          console.warn("Could not write daily active user record:", activeErr);
+        }
       } else {
         setProfile(null);
       }

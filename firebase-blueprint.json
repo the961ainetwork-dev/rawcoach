@@ -1,5 +1,19 @@
 {
   "entities": {
+    "userProfile": {
+      "title": "User Profile Info",
+      "description": "User profile with last active daily active user tracker",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "lastActive": { "type": "string" },
+        "lastActiveTimestamp": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "lastActive"]
+    },
     "userRegistration": {
       "title": "User Registration Profile",
       "description": "Information stored on signup of founders and CEOs",
@@ -146,6 +160,24 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "authorUid", "authorName", "title", "type", "content", "likesCount", "createdAt", "updatedAt"]
+    },
+    "blogPost": {
+      "title": "Blog Post Item",
+      "description": "Expert B2B marketing insights, guides and industry news articles",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "summary": { "type": "string" },
+        "content": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "author": { "type": "string" },
+        "readTime": { "type": "string" },
+        "isFeatured": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "content", "createdAt"]
     }
   },
   "firestore": {
@@ -184,6 +216,14 @@
     "communityInsights/{insightId}": {
       "schema": "communityInsight",
       "description": "User generated questions, transition experiences, and peer case studies"
+    },
+    "users/{userId}": {
+      "schema": "userProfile",
+      "description": "User daily active and login tracking profile metadata documents"
+    },
+    "blogPosts/{postId}": {
+      "schema": "blogPost",
+      "description": "B2B point marketing business blog post entries managed by system administrators"
     }
   }
 }

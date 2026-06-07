@@ -33,12 +33,26 @@ import {
   ExternalLink,
   PlusCircle,
   FileCheck2,
-  Heart
+  Heart,
+  TrendingUp,
+  Activity
 } from 'lucide-react';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Legend
+} from 'recharts';
 import { UserRegistrationProfile } from '../contexts/AuthContext';
 import { InsightCard } from './CSuiteInsights';
 
-type AdminTab = 'registrations' | 'sections' | 'subscribers' | 'stories' | 'resources' | 'insights' | 'settings';
+type AdminTab = 'registrations' | 'sections' | 'subscribers' | 'stories' | 'resources' | 'insights' | 'settings' | 'analytics' | 'blog';
 
 export default function AdminConsole() {
   const [activeTab, setActiveTab] = useState<AdminTab>('registrations');
@@ -56,6 +70,7 @@ export default function AdminConsole() {
   const [stories, setStories] = useState<any[]>([]);
   const [resources, setResources] = useState<any[]>([]);
   const [insights, setInsights] = useState<any[]>([]);
+  const [usersData, setUsersData] = useState<any[]>([]);
 
   // ---------------------------------------------------------------------------
   // Edit & Add modes state
@@ -98,6 +113,17 @@ export default function AdminConsole() {
   const [insTag, setInsTag] = useState('FINANCE');
   const [insStatus, setInsStatus] = useState<'draft' | 'published'>('published');
   const [insLikes, setInsLikes] = useState(0);
+
+  // Form states for Blog Management
+  const [blogPostsList, setBlogPostsList] = useState<any[]>([]);
+  const [blogTitle, setBlogTitle] = useState('');
+  const [blogCategory, setBlogCategory] = useState('Email Marketing');
+  const [blogSummary, setBlogSummary] = useState('');
+  const [blogContent, setBlogContent] = useState('');
+  const [blogImageUrl, setBlogImageUrl] = useState('');
+  const [blogAuthor, setBlogAuthor] = useState('');
+  const [blogReadTime, setBlogReadTime] = useState('7 min read');
+  const [blogIsFeatured, setBlogIsFeatured] = useState(false);
 
   // Global administrative configurations state
   const [allowRegistrations, setAllowRegistrations] = useState(true);
@@ -170,6 +196,22 @@ export default function AdminConsole() {
             setActiveModules(data.activeModules);
           }
         }
+      } else if (activeTab === 'analytics') {
+        const snap = await getDocs(collection(db, 'users'));
+        const list: any[] = [];
+        snap.forEach(d => list.push(d.data()));
+        setUsersData(list);
+        
+        // Also fetch registrations to calculate registry size
+        const regSnap = await getDocs(collection(db, 'registrations'));
+        const regList: any[] = [];
+        regSnap.forEach(d => regList.push(d.data()));
+        setRegistrations(regList);
+      } else if (activeTab === 'blog') {
+        const snap = await getDocs(collection(db, 'blogPosts'));
+        const list: any[] = [];
+        snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+        setBlogPostsList(list);
       }
     } catch (err: any) {
       console.error(err);
@@ -224,6 +266,16 @@ export default function AdminConsole() {
     setInsTag('FINANCE');
     setInsStatus('published');
     setInsLikes(0);
+
+    // reset blogs
+    setBlogTitle('');
+    setBlogCategory('Email Marketing');
+    setBlogSummary('');
+    setBlogContent('');
+    setBlogImageUrl('');
+    setBlogAuthor('');
+    setBlogReadTime('7 min read');
+    setBlogIsFeatured(false);
   };
 
   // ---------------------------------------------------------------------------
@@ -444,6 +496,48 @@ export default function AdminConsole() {
     setInsLikes(item.likesCount || 0);
   };
 
+  // 6. ADD or EDIT BLOG POSTS
+  const handleSaveBlogPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    const id = editingId || 'blog-' + Date.now();
+    const payload = {
+      id,
+      title: blogTitle,
+      category: blogCategory,
+      summary: blogSummary,
+      content: blogContent,
+      imageUrl: blogImageUrl || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
+      author: blogAuthor || 'Administrator',
+      readTime: blogReadTime || '5 min read',
+      isFeatured: blogIsFeatured,
+      createdAt: serverTimestamp()
+    };
+
+    try {
+      await setDoc(doc(db, 'blogPosts', id), payload);
+      setSuccessMsg(`B2B marketing brief compiled and live indexed securely.`);
+      resetForm();
+      syncData();
+    } catch (err: any) {
+      setErrorMsg(`Blog publishing failure: ${err.message}`);
+    }
+  };
+
+  const handleEditBlogPost = (item: any) => {
+    setEditingId(item.id);
+    setBlogTitle(item.title || '');
+    setBlogCategory(item.category || 'Email Marketing');
+    setBlogSummary(item.summary || '');
+    setBlogContent(item.content || '');
+    setBlogImageUrl(item.imageUrl || '');
+    setBlogAuthor(item.author || 'Administrator');
+    setBlogReadTime(item.readTime || '5 min read');
+    setBlogIsFeatured(item.isFeatured || false);
+  };
+
   // Generic document deletion
   const handleDeleteDocument = async (collectionName: string, id: string) => {
     if (!window.confirm(`DANGER: Are you sure you want to delete report node '${id}' from '${collectionName}'?`)) return;
@@ -455,6 +549,98 @@ export default function AdminConsole() {
       syncData();
     } catch (err: any) {
       setErrorMsg(`Purge error: ${err.message}`);
+    }
+  };
+
+  // Seed dynamic realistic Daily Active Users (DAU) history data
+  const handleSeedDauData = async () => {
+    setLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const demoUsers = [
+        { email: 'founder.alpha@jordan.com', name: 'Alpha Founder', daysAgo: 0 },
+        { email: 'ceo.delta@beirut.co', name: 'Delta CEO', daysAgo: 0 },
+        { email: 'maanbarazy@gmail.com', name: 'Maan Barazy', daysAgo: 0 },
+        { email: 'tech.lead@matrix.org', name: 'Lead Tech Engineer', daysAgo: 0 },
+        
+        { email: 'partner.west@cseal.com', name: 'West Sovereign Partner', daysAgo: 1 },
+        { email: 'vp.growth@bento.co', name: 'VP of Growth', daysAgo: 1 },
+        { email: 'sheikh.office@legacy.ae', name: 'Legacy Office Partner', daysAgo: 1 },
+        
+        { email: 'consultant.elite@advisory.net', name: 'Elite Advisor', daysAgo: 2 },
+        { email: 'investor.capital@seed.com', name: 'Seed Capital Investor', daysAgo: 2 },
+        { email: 'operations@vortex.io', name: 'Vortex Ops Officer', daysAgo: 2 },
+        { email: 'director.infra@telecom.lb', name: 'Infrastructure Director', daysAgo: 2 },
+        { email: 'member.beta@startup.org', name: 'Beta Peer', daysAgo: 2 },
+        
+        { email: 'lead.advisor@sovereign.ae', name: 'Sovereign Advisor', daysAgo: 3 },
+        { email: 'co-founder.gamma@synergy.biz', name: 'Synergy Co-Founder', daysAgo: 3 },
+        { email: 'cto.nexus@quantum.io', name: 'Quantum CTO', daysAgo: 3 },
+        
+        { email: 'finance.lead@sovereign.ae', name: 'Finance Lead Partner', daysAgo: 4 },
+        { email: 'vp.ops@logistics.lb', name: 'Vice President of Operations', daysAgo: 4 },
+        
+        { email: 'editor@csuite.coach', name: 'C-Suite Managing Editor', daysAgo: 5 },
+        
+        { email: 'auditor.gp@audit.org', name: 'GP System Auditor', daysAgo: 6 },
+        { email: 'senior.engineer@alpha.com', name: 'Senior Alpha Engineer', daysAgo: 6 },
+        { email: 'general.partner@focus.vc', name: 'VC General Partner', daysAgo: 7 },
+        { email: 'dev.ops@cloudsilo.io', name: 'Silo DevOps Lead', daysAgo: 7 },
+        
+        { email: 'peer.pioneer@saas.com', name: 'SaaS Pioneer', daysAgo: 8 },
+        { email: 'ceo.horizon@globex.org', name: 'CEO Horizon', daysAgo: 8 },
+        
+        { email: 'security@cloudspace.ae', name: 'Sovereign Security Audit', daysAgo: 9 },
+        
+        { email: 'advisory.chief@sovereign.ae', name: 'Chief Strategic Advisor', daysAgo: 10 },
+        { email: 'fellow.member@academy.lb', name: 'Academy Executive Fellow', daysAgo: 10 },
+        
+        { email: 'pmo.lead@transformation.org', name: 'PMO Transformation Lead', daysAgo: 11 },
+        { email: 'director.general@sovereign.ae', name: 'Director General UAE', daysAgo: 12 }
+      ];
+
+      for (let i = 0; i < demoUsers.length; i++) {
+        const u = demoUsers[i];
+        const dateObj = new Date();
+        dateObj.setDate(dateObj.getDate() - u.daysAgo);
+        const dayStr = dateObj.toISOString().split('T')[0];
+        const uid = 'seed-dau-' + i;
+        
+        await setDoc(doc(db, 'users', uid), {
+          uid,
+          email: u.email,
+          fullName: u.name,
+          lastActive: dayStr
+        }, { merge: true });
+      }
+
+      setSuccessMsg('Successfully seeded high-fidelity historical Daily Active User (DAU) logs.');
+      syncData();
+    } catch (err: any) {
+      setErrorMsg(`Failed to seed analytics database: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Wipe analytics tracking collection safely
+  const handleClearUsersData = async () => {
+    if (!window.confirm("DANGER: This will permanently wipe all active user tracking telemetry from the 'users' collection. Proceed?")) return;
+    setLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const snap = await getDocs(collection(db, 'users'));
+      for (const d of snap.docs) {
+        await deleteDoc(doc(db, 'users', d.id));
+      }
+      setSuccessMsg("All Daily Active User simulation logs have been successfully deleted.");
+      setUsersData([]);
+    } catch (err: any) {
+      setErrorMsg(`Failed to clear metrics: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -483,6 +669,22 @@ export default function AdminConsole() {
     }
   };
 
+  // Segment DAU count trends sorted chronologically
+  const getDauTrendData = () => {
+    const counts: { [key: string]: number } = {};
+    usersData.forEach((u: any) => {
+      const date = u.lastActive || 'Unknown';
+      counts[date] = (counts[date] || 0) + 1;
+    });
+
+    return Object.keys(counts)
+      .sort()
+      .map((date) => ({
+        date,
+        DAU: counts[date]
+      }));
+  };
+
   // ---------------------------------------------------------------------------
   // Filters for lists based on search query
   // ---------------------------------------------------------------------------
@@ -509,6 +711,9 @@ export default function AdminConsole() {
     if (activeTab === 'insights') {
       return insights.filter(s => s.title?.toLowerCase().includes(q) || s.snippet?.toLowerCase().includes(q));
     }
+    if (activeTab === 'blog') {
+      return blogPostsList.filter(s => s.title?.toLowerCase().includes(q) || s.category?.toLowerCase().includes(q) || s.author?.toLowerCase().includes(q));
+    }
     return [];
   };
 
@@ -534,11 +739,13 @@ export default function AdminConsole() {
       <div className="flex flex-wrap gap-1.5 border-b border-zinc-200 pb-3" id="admin-subnav">
         {[
           { id: 'registrations', label: 'Clearance Registry', icon: <Users className="w-3.5 h-3.5" /> },
+          { id: 'analytics', label: 'DAU Trends', icon: <Activity className="w-3.5 h-3.5 animate-pulse text-emerald-500" /> },
           { id: 'sections', label: 'Page Sections', icon: <Layout className="w-3.5 h-3.5" /> },
           { id: 'subscribers', label: 'Newsletter list', icon: <Mail className="w-3.5 h-3.5" /> },
-          { id: 'stories', label: 'Sheikh Stories', icon: <Flame className="w-3.5 h-3.5 animate-pulse" /> },
+          { id: 'stories', label: 'Sheikh Stories', icon: <Flame className="w-3.5 h-3.5" /> },
           { id: 'resources', label: 'Academy items', icon: <BookOpen className="w-3.5 h-3.5" /> },
           { id: 'insights', label: 'C-Suite Briefs', icon: <FileCheck2 className="w-3.5 h-3.5" /> },
+          { id: 'blog', label: 'B2B Blog Posts', icon: <BookOpen className="w-3.5 h-3.5 text-emerald-500" /> },
           { id: 'settings', label: 'Global Controls', icon: <Settings className="w-3.5 h-3.5" /> }
         ].map((tab) => (
           <button
@@ -576,6 +783,45 @@ export default function AdminConsole() {
           {activeTab === 'registrations' && (
             <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-2 text-center text-xs font-mono text-zinc-500">
               <p>User registrations are adjusted directly via rows in the main clearance board to the right.</p>
+            </div>
+          )}
+
+          {activeTab === 'analytics' && (
+            <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-4 font-mono text-xs text-zinc-650">
+              <div className="text-slate-900 font-extrabold pb-1 border-b border-zinc-200 uppercase text-[10px] tracking-wider flex items-center gap-1.5">
+                <TrendingUp className="w-4 h-4 text-emerald-500 animate-bounce" />
+                TELEMETRY ACTION DECK
+              </div>
+              <p className="leading-relaxed">
+                Connects directly to the Firestore <code className="bg-zinc-150 px-1 py-0.5 rounded text-rose-600 font-mono text-[10.5px]">users</code> collection to extract and chart Daily Active User (DAU) trends.
+              </p>
+              
+              <div className="pt-2 space-y-2.5">
+                <button
+                  type="button"
+                  onClick={handleSeedDauData}
+                  disabled={loading}
+                  className="w-full text-center px-3 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-mono text-[10px] tracking-tight uppercase font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Activity className="w-3.5 h-3.5 text-[#9DFF00]" />
+                  Seed Demo Trend Data
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={handleClearUsersData}
+                  disabled={loading}
+                  className="w-full text-center px-3 py-2.5 bg-rose-50 border border-rose-200 hover:bg-rose-100 disabled:opacity-50 text-rose-700 font-mono text-[10px] tracking-tight uppercase font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Wipe Simulation Logs
+                </button>
+              </div>
+
+              <div className="h-[1px] bg-zinc-200 my-1"></div>
+              <p className="text-[10.5px] text-zinc-400">
+                To capture live production data, user action headers automatically increment unique Daily Active triggers under the Firestore secure ruleset.
+              </p>
             </div>
           )}
 
@@ -931,6 +1177,106 @@ export default function AdminConsole() {
             </form>
           )}
 
+          {activeTab === 'blog' && (
+            <form onSubmit={handleSaveBlogPost} className="space-y-4 text-xs font-mono">
+              <div className="space-y-1.5">
+                <label className="text-zinc-650 block">BLOG ARTICLE TITLE</label>
+                <input
+                  type="text"
+                  value={blogTitle}
+                  onChange={(e) => setBlogTitle(e.currentTarget.value)}
+                  placeholder="e.g. How to Build cold campaigns in 2026"
+                  required
+                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-250 rounded-lg text-slate-800"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-zinc-650 block">CATEGORY</label>
+                <select
+                  value={blogCategory}
+                  onChange={(e) => setBlogCategory(e.currentTarget.value)}
+                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-250 rounded-lg text-slate-800 cursor-pointer"
+                >
+                  <option value="Email Marketing">Email Marketing</option>
+                  <option value="Market Data">Market Data</option>
+                  <option value="Industry Focus">Industry Focus</option>
+                  <option value="Lead Generation">Lead Generation</option>
+                  <option value="Global Strategy">Global Strategy</option>
+                </select>
+              </div>
+              <div className="space-y-1.5 flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="blogIsFeatured"
+                  checked={blogIsFeatured}
+                  onChange={(e) => setBlogIsFeatured(e.currentTarget.checked)}
+                  className="w-4 h-4 rounded text-emerald-600 focus:ring-transparent"
+                />
+                <label htmlFor="blogIsFeatured" className="text-zinc-700 font-bold select-none cursor-pointer">FEATURE FIRST AT THE TOP</label>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-zinc-650 block">AUTHOR</label>
+                  <input
+                    type="text"
+                    value={blogAuthor}
+                    onChange={(e) => setBlogAuthor(e.currentTarget.value)}
+                    placeholder="e.g. P2B Team"
+                    className="w-full px-3 py-2 bg-zinc-50 border border-zinc-250 rounded-lg text-slate-800"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-zinc-650 block">READ TIME</label>
+                  <input
+                    type="text"
+                    value={blogReadTime}
+                    onChange={(e) => setBlogReadTime(e.currentTarget.value)}
+                    placeholder="e.g. 6 min read"
+                    className="w-full px-3 py-2 bg-zinc-50 border border-zinc-250 rounded-lg text-slate-800"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-zinc-650 block">IMAGE URL (OPTIONAL)</label>
+                <input
+                  type="text"
+                  value={blogImageUrl}
+                  onChange={(e) => setBlogImageUrl(e.currentTarget.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-250 rounded-lg text-slate-800 animate-scaleUp"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-zinc-650 block">SUMMARY / EXCERPT</label>
+                <textarea
+                  value={blogSummary}
+                  onChange={(e) => setBlogSummary(e.currentTarget.value)}
+                  rows={2}
+                  required
+                  placeholder="Enter a brief teaser summaries to render on card panels..."
+                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-250 rounded-lg text-slate-800"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-zinc-650 block">BODY MARKDOWN</label>
+                <textarea
+                  value={blogContent}
+                  onChange={(e) => setBlogContent(e.currentTarget.value)}
+                  rows={6}
+                  required
+                  placeholder="### Section Heading&#10;&#10;Paragraphs here. Support lists, bold tags, etc."
+                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-250 rounded-lg text-slate-800 font-sans"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-[#9DFF00] uppercase font-black tracking-wider rounded-lg shadow-sm cursor-pointer"
+              >
+                DEPLOY ARTICLE DIRECTIVE
+              </button>
+            </form>
+          )}
+
         </div>
 
         {/* Right Side Clearance Boards & Tables */}
@@ -1134,7 +1480,7 @@ export default function AdminConsole() {
             </div>
           )}
 
-          {activeTab !== 'settings' && (
+          {activeTab !== 'settings' && activeTab !== 'analytics' && (
             <>
               {/* Diagnostic controls and search input */}
           <div className="bg-white p-4 rounded-xl border border-zinc-200/80 flex flex-col sm:flex-row gap-3 items-center justify-between shadow-xs">
@@ -1469,10 +1815,212 @@ export default function AdminConsole() {
                   </table>
                 )}
 
+                {/* B2B Marketing Blog posts list */}
+                {activeTab === 'blog' && (
+                  <table className="min-w-full divide-y divide-zinc-200">
+                    <thead className="bg-zinc-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-[9px] font-mono uppercase tracking-wider text-zinc-500 font-extrabold">Directive Heading</th>
+                        <th className="px-6 py-3 text-left text-[9px] font-mono uppercase tracking-wider text-zinc-500 font-bold">Category</th>
+                        <th className="px-6 py-3 text-left text-[9px] font-mono uppercase tracking-wider text-zinc-500 font-bold">Author & Time</th>
+                        <th className="px-6 py-3 text-right text-[9px] font-mono uppercase tracking-wider text-zinc-500 font-bold">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-200 bg-white text-xs">
+                      {filteredItems.map((item: any) => (
+                        <tr key={item.id} className="hover:bg-zinc-50/50">
+                          <td className="px-6 py-3">
+                            <p className="font-extrabold text-slate-900 uppercase tracking-tight">{item.title}</p>
+                            <p className="text-[10px] text-zinc-400 line-clamp-1 mt-0.5">{item.summary}</p>
+                          </td>
+                          <td className="px-6 py-3 font-mono font-bold text-indigo-650">{item.category}</td>
+                          <td className="px-6 py-3 font-mono">
+                            <p className="font-bold">{item.author}</p>
+                            <p className="text-[9.5px] text-zinc-400">{item.readTime}</p>
+                          </td>
+                          <td className="px-6 py-3 text-right space-x-1.5 whitespace-nowrap">
+                            <button
+                              onClick={() => handleEditBlogPost(item)}
+                              className="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 border rounded text-[9.5px] font-mono uppercase font-black cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteDocument('blogPosts', item.id)}
+                              className="px-2 py-1 border border-zinc-200 hover:bg-rose-50 rounded text-[9.5px] font-mono font-bold text-rose-600 uppercase cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
               </div>
             )}
           </div>
           </>
+          )}
+
+          {activeTab === 'analytics' && (
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-xs space-y-6">
+              <div className="pb-4 border-b border-zinc-150 flex flex-col sm:flex-row sm:items-center justify-between text-slate-800 gap-3">
+                <div>
+                  <h3 className="font-extrabold uppercase font-mono tracking-tight text-slate-900 text-xs sm:text-sm">
+                    ★ DAILY ACTIVE USERS (DAU) METRIC CONSOLE
+                  </h3>
+                  <p className="text-zinc-500 font-sans text-xs mt-0.5">
+                    Real-time active tracking trends across Jordan and Lebanon.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={syncData}
+                  disabled={loading}
+                  className="px-3.5 py-1.5 bg-zinc-50 hover:bg-zinc-100 border border-zinc-250 text-slate-700 font-mono text-[9.5px] uppercase font-bold rounded-lg flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+                >
+                  <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                  REFRESH METRICS
+                </button>
+              </div>
+
+              {/* STATS HERO GRID */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="p-3.5 bg-slate-50 border border-zinc-200 rounded-xl space-y-1">
+                  <span className="text-[9.5px] text-zinc-400 font-mono font-bold uppercase block">Core Registered</span>
+                  <p className="text-2xl font-black text-slate-900">{registrations.length}</p>
+                </div>
+                <div className="p-3.5 bg-slate-50 border border-zinc-200 rounded-xl space-y-1">
+                  <span className="text-[9.5px] text-emerald-600 font-mono font-bold uppercase block">Active Today (DAU)</span>
+                  <p className="text-2xl font-black text-emerald-600">
+                    {usersData.filter(u => u.lastActive === new Date().toISOString().split('T')[0]).length}
+                  </p>
+                </div>
+                <div className="p-3.5 bg-slate-50 border border-zinc-200 rounded-xl space-y-1">
+                  <span className="text-[9.5px] text-[#86d900] bg-slate-950 px-1 py-0.5 rounded font-mono text-[8px] font-bold uppercase">Total Checked-In</span>
+                  <p className="text-2xl font-black text-slate-900">{usersData.length}</p>
+                </div>
+                <div className="p-3.5 bg-slate-50 border border-zinc-200 rounded-xl space-y-1">
+                  <span className="text-[9.5px] text-zinc-400 font-mono font-bold uppercase block">Peak DAU Record</span>
+                  <p className="text-2xl font-black text-slate-900">
+                    {getDauTrendData().length > 0 ? Math.max(...getDauTrendData().map(d => d.DAU)) : 0}
+                  </p>
+                </div>
+              </div>
+
+              {/* RECHARTS CHANNELS GRAPHICS BLOCK */}
+              <div className="bg-slate-50 border border-zinc-200/80 p-4 rounded-xl space-y-3 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-mono font-bold text-slate-700 tracking-wider flex items-center gap-1">
+                    <Activity className="w-3.5 h-3.5 text-emerald-500" />
+                    DAILY EXECUTIVE INTERACTION HISTOGRAM (DAU TRENDS)
+                  </span>
+                  <span className="text-[9px] font-mono font-bold text-[#22c55e] bg-emerald-50 border border-emerald-500/25 px-2 py-0.5 rounded-md">
+                    LIVE CONNECTION
+                  </span>
+                </div>
+
+                <div className="h-80 w-full" id="dau-chart-holder">
+                  {getDauTrendData().length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center border border-dashed border-zinc-300 rounded-xl bg-white p-6 text-center text-xs text-zinc-500 font-mono space-y-3">
+                      <p>No telemetry active logs detected in the 'users' collection yet.</p>
+                      <button
+                        type="button"
+                        onClick={handleSeedDauData}
+                        className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-mono uppercase text-[9.5px] font-extrabold rounded-lg inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
+                      >
+                        <Activity className="w-3.5 h-3.5 text-[#9DFF00]" />
+                        Generate simulated historical datasets
+                      </button>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={getDauTrendData()}
+                        margin={{ top: 15, right: 10, left: -25, bottom: 5 }}
+                      >
+                        <defs>
+                          <linearGradient id="colorDau" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.18}/>
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.01}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis 
+                          dataKey="date" 
+                          stroke="#71717a" 
+                          fontSize={10} 
+                          fontFamily="monospace"
+                          tickLine={false}
+                        />
+                        <YAxis 
+                          stroke="#71717a" 
+                          fontSize={10} 
+                          fontFamily="monospace"
+                          allowDecimals={false}
+                          tickLine={false}
+                        />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: '#0f172a', 
+                            border: 'none', 
+                            borderRadius: '12px',
+                            color: '#fff',
+                            fontFamily: 'monospace',
+                            fontSize: '11px'
+                          }}
+                          labelStyle={{ color: '#94a3b8' }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="DAU" 
+                          stroke="#10b981" 
+                          strokeWidth={2.5} 
+                          fillOpacity={1} 
+                          fill="url(#colorDau)" 
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </div>
+
+              {/* USER TELEMETRY RECORD LIST */}
+              <div className="bg-white border border-zinc-200 rounded-xl shadow-xs overflow-hidden">
+                <div className="bg-zinc-50 border-b border-zinc-200 px-4 py-3 flex items-center justify-between">
+                  <span className="font-mono text-[10px] font-bold text-slate-800 uppercase flex items-center gap-1">
+                    👥 Captured Active Peers Registry
+                  </span>
+                  <span className="text-[10px] font-mono font-medium text-zinc-500">
+                    Showing latest {usersData.length} checkpoints
+                  </span>
+                </div>
+
+                {usersData.length === 0 ? (
+                  <div className="p-8 text-center text-xs text-zinc-400 font-mono">
+                    No active daily logs found. Connect with seeds above.
+                  </div>
+                ) : (
+                  <div className="max-h-72 overflow-y-auto divide-y divide-zinc-150">
+                    {usersData.slice().sort((a,b) => (b.lastActive || '').localeCompare(a.lastActive || '')).map((user, idx) => (
+                      <div key={user.uid || idx} className="px-4 py-3 flex items-center justify-between text-xs font-mono transition-colors hover:bg-zinc-50/50">
+                        <div className="space-y-0.5">
+                          <p className="font-extrabold text-slate-900 uppercase">{user.fullName || 'Anonymous Leader'}</p>
+                          <p className="text-[10px] text-zinc-400 font-normal">{user.email || 'no-email@csuite.coach'}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="px-2 py-0.5 bg-zinc-100 text-zinc-700 text-[9.5px] rounded border border-zinc-250">
+                            🟢 Active Date: {user.lastActive || 'Unknown'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Quick instructions block */}

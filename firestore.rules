@@ -36,6 +36,28 @@ service cloud.firestore {
       return resource.data;
     }
 
+    // Validation Blueprint for User Profiles tracking activity
+    function isValidUserProfile(data) {
+      return data.uid is string && data.uid.size() <= 128 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.fullName is string && data.fullName.size() <= 200 &&
+             data.lastActive is string && data.lastActive.size() <= 50;
+    }
+
+    // Validation Blueprint for Blog Posts
+    function isValidBlogPost(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.title is string && data.title.size() <= 300 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.summary is string && data.summary.size() <= 2000 &&
+             data.content is string && data.content.size() <= 100000 &&
+             data.imageUrl is string && data.imageUrl.size() <= 1000 &&
+             data.author is string && data.author.size() <= 200 &&
+             data.readTime is string && data.readTime.size() <= 50 &&
+             data.isFeatured is bool &&
+             data.createdAt is timestamp;
+    }
+
     // Validation Blueprint for User Registration Profile
     function isValidUserRegistration(data) {
       return data.uid is string && data.uid.size() <= 128 &&
@@ -244,6 +266,23 @@ service cloud.firestore {
     match /siteSettings/{settingsId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // Daily active users tracking collection
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, update: if isOwner(userId) && isValidUserProfile(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /users {
+      allow list: if isAdmin();
+    }
+
+    // Blog posts collection (Public read, admin write)
+    match /blogPosts/{postId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidBlogPost(incoming());
     }
   }
 }
